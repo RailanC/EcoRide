@@ -1,3 +1,7 @@
+#env
+/.env
+/.env.dev
+
 # Cache and logs (Symfony2)
 /app/cache/*
 /app/logs/*
