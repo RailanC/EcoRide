@@ -1,0 +1,156 @@
+{% extends 'base.html.twig' %}
+{% block body %}
+<div class="container py-4 py-lg-5">
+
+    <div class="row align-items-center mb-5">
+        <div class="col-12 col-lg-6 d-none d-lg-flex order-2 order-lg-1">
+            <img src="{{ asset('images/van-hero.png') }}"
+                class="img-fluid rounded-4 shadow"
+                alt="EcoRide Van" />
+        </div>
+        <div class="col-12 col-lg-6 order-1 order-lg-2">
+            <h1 class="display-4 fw-bold text-center text-lg-start mt-3 mt-lg-0">
+                Conduire en groupe est bien mieux.
+            </h1>
+        </div>
+    </div>
+
+    <div class="mb-5">
+        <p class="search-eyebrow">Où souhaitez-vous aller ?</p>
+
+        <div class="trip-toggle mb-3">
+            <button class="trip-btn active" onclick="setTrip(this, false)" type="button">Aller simple</button>
+            <button class="trip-btn" onclick="setTrip(this, true)" type="button">Aller-retour</button>
+        </div>
+
+        <div class="search-pill">
+            <form method="get" class="search-form">
+
+                <div class="search-field">
+                    <span class="field-label">Départ</span>
+                    <span class="field-icon">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/>
+                        </svg>
+                    </span>
+                    <input type="text" name="from" id="from" placeholder="Ville ou aéroport" autocomplete="off" class="form-control" />
+                </div>
+
+                <div class="search-field search-field--swap">
+                    <button type="button" class="swap-btn" onclick="swapCities(event)" title="Inverser">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M7 16V4m0 0L3 8m4-4l4 4M17 8v12m0 0l4-4m-4 4l-4-4"/>
+                        </svg>
+                    </button>
+                </div>
+
+                <div class="search-field">
+                    <span class="field-label">Destination</span>
+                    <span class="field-icon">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
+                        </svg>
+                    </span>
+                    <input type="text" name="to" id="to" placeholder="Ville ou aéroport" autocomplete="off" class="form-control" />
+                </div>
+
+                <div class="search-field">
+                    <span class="field-label">Date de départ</span>
+                    <span class="field-icon">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+                        </svg>
+                    </span>
+                    <input type="date" name="date" id="departure-date" class="form-control" value="{{ 'now'|date('Y-m-d') }}" />
+                </div>
+
+                <div class="search-field search-field--disabled" id="return-field">
+                    <span class="field-label">Retour</span>
+                    <span class="field-icon">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+                        </svg>
+                    </span>
+                    <input type="date" name="return_date" id="return-date" class="form-control" />
+                </div>
+
+                <div class="search-field">
+                    <span class="field-label">Voyageurs</span>
+                    <span class="field-icon">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                        </svg>
+                    </span>
+                    <select name="passengers" class="form-select">
+                        <option value="1">1 passager</option>
+                        <option value="2">2 passagers</option>
+                        <option value="3">3 passagers</option>
+                        <option value="4">4 passagers</option>
+                        <option value="5">5+ passagers</option>
+                    </select>
+                    <span class="select-chevron">
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="6 9 12 15 18 9"/>
+                        </svg>
+                    </span>
+                </div>
+
+                <button type="submit" class="btn-search">
+                    Rechercher
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                    </svg>
+                </button>
+
+            </form>
+        </div>
+    </div>
+
+    <div class="row align-items-center mb-5 d-none d-lg-flex">
+        <div class="col-lg-6 pe-lg-5">
+            <h2 class="display-5 fw-bold mb-3">
+                Conduire en groupe est bien mieux.
+            </h2>
+            <p class="text-muted">
+                Lorem Ipsum is simply dummy text of the printing and
+                typesetting industry. Lorem Ipsum has been the industry's
+                standard dummy text ever since the 1500s.
+            </p>
+        </div>
+        <div class="col-lg-6">
+            <img src="{{ asset('images/van-side.png') }}"
+                class="img-fluid rounded-4 shadow"
+                alt="EcoRide Experience" />
+        </div>
+    </div>
+
+    {# ── Contact Form ── #}
+    <div class="row justify-content-center pt-4">
+        <div class="col-12 col-md-8 col-lg-6">
+            <div class="contact-card">
+                <h3 class="contact-title">Nous contacter</h3>
+                <form>
+                    <div class="contact-field mb-3">
+                        <label class="contact-label">Nom</label>
+                        <input type="text" class="form-control contact-input" placeholder="Votre nom" />
+                    </div>
+                    <div class="contact-field mb-3">
+                        <label class="contact-label">Email</label>
+                        <input type="email" class="form-control contact-input" placeholder="votre@email.com" />
+                    </div>
+                    <div class="contact-field mb-3">
+                        <label class="contact-label">Message</label>
+                        <textarea class="form-control contact-input" rows="4" placeholder="Votre message…"></textarea>
+                    </div>
+                    <div class="text-center mt-4">
+                        <button type="submit" class="btn btn-vert px-5 rounded-pill fw-semibold">
+                            Envoyer
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}
