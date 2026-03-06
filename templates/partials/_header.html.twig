@@ -1,0 +1,49 @@
+<header class="p-3 mb-3 border-bottom">
+    <div class="container">
+        <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
+            <a class="navbar-brand" href="{{ path('app') }}">
+                <img src="{{ asset('images/logo.png') }}"
+                    alt="Logo"
+                    width="100"
+                    height="45"
+                    class="d-inline-block align-text-top" />
+            </a>
+            <ul class="nav col-auto ms-auto mb-2 mb-md-0 me-lg-3">
+                <li>
+                    <button class="btn btn-vert">Proposer un trajet</button>
+                </li>
+            </ul>
+            <div class="dropdown text-end">
+                {% if app.user %}
+                    <a href="#"
+                        class="d-block link-body-emphasis text-decoration-none dropdown-toggle"
+                        data-bs-toggle="dropdown"
+                        aria-expanded="false">
+                        <img src="https://github.com/mdo.png"
+                            alt="mdo"
+                            width="32"
+                            height="32"
+                            class="rounded-circle" />
+                    </a>
+                {% else %}
+                    <a href="#"
+                        class="d-block link-body-emphasis text-decoration-none">
+                        <i class="bi bi-person-circle fs-4"></i>
+                    </a>
+                {% endif %}
+                <div class="dropdown text-end">
+                    <ul class="dropdown-menu dropdown-menu-end text-small shadow">
+                        <li>
+                            <a class="dropdown-item" href="#">Paramètres</a>
+                        </li>
+                        <li><a class="dropdown-item" href="#">Profil</a></li>
+                        <li><hr class="dropdown-divider" /></li>
+                        <li>
+                            <a class="dropdown-item" href="#">Déconnexion</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
