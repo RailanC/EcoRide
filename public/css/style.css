@@ -6,7 +6,6 @@
     --marron-clair: #7B4425;
     --marron: #63371E;
 
-    /* Search pill tokens */
     --pill-radius: 18px;
     --pill-shadow: 0 4px 32px rgba(40, 67, 10, 0.10), 0 1px 4px rgba(0,0,0,0.04);
     --field-hover: rgba(94, 188, 103, 0.08);
@@ -26,8 +25,6 @@ body {
     background-color: white !important;
 }
 
-/* ── Buttons ─────────────────────────────────────── */
-
 .btn-vert {
     background-color: var(--vert) !important;
     border-color: var(--vert);
@@ -41,8 +38,6 @@ body {
     color: white;
 }
 
-/* ── Search eyebrow ──────────────────────────────── */
-
 .search-eyebrow {
     font-style: italic;
     font-size: 1rem;
@@ -50,8 +45,6 @@ body {
     margin-bottom: 0.75rem;
     padding-left: 0.25rem;
 }
-
-/* ── Trip toggle ─────────────────────────────────── */
 
 .trip-toggle {
     display: flex;
@@ -83,8 +76,6 @@ body {
     color: var(--vert-fort);
 }
 
-/* ── Search pill ─────────────────────────────────── */
-
 .search-pill {
     border: 1.5px solid var(--vert);
     border-radius: var(--pill-radius);
@@ -93,17 +84,8 @@ body {
     overflow: hidden;
 }
 
-.search-form {
-    display: flex !important;
-    align-items: stretch;
-    flex-wrap: nowrap;
-}
-
-/* ── Search fields ───────────────────────────────── */
 
 .search-field {
-    flex: 1;
-    min-width: 0;
     position: relative;
     display: flex;
     align-items: center;
@@ -111,6 +93,13 @@ body {
     border-right: 1px solid var(--border-color);
     cursor: text;
     transition: background 0.18s;
+
+    border-bottom: 1px solid var(--border-color);
+}
+
+
+.search-field.border-bottom-lg-0 {
+    border-bottom: none; 
 }
 
 .search-field:hover {
@@ -121,11 +110,20 @@ body {
     background: var(--field-hover);
 }
 
-/* Floating label */
+.search-field:last-of-type {
+    border-right: none;
+}
+
+@media (min-width: 992px) {
+    .search-field {
+        border-bottom: none;
+    }
+}
+
 .field-label {
     position: absolute;
     top: 0.45rem;
-    left: 1rem;
+    left: 2.4rem; 
     font-size: 0.62rem;
     font-weight: 700;
     letter-spacing: 0.08em;
@@ -133,12 +131,6 @@ body {
     color: var(--vert-semi-fort);
     pointer-events: none;
     line-height: 1;
-}
-
-/* Adjust label left when icon is present */
-.search-field .field-icon ~ .field-label,
-.field-icon + .field-label {
-    left: 2.4rem;
 }
 
 .field-icon {
@@ -150,7 +142,6 @@ body {
     align-items: center;
 }
 
-/* Inputs & selects */
 .search-field .form-control,
 .search-field .form-select {
     border: none !important;
@@ -188,14 +179,12 @@ body {
     cursor: pointer;
 }
 
-/* Disabled / inactive return field */
 .search-field--disabled {
     opacity: 0.4;
     pointer-events: none;
     transition: opacity 0.2s;
 }
 
-/* Chevron for select */
 .select-chevron {
     position: absolute;
     right: 0.75rem;
@@ -205,16 +194,14 @@ body {
     pointer-events: none;
 }
 
-/* ── Swap button field ───────────────────────────── */
-
 .search-field--swap {
-    flex: 0;
+    flex: 0 !important;
     padding: 0;
     min-width: unset;
     align-items: center;
     justify-content: center;
-    border-right: 1px solid var(--border-color);
     overflow: visible;
+    border-bottom: none;
 }
 
 .swap-btn {
@@ -242,26 +229,30 @@ body {
     box-shadow: 0 2px 8px rgba(94, 188, 103, 0.35);
 }
 
-/* ── Search button ───────────────────────────────── */
-
 .btn-search {
-    flex-shrink: 0;
     background: var(--vert);
     color: white;
     border: none;
-    border-radius: 0 16px 16px 0;
-    padding: 0 1.6rem;
+    padding: 0.75rem 1.6rem;
     font-size: 0.9rem;
     font-weight: 600;
     cursor: pointer;
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 0.5rem;
     white-space: nowrap;
     transition: background 0.18s, box-shadow 0.18s, transform 0.12s;
-    box-shadow: inset 0 0 0 0 rgba(255,255,255,0);
-    margin: 0.35rem;
-    border-radius: 12px;
+    border-radius: 0 0 16px 16px;
+    width: 100%;
+}
+
+@media (min-width: 992px) {
+    .btn-search {
+        border-radius: 0 16px 16px 0;
+        padding: 0 1.6rem;
+        width: auto;
+    }
 }
 
 .btn-search:hover {
@@ -282,7 +273,6 @@ body {
     transform: translateX(2px);
 }
 
-/* ── Contact card ────────────────────────────────── */
 
 .contact-card {
     border: 1.5px solid var(--vert);
@@ -321,42 +311,4 @@ body {
 .contact-input:focus {
     border-color: var(--vert) !important;
     box-shadow: 0 0 0 3px rgba(94, 188, 103, 0.15) !important;
-}
-
-/* ── Responsive ──────────────────────────────────── */
-
-@media (max-width: 768px) {
-    body {
-        margin: 0 4%;
-    }
-
-    .search-pill {
-        border-radius: 16px;
-    }
-
-    .search-form {
-        flex-direction: column !important;
-    }
-
-    .search-field {
-        border-right: none;
-        border-bottom: 1px solid var(--border-color);
-        min-width: unset;
-    }
-
-    .search-field:last-of-type {
-        border-bottom: none;
-    }
-
-    .search-field--swap {
-        display: none;
-    }
-
-    .btn-search {
-        margin: 0.5rem;
-        padding: 0.8rem;
-        justify-content: center;
-        border-radius: 10px;
-        width: calc(100% - 1rem);
-    }
 }
