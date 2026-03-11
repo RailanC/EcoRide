@@ -1,0 +1,70 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Créer un covoiturage{% endblock %}
+
+{% block body %}
+<div class="container py-5">
+
+    <h1 class="mb-4 text-center">Créer un covoiturage</h1>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+                <form method="post">
+
+                    <div class="mb-3">
+                        <label class="form-label">Ville de départ</label>
+                        <input type="text" name="departure_city" class="form-control" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Ville d'arrivée</label>
+                        <input type="text" name="arrival_city" class="form-control" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Date de départ</label>
+                        <input type="date" name="departure_date" class="form-control" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Heure de départ</label>
+                        <input type="time" name="departure_time" class="form-control">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Prix (€)</label>
+                        <input type="number" name="price" class="form-control" min="0">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Places disponibles</label>
+                        <input type="number" name="seats" class="form-control" min="1">
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label">Voiture utilisée</label>
+                        <select class="form-select" name="car">
+                            <option value="">Choisir une voiture</option>
+                            {% for voiture in voitures %}
+                                <option value="{{ voiture.id }}">
+                                    {{ voiture.marque.libelle }} - {{ voiture.modele }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="text-center">
+                        <button class="btn btn-success px-4">
+                            Publier le covoiturage
+                        </button>
+                    </div>
+
+                </form>
+
+            </div>
+
+        </div>
+    </div>
+
+</div>
+{% endblock %}

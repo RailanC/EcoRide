@@ -15,7 +15,7 @@ class VoitureRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, Voiture::class);
     }
-
+    
     //    /**
     //     * @return Voiture[] Returns an array of Voiture objects
     //     */

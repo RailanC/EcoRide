@@ -16,6 +16,20 @@ class CovoiturageRepository extends ServiceEntityRepository
         parent::__construct($registry, Covoiturage::class);
     }
 
+    public function searchAvailableCovoiturages($departure, $arrival, $date)
+    {
+       return $this->createQueryBuilder('c')
+        ->where('c.lieu_depart = :departure')
+        ->andWhere('c.lieu_arrivee = :arrival')
+        ->andWhere('c.date_depart = :date')
+        ->andWhere('c.total_places > 0')
+        ->setParameter('departure', $departure)
+        ->setParameter('arrival', $arrival)
+        ->setParameter('date', $date)
+        ->orderBy('c.date_depart', 'ASC')
+        ->getQuery()
+        ->getResult();
+    }
     //    /**
     //     * @return Covoiturage[] Returns an array of Covoiturage objects
     //     */
