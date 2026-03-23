@@ -3,88 +3,82 @@
 {% block title %}Détails du covoiturage{% endblock %}
 
 {% block body %}
-<div class="container py-5">
+<div class="container py-5" style="max-width: 760px;">
 
-    <h1 class="mb-4">Détails du trajet</h1>
-
-    <div class="card shadow-sm p-4">
-
-        <div class="row mb-4">
-
-            <div class="col-md-8">
-                <h4>
-                    {{ covoiturage.lieuDepart }} → {{ covoiturage.lieuArrivee }}
-                </h4>
-
-                <p class="text-muted">
-                    {{ covoiturage.dateDepart|date('d/m/Y') }}
-                    à
-                    {{ covoiturage.dateDepart|date('H:i') }}
-                </p>
-            </div>
-
-            <div class="col-md-4 text-md-end">
-                <h3 class="text-success">
-                    {{ covoiturage.prixPersonne }} €
-                </h3>
-            </div>
-
-        </div>
-
-        <hr>
-
-        <div class="row mb-3">
-            <div class="col-md-6">
-                <strong>Places disponibles :</strong>
-                {{ covoiturage.totalPlaces }}
-            </div>
-
-            <div class="col-md-6">
-                <strong>Voiture :</strong>
-                {{ covoiturage.voiture.marque.libelle }}
-                {{ covoiturage.voiture.modele }}
-            </div>
-        </div>
-
-        <div class="row mb-3">
-
-            <div class="col-md-6">
-                <strong>Conducteur :</strong>
-                {{ covoiturage.utilisateur.pseudo }}
-            </div>
-
-            <div class="col-md-6">
-                <strong>Note :</strong>
-                ⭐ {{ covoiturage.utilisateur.note ?? 'N/A' }}
-            </div>
-
-        </div>
-
-        <div class="mb-3">
-            {% if covoiturage.voiture.energie == "Electrique" %}
-                <span class="badge bg-success">
-                    Trajet écologique ⚡
-                </span>
-            {% else %}
-                <span class="badge bg-secondary">
-                    Trajet standard
-                </span>
-            {% endif %}
-        </div>
-
-        <div class="mt-4">
-
-            <a href="{{ path('app_covoiturage') }}" class="btn btn-outline-secondary">
-                Retour
-            </a>
-
-            <a href="#" class="btn btn-success">
-                Réserver une place
-            </a>
-
-        </div>
-
+  <div class="travel-hero">
+    <div class="travel-hero-grid"></div>
+    <div class="travel-hero-content">
+      <div class="travel-hero-route">
+        {{ covoiturage.lieuDepart }}
+        <span class="arrow-icon">→</span>
+        {{ covoiturage.lieuArrivee }}
+      </div>
+      <div class="travel-hero-sub">
+        Trajet proposé par {{ covoiturage.utilisateur.pseudo }}
+      </div>
     </div>
+
+    <div class="travel-hero-dates">
+      📅 {{ covoiturage.dateDepart|date('d M Y à H:i') }}
+    </div>
+  </div>
+
+  <hr class="trips-divider">
+
+  <div class="section-header">
+    <span class="section-title">Informations</span>
+  </div>
+
+  <div class="contact-card">
+    <div class="row g-3">
+      <div class="col-md-6">
+        <label class="contact-label">Conducteur</label>
+        <div class="meta-item" style="font-size: 0.95rem;">
+          {{ covoiturage.utilisateur.pseudo }}
+        </div>
+      </div>
+
+      <div class="col-md-6">
+        <label class="contact-label">Note</label>
+        <div class="meta-item" style="font-size: 0.95rem;">
+          ⭐ {{ covoiturage.utilisateur.note ?? 'N/A' }}
+        </div>
+      </div>
+
+      <div class="col-md-6">
+        <label class="contact-label">Véhicule</label>
+        <div class="meta-item" style="font-size: 0.95rem;">
+          {{ covoiturage.voiture.marque.libelle }} {{ covoiturage.voiture.modele }}
+        </div>
+      </div>
+
+      <div class="col-md-6">
+        <label class="contact-label">Énergie</label>
+        <div class="meta-item" style="font-size: 0.95rem;">
+          {{ covoiturage.voiture.energie }}
+        </div>
+      </div>
+
+      <div class="col-12">
+        <label class="contact-label">Type de trajet</label>
+        {% if covoiturage.voiture.energie == "Electrique" %}
+          <span class="badge-eco">Trajet écologique ⚡</span>
+        {% else %}
+          <span class="btn-details">Trajet standard</span>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="mt-4 d-flex gap-2 flex-wrap">
+      <a href="{{ path('app_covoiturage') }}" class="btn-details text-decoration-none">
+        Retour
+      </a>
+
+      <a href="#" class="btn-search text-decoration-none" style="width:auto; border-radius: 12px; padding: 0.8rem 1.2rem;">
+        Réserver une place
+      </a>
+    </div>
+  </div>
 
 </div>
 {% endblock %}
