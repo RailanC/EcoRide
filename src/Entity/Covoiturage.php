@@ -226,4 +226,21 @@ class Covoiturage
 
         return $this;
     }
+
+    public function getDurationInMinutes(): ?int
+    {
+        if (!$this->heure_depart || !$this->heure_arrivee || !$this->date_depart || !$this->date_arrivee) {
+            return null;
+        }
+        $start = new \DateTime($this->date_depart->format('Y-m-d') . ' ' . $this->heure_depart->format('H:i:s'));
+        $end = new \DateTime($this->date_arrivee->format('Y-m-d') .' '. $this->heure_arrivee->format('H:i:s'));
+        
+        if ($end < $start) {
+            return null;
+        }
+
+        $duration = $start->diff($end);
+
+        return ($duration->days * 24 * 60) + ($duration->h * 60) + $duration->i;
+    }
 }

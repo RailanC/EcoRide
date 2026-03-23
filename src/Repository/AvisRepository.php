@@ -16,6 +16,29 @@ class AvisRepository extends ServiceEntityRepository
         parent::__construct($registry, Avis::class);
     }
 
+    public function getAverageRatingForUser(int $userId): ?float
+    {
+        return (float) $this->createQueryBuilder('a')
+            ->select('AVG(a.note)')
+            ->andWhere('a.utilisateur = :userId')
+            ->andWhere('a.status = :status')
+            ->setParameter('userId', $userId)
+            ->setParameter('status', 'VALIDE')
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
+    public function getValidatedReviewCountForUser(int $userId): int
+    {
+        return (int) $this->createQueryBuilder('a')
+            ->select('COUNT(a.id)')
+            ->andWhere('a.utilisateur = :userId')
+            ->andWhere('a.status = :status')
+            ->setParameter('userId', $userId)
+            ->setParameter('status', 'VALIDE')
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
     //    /**
     //     * @return Avis[] Returns an array of Avis objects
     //     */

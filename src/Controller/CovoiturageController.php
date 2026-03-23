@@ -15,16 +15,40 @@ final class CovoiturageController extends AbstractController
     #[Route('/covoiturages', name: 'app_covoiturage', methods: ['GET'])]
     public function index(Request $request, CovoiturageRepository $covoiturageRepository): Response
     {
-        $departure = $request->query->get('departure');
-        $arrival = $request->query->get('arrival');
-        $date = $request->query->get('date');
+        $departure   = $request->query->get('departure');
+        $arrival     = $request->query->get('arrival');
+        $date        = $request->query->get('date');
+        $passengers  = $request->query->get('passengers');
+        $passengers = ($passengers !== null && $passengers !== '') ? (int) $passengers : null;
+        $eco         = $request->query->getBoolean('eco');
+        $maxPrice = $request->query->get('max_price');
+        $maxPrice = ($maxPrice !== null && $maxPrice !== '') ? (float) $maxPrice : null;
+        $maxDuration = $request->query->get('max_duration');
+        $maxDuration = ($maxDuration !== null && $maxDuration !== '') ? (int) $maxDuration : null;
+        $minRating   = $request->query->get('min_rating');
+        $minRating = ($minRating !== null && $minRating !== '') ? (float) $minRating : null;
+        $hasFilters = $departure ||
+        $arrival ||
+        $date ||
+        $passengers ||
+        $eco ||
+        $maxPrice ||
+        $maxDuration ||
+        $minRating;
 
-        $covoiturages = [];
         
-        if ($departure || $arrival || $date) {
-           $covoiturages = $covoiturageRepository->searchAvailableCovoiturages($departure, $arrival, $date);
-        }
-        
+        $covoiturages = $hasFilters
+        ? $covoiturageRepository->searchAvailableCovoiturages(
+            $departure,
+            $arrival,
+            $date,
+            $passengers,
+            $eco,
+            $maxPrice,
+            $maxDuration,
+            $minRating
+        )
+        : $covoiturageRepository->findAvailableCovoiturages();
         
         return $this->render('covoiturage/index.html.twig', [
             'covoiturages' => $covoiturages,
