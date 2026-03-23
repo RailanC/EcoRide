@@ -41,7 +41,15 @@
       <div class="col-md-6">
         <label class="contact-label">Note</label>
         <div class="meta-item" style="font-size: 0.95rem;">
-          ⭐ {{ covoiturage.utilisateur.note ?? 'N/A' }}
+          <span class="meta-item">
+            ⭐
+            {% if covoiturage.utilisateur.averageValidatedRating is not null %}
+              {{ covoiturage.utilisateur.averageValidatedRating }}/5
+              ({{ covoiturage.utilisateur.validatedReviewCount }})
+            {% else %}
+              Pas encore noté
+            {% endif %}
+          </span>
         </div>
       </div>
 

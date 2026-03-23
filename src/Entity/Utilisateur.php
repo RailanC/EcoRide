@@ -322,4 +322,28 @@ class Utilisateur
 
         return $this;
     }
+
+    public function getAverageValidatedRating(): ?float
+    {
+        $validated = array_filter($this->avis->toArray(), function ($avis) {
+            return $avis->getStatus() === 'VALIDE';
+        });
+
+        if (count($validated) === 0) {
+            return null;
+        }
+
+        $sum = array_reduce($validated, function ($carry, $avis) {
+            return $carry + $avis->getNote();
+        }, 0);
+
+        return round($sum / count($validated), 1);
+    }
+
+    public function getValidatedReviewCount(): int
+    {
+        return count(array_filter($this->avis->toArray(), function ($avis) {
+            return $avis->getStatus() === 'VALIDE';
+        }));
+    }
 }

@@ -515,7 +515,6 @@ main,
     color: var(--text);
 }
 
-/* EMPTY / DIVIDER */
 .empty-state {
     text-align: center;
     padding: 4rem 2rem;
@@ -534,4 +533,23 @@ main,
     border: none;
     border-top: 1px solid rgba(35, 64, 84, 0.18);
     margin: 1.5rem 0;
+}
+
+.form-check-input {
+    background-color: var(--surface-alt);
+    border: 1px solid var(--border);
+}
+
+.form-check-input:checked {
+    background-color: var(--accent);
+    border-color: var(--accent);
+}
+
+.form-check-label {
+    color: var(--text);
+}
+
+input::placeholder{
+    color: var(--text-muted) !important;
+    opacity: 1;
 }
