@@ -1,0 +1,18 @@
+<h1>Confirmez votre adresse email</h1>
+
+<p>Bonjour,</p>
+
+<p>Merci pour votre inscription sur EcoRide.</p>
+
+<p>
+    Cliquez sur le lien ci-dessous pour confirmer votre adresse email :
+</p>
+
+<p>
+    <a href="{{ signedUrl }}">Confirmer mon email</a>
+</p>
+
+<p>
+    Ce lien expire dans
+    {{ expiresAtMessageKey|trans(expiresAtMessageData, 'VerifyEmailBundle') }}.
+</p>
