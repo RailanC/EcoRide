@@ -21,3 +21,25 @@ function swapCities(e) {
 
 window.setTrip = setTrip;
 window.swapCities = swapCities;
+
+function initNavbarTogglerFallback() {
+    const navbarToggler = document.querySelector('.navbar-toggler');
+    const mainNavbar = document.getElementById('mainNavbar');
+
+    if (!navbarToggler || !mainNavbar) {
+        return;
+    }
+
+    if (window.bootstrap && window.bootstrap.Collapse) {
+        return;
+    }
+
+    navbarToggler.addEventListener('click', event => {
+        event.preventDefault();
+
+        const isOpen = mainNavbar.classList.toggle('show');
+        navbarToggler.setAttribute('aria-expanded', String(isOpen));
+    });
+}
+
+document.addEventListener('DOMContentLoaded', initNavbarTogglerFallback);

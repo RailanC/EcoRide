@@ -502,6 +502,7 @@ main,
     font-size: 0.78rem;
     font-weight: 600;
     color: var(--text);
+    align-content: center;
     background: rgba(255,255,255,0.06);
     border: 1px solid rgba(255,255,255,0.08);
     border-radius: 8px;

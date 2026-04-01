@@ -4,8 +4,10 @@
 
 {% block body %}
 <div class="container py-5" style="max-width: 760px;">
-
-  <div class="travel-hero">
+  <a href="{{ path('app_covoiturage') }}" class="btn-details text-decoration-none">
+      Retour
+  </a>
+  <div class="travel-hero mt-2">
     <div class="travel-hero-grid"></div>
     <div class="travel-hero-content">
       <div class="travel-hero-route">
@@ -75,16 +77,27 @@
           <span class="btn-details">Trajet standard</span>
         {% endif %}
       </div>
-    </div>
-
-    <div class="mt-4 d-flex gap-2 flex-wrap">
-      <a href="{{ path('app_covoiturage') }}" class="btn-details text-decoration-none">
-        Retour
-      </a>
-
-      <a href="#" class="btn-search text-decoration-none" style="width:auto; border-radius: 12px; padding: 0.8rem 1.2rem;">
-        Réserver une place
-      </a>
+      <div class="col-12">
+        {% if app.user %}
+          {% if participation %}
+              <p>Vous participez déjà à ce trajet.</p>
+          {% elseif covoiturage.totalPlaces > 0 %}
+              <a href="{{ path('app_covoiturage_participer', {id: covoiturage.id}) }}" class="w-50 btn btn-vert">
+                  Participer
+              </a>    
+          {% else %}
+              <p>Plus de places disponibles.</p>
+          {% endif %}
+        {% else %}
+            <a href="{{ path('app_login') }}" class="btn btn-vert w-50">Se connecter pour participer</a>
+        {% endif %}
+        {% for message in app.flashes('error') %}
+          <div class="alert alert-danger">{{ message }}</div>
+        {% endfor %}
+        {% for message in app.flashes('success') %}
+          <div class="alert alert-success">{{ message }}</div>
+        {% endfor %}
+      </div>
     </div>
   </div>
 
