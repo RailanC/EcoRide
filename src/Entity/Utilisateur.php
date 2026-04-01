@@ -7,9 +7,13 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 
 #[ORM\Entity(repositoryClass: UtilisateurRepository::class)]
-class Utilisateur
+#[UniqueEntity(fields: ['email'], message: 'There is already an account with this email')]
+class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -43,14 +47,13 @@ class Utilisateur
     #[ORM\Column(length: 50)]
     private ?string $pseudo = null;
 
+    #[ORM\Column]
+    private array $roles = [];
     /**
      * @var Collection<int, Participation>
      */
     #[ORM\OneToMany(targetEntity: Participation::class, mappedBy: 'utilisateur')]
     private Collection $participations;
-
-    #[ORM\ManyToOne(inversedBy: 'utilisateurs')]
-    private ?Role $role = null;
 
     /**
      * @var Collection<int, Voiture>
@@ -69,6 +72,12 @@ class Utilisateur
      */
     #[ORM\OneToMany(targetEntity: Avis::class, mappedBy: 'utilisateur')]
     private Collection $avis;
+
+    #[ORM\Column]
+    private bool $isVerified = false;
+
+    #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2)]
+    private ?string $Credit = null;
 
     public function __construct()
     {
@@ -119,7 +128,7 @@ class Utilisateur
         return $this;
     }
 
-    public function getPassword(): ?string
+    public function getPassword(): string
     {
         return $this->password;
     }
@@ -217,18 +226,6 @@ class Utilisateur
                 $participation->setUtilisateur(null);
             }
         }
-
-        return $this;
-    }
-
-    public function getRole(): ?Role
-    {
-        return $this->role;
-    }
-
-    public function setRole(?Role $role): static
-    {
-        $this->role = $role;
 
         return $this;
     }
@@ -345,5 +342,53 @@ class Utilisateur
         return count(array_filter($this->avis->toArray(), function ($avis) {
             return $avis->getStatus() === 'VALIDE';
         }));
+    }
+
+    public function getUserIdentifier(): string
+    {
+        return $this->email;
+    }
+
+    public function eraseCredentials(): void
+    {
+        // clear temporary sensitive data if needed
+    }
+
+    public function getRoles(): array
+    {
+        $roles = $this->roles;
+        $roles[] = 'ROLE_USER';
+        return array_unique($roles);
+    }
+
+    public function setRoles(array $roles): static
+    {
+        $this->roles = $roles;
+
+        return $this;
+    }
+
+    public function isVerified(): bool
+    {
+        return $this->isVerified;
+    }
+
+    public function setIsVerified(bool $isVerified): static
+    {
+        $this->isVerified = $isVerified;
+
+        return $this;
+    }
+
+    public function getCredit(): ?string
+    {
+        return $this->Credit;
+    }
+
+    public function setCredit(string $Credit): static
+    {
+        $this->Credit = $Credit;
+
+        return $this;
     }
 }
