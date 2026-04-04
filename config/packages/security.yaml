@@ -7,7 +7,7 @@ security:
     providers:
         app_user_provider:
             entity:
-                class: App\Entity\Utilisateur
+                class: App\Entity\User
                 property: email
         users_in_memory: { memory: null }
 

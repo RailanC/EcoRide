@@ -53,10 +53,10 @@
                 <div class="contact-card text-center mb-4" style="padding:2rem 1.5rem;">
                     <div class="mx-auto mb-3 d-flex align-items-center justify-content-center fw-bold"
                          style="width:80px;height:80px;border-radius:20px;background:linear-gradient(135deg,#263446,#1a1d27);border:1px solid rgba(255,255,255,.08);font-family:'Sora',sans-serif;font-size:1.6rem;color:var(--text-muted);">
-                        {{ app.user.prenom|first|upper }}{{ app.user.nom|first|upper }}
+                        {{ app.user.firstName|first|upper }}{{ app.user.lastName|first|upper }}
                     </div>
                     <p class="fw-bold mb-0" style="font-family:'Sora',sans-serif;font-size:1.1rem;">
-                        {{ app.user.prenom }} {{ app.user.nom }}
+                        {{ app.user.firstName }} {{ app.user.lastName }}
                     </p>
                     <p style="font-size:.82rem;color:var(--text-muted);margin-top:.2rem;">
                         {{ app.user.email }}
@@ -78,10 +78,10 @@
 
                     <div class="row g-3 mb-3">
                         <div class="col-6">
-                            {{ form_row(profileForm.prenom) }}
+                            {{ form_row(profileForm.firstName) }}
                         </div>
                         <div class="col-6">
-                            {{ form_row(profileForm.nom) }}
+                            {{ form_row(profileForm.lastName) }}
                         </div>
                     </div>
 
@@ -100,7 +100,7 @@
                     </div>
 
                     <div class="mb-3">
-                        {{ form_label(profileForm.telephone) }}
+                        {{ form_label(profileForm.phone) }}
                         <div class="position-relative">
                             <span class="position-absolute d-flex align-items-center"
                                   style="left:.85rem;top:50%;transform:translateY(-50%);color:var(--vert);pointer-events:none;">
@@ -108,13 +108,13 @@
                                     <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.4 2 2 0 0 1 3.58 1.22h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.77a16 16 0 0 0 6.29 6.29l1.84-1.84a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/>
                                 </svg>
                             </span>
-                            {{ form_widget(profileForm.telephone )}}
+                            {{ form_widget(profileForm.phone )}}
                         </div>
-                        {{ form_errors(profileForm.telephone)}}
+                        {{ form_errors(profileForm.phone)}}
                     </div>
 
                     <div class="mb-3">
-                        {{ form_label(profileForm.adresse) }}
+                        {{ form_label(profileForm.address) }}
                         <div class="position-relative">
                             <span class="position-absolute d-flex align-items-center"
                                   style="left:.85rem;top:50%;transform:translateY(-50%);color:var(--vert);pointer-events:none;">
@@ -122,9 +122,9 @@
                                     <path d="M8.707 1.5a1 1 0 0 0-1.414 0L.646 8.146a.5.5 0 0 0 .708.708L2 8.207V13.5A1.5 1.5 0 0 0 3.5 15h9a1.5 1.5 0 0 0 1.5-1.5V8.207l.646.647a.5.5 0 0 0 .708-.708L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293zM13 7.207V13.5a.5.5 0 0 1-.5.5h-9a.5.5 0 0 1-.5-.5V7.207l5-5z"/>
                                 </svg>
                             </span>
-                            {{ form_widget(profileForm.adresse )}}
+                            {{ form_widget(profileForm.address )}}
                         </div>
-                        {{ form_errors(profileForm.adresse)}}
+                        {{ form_errors(profileForm.address)}}
                     </div>
 
                     <div class="mb-0">
@@ -180,6 +180,16 @@
                         </div>
                         {{ form_errors(profileForm.newPassword.second) }}
                     </div>
+                </div>
+
+                <div class="contact-card mt-4" style="border-color:rgba(220,53,69,.22);">
+                    <h2 class="contact-title" style="font-size:1rem;text-align:left;color:#f28b82;">Zone sensible</h2>
+                    <p style="font-size:.88rem;color:var(--text-muted);margin-bottom:1rem;">
+                        Supprimer votre compte effacera votre profil et vos vehicules. Cette action est irreversible.
+                    </p>
+                    <button type="submit" form="delete-profile-form" class="btn btn-outline-danger rounded-pill px-4">
+                        Supprimer mon compte
+                    </button>
                 </div>
 
             </div>{# /col left #}
@@ -271,28 +281,28 @@
 
                         {# Vehicle collection with custom rendering #}
                         <div id="vehicleList" class="vehicle-collection">
-                            {% for vehicleForm in profileForm.voitures %}
+                            {% for vehicleForm in profileForm.vehicles %}
                                 <div class="vehicle-block mb-4" style="border:1px solid rgba(255,255,255,.07);border-radius:var(--radius-sm);padding:1.25rem;background:rgba(15,17,23,.5);" 
                                 data-index="{{ loop.index0 }}"
                                 data-existing="{{ vehicleForm.vars.data.id ? '1' : '0' }}">
                                     <div class="row g-3">
                                         <div class="col-12 col-sm-6">
-                                            {{ form_row(vehicleForm.immatriculation) }}
+                                            {{ form_row(vehicleForm.registrationNumber) }}
                                         </div>
                                         <div class="col-12 col-sm-6">
-                                            {{ form_row(vehicleForm.date_premiere_immatriculation) }}
+                                            {{ form_row(vehicleForm.firstRegistrationDate) }}
                                         </div>
                                         <div class="col-12 col-sm-4">
-                                            {{ form_row(vehicleForm.marque) }}
+                                            {{ form_row(vehicleForm.brand) }}
                                         </div>
                                         <div class="col-12 col-sm-4">
-                                            {{ form_row(vehicleForm.modele) }}
+                                            {{ form_row(vehicleForm.model) }}
                                         </div>
                                         <div class="col-12 col-sm-4">
-                                            {{ form_row(vehicleForm.couleur) }}
+                                            {{ form_row(vehicleForm.color) }}
                                         </div>
                                         <div class="col-12 col-sm-4">
-                                            {{ form_row(vehicleForm.energie) }}
+                                            {{ form_row(vehicleForm.energyType) }}
                                         </div>
                                         <div class="col-12 col-sm-6">
                                             {{ form_row(vehicleForm.places) }}
@@ -403,9 +413,22 @@
                     </button>
                 </div>
 
+                <div class="contact-card mt-4 d-none" style="border-color:rgba(220,53,69,.22);">
+                    <h2 class="contact-title" style="font-size:1rem;text-align:left;color:#f28b82;">Zone sensible</h2>
+                    <p style="font-size:.88rem;color:var(--text-muted);margin-bottom:1rem;">
+                        Supprimer votre compte effacera votre profil et vos véhicules. Cette action est irréversible.
+                    </p>
+                    <button type="submit" form="delete-profile-form" class="btn btn-outline-danger rounded-pill px-4">
+                        Supprimer mon compte
+                    </button>
+                </div>
+
             </div>{# /col right #}
         </div>{# /row #}
     {{ form_end(profileForm) }}
+    <form id="delete-profile-form" method="post" action="{{ path('app_profile_delete') }}" onsubmit="return confirm('Voulez-vous vraiment supprimer votre compte ?');">
+        <input type="hidden" name="_token" value="{{ csrf_token('delete_profile') }}">
+    </form>
 </div>
 
 {# ── STYLESHEET ─────────────────────────────────── #}
@@ -416,10 +439,9 @@
 {# ── JAVASCRIPT ─────────────────────────────────────────────────── #}
 {% block javascript %}
     <script>
-        // Make marques available to JavaScript
-        window.AVAILABLE_MARQUES = {{ marques|map(m => m.libelle)|json_encode|raw }};
+        window.AVAILABLE_BRANDS = {{ brands|map(brand => brand.label)|json_encode|raw }};
     </script>
-    <script type="module" src="{{ asset('js/profile.js') }}"></script>
+    <script type="module" src="{{ asset('js/profile-page.js') }}"></script>
 {% endblock %}
 
 {% endblock %}

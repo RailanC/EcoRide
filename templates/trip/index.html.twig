@@ -1,0 +1,137 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+<div class="container py-5" style="max-width: 1300px;">
+  <form method="get" action="{{ path('app_covoiturage') }}" class="mb-4">
+    <div class="search-pill mb-3">
+      <div class="row g-0 align-items-stretch w-100">
+        <div class="col-6 col-lg search-field border-end-mobile">
+          <span class="field-label">Départ</span>
+          <input type="text" name="departure" id="from" placeholder="Ville de départ" autocomplete="off" class="form-control" value="{{ app.request.query.get('departure') }}" />
+        </div>
+        <div class="d-none d-lg-flex search-field search-field--swap col-lg-auto">
+          <button type="button" class="swap-btn" onclick="swapCities(event)" title="Inverser">⇄</button>
+        </div>
+        <div class="col-6 col-lg search-field">
+          <span class="field-label">Destination</span>
+          <input type="text" name="arrival" id="to" placeholder="Ville d’arrivée" autocomplete="off" class="form-control" value="{{ app.request.query.get('arrival') }}" />
+        </div>
+        <div class="col-6 col-lg search-field border-top-mobile">
+          <span class="field-label">Date de départ</span>
+          <input type="date" name="date" id="departure-date" class="form-control" value="{{ app.request.query.get('date') }}" />
+        </div>
+        <div class="col-12 col-lg search-field border-top-mobile">
+          <span class="field-label">Voyageurs</span>
+          <select name="passengers" class="form-select">
+            <option value="1" {{ app.request.query.get('passengers') == '1' ? 'selected' : '' }}>1 passager</option>
+            <option value="2" {{ app.request.query.get('passengers') == '2' ? 'selected' : '' }}>2 passagers</option>
+            <option value="3" {{ app.request.query.get('passengers') == '3' ? 'selected' : '' }}>3 passagers</option>
+            <option value="4" {{ app.request.query.get('passengers') == '4' ? 'selected' : '' }}>4 passagers</option>
+            <option value="5" {{ app.request.query.get('passengers') == '5' ? 'selected' : '' }}>5+ passagers</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="contact-card mb-4">
+      <div class="section-header mb-3">
+        <span class="section-title">Filtres avancés</span>
+        <span class="results-count">Affinez votre recherche</span>
+      </div>
+      <div class="row g-3">
+        <div class="col-md-6">
+          <label class="contact-label" for="max_price">Prix maximum (€)</label>
+          <input type="number" id="max_price" name="max_price" class="form-control contact-input" min="0" step="1" placeholder="Ex. 25" value="{{ app.request.query.get('max_price') }}">
+        </div>
+        <div class="col-md-6">
+          <label class="contact-label" for="max_duration">Durée maximale (min)</label>
+          <input type="number" id="max_duration" name="max_duration" class="form-control contact-input" min="1" step="1" placeholder="Ex. 120" value="{{ app.request.query.get('max_duration') }}">
+        </div>
+        <div class="col-md-6">
+          <label class="contact-label" for="min_rating">Note minimale</label>
+          <select id="min_rating" name="min_rating" class="form-select contact-input">
+            <option value="">Toutes</option>
+            <option value="1" {{ app.request.query.get('min_rating') == '1' ? 'selected' : '' }}>1+ / 5</option>
+            <option value="2" {{ app.request.query.get('min_rating') == '2' ? 'selected' : '' }}>2+ / 5</option>
+            <option value="3" {{ app.request.query.get('min_rating') == '3' ? 'selected' : '' }}>3+ / 5</option>
+            <option value="4" {{ app.request.query.get('min_rating') == '4' ? 'selected' : '' }}>4+ / 5</option>
+            <option value="4.5" {{ app.request.query.get('min_rating') == '4.5' ? 'selected' : '' }}>4.5+ / 5</option>
+          </select>
+        </div>
+        <div class="col-md-6">
+          <label class="contact-label" for="eco">Aspect écologique</label>
+          <div class="form-check mt-2">
+            <input class="form-check-input" type="checkbox" id="eco" name="eco" value="1" {{ app.request.query.get('eco') ? 'checked' : '' }}>
+            <label class="form-check-label" for="eco">Uniquement les trajets en voiture électrique</label>
+          </div>
+        </div>
+      </div>
+      <hr class="trips-divider">
+      <div class="d-flex flex-wrap gap-2 justify-content-between align-items-center">
+        <a href="{{ path('app_covoiturage') }}" class="btn-details text-decoration-none">Réinitialiser</a>
+        <button type="submit" class="btn-search" style="width:auto; border-radius: 12px; padding: 0.85rem 1.4rem;">Appliquer les filtres</button>
+      </div>
+    </div>
+  </form>
+
+  <div class="travel-hero">
+    <div class="travel-hero-content">
+      <div class="travel-hero-route">
+        {% if departure %}
+          {{ departure }} <span class="arrow-icon">→</span> {{ arrival }}
+        {% else %}
+          Tous les trajets
+        {% endif %}
+      </div>
+      <div class="travel-hero-sub">Trajets disponibles au départ de {{ departure ?: 'partout' }}</div>
+    </div>
+    {% if date %}<div class="travel-hero-dates">📅 {{ date|date('d M Y') }}</div>{% endif %}
+  </div>
+
+  <div class="section-header">
+    <span class="section-title">Trajets disponibles</span>
+    {% if trips is not empty %}
+      <span class="results-count">{{ trips|length }} résultat{{ trips|length > 1 ? 's' }}</span>
+    {% endif %}
+  </div>
+
+  {% if trips is empty %}
+    <div class="empty-state">
+      <div class="empty-state-icon">🚗</div>
+      <div class="empty-state-title">Aucun trajet trouvé</div>
+      <p style="font-size:0.88rem;">Aucun covoiturage disponible pour cette recherche.</p>
+    </div>
+  {% else %}
+    {% for trip in trips %}
+      <a href="{{ path('app_covoiturage_show', {id: trip.id}) }}" class="trip-card">
+        <div class="trip-card-left">
+          <div class="driver-avatar">{{ trip.driver.username|slice(0, 2) }}</div>
+          <div class="trip-info">
+            <div class="trip-route">{{ trip.departureLocation }} <span class="route-arrow">→</span> {{ trip.arrivalLocation }}</div>
+            <div class="trip-meta">
+              <span class="meta-item">🕐 {{ trip.departureTime|date('H:i') }} → {{ trip.arrivalTime|date('H:i') }}</span>
+              <span class="meta-item">{{ trip.departureDate|date('d M Y') }}</span>
+              <span class="meta-item">Durée: {{ trip.durationInMinutes }} min</span>
+              <span class="meta-dot"></span>
+              <span class="meta-item"><span class="seats-chip">💺 {{ trip.availableSeats }} place{{ trip.availableSeats > 1 ? 's' }}</span></span>
+              <span class="meta-dot"></span>
+              <span class="meta-item">{{ trip.driver.username }}</span>
+              {% if trip.vehicle and trip.vehicle.energyType in ['Electrique', 'Électrique'] %}
+                <span class="meta-dot"></span>
+                <span class="badge-eco">Éco</span>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+        <div class="trip-card-right">
+          <div>
+            <div class="trip-price">{{ trip.pricePerPerson }} €</div>
+            <div class="trip-price-label" style="text-align:right;">par personne</div>
+          </div>
+          <span class="btn-details">Détails</span>
+        </div>
+      </a>
+    {% endfor %}
+  {% endif %}
+</div>
+{% endblock %}

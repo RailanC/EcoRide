@@ -2,7 +2,7 @@
 
 namespace App\Controller;
 
-use App\Entity\Utilisateur;
+use App\Entity\User;
 use App\Form\RegistrationFormType;
 use App\Security\EmailVerifier;
 use Doctrine\ORM\EntityManagerInterface;
@@ -31,7 +31,7 @@ class RegistrationController extends AbstractController
         UserPasswordHasherInterface $userPasswordHasher,
         EntityManagerInterface $entityManager
     ): Response {
-        $user = new Utilisateur();
+        $user = new User();
         $form = $this->createForm(RegistrationFormType::class, $user);
         $form->handleRequest($request);
 
@@ -39,38 +39,40 @@ class RegistrationController extends AbstractController
             /** @var string $plainPassword */
             $plainPassword = $form->get('plainPassword')->getData();
 
-            $user->setPassword(
-                $userPasswordHasher->hashPassword($user, $plainPassword)
-            );
-
+            $user->setPassword($userPasswordHasher->hashPassword($user, $plainPassword));
             $user->setIsVerified(false);
 
-            if ($user->getTelephone() === null) {
-                $user->setTelephone('');
+            if ($user->getPhone() === null) {
+                $user->setPhone('');
             }
 
-            if ($user->getAdresse() === null) {
-                $user->setAdresse('');
+            if ($user->getAddress() === null) {
+                $user->setAddress('');
             }
 
-            if ($user->getPseudo() === null) {
-                $user->setPseudo($user->getPrenom() . $user->getNom());
+            if ($user->getUsername() === null) {
+                $user->setUsername($user->getFirstName() . $user->getLastName());
             }
 
             if ($user->getRoles() === []) {
                 $user->setRoles(['ROLE_USER']);
             }
 
-            if ($user->getDateNaissance() === null) {
-                $user->setDateNaissance(new \DateTime('2000-01-01'));
+            if ($user->getBirthDate() === null) {
+                $user->setBirthDate(new \DateTime('2000-01-01'));
             }
 
             if ($user->getPhoto() === null) {
                 $user->setPhoto('');
             }
 
+            if ($user->getType() === null) {
+                $user->setType('passenger');
+            }
+
             $user->setRoles(['ROLE_USER']);
-            $user->setCredit(20.00);
+            $user->setCreditBalance('20.00');
+
             $entityManager->persist($user);
             $entityManager->flush();
 
@@ -104,13 +106,15 @@ class RegistrationController extends AbstractController
 
         if (!$id) {
             $this->addFlash('verify_email_error', 'Identifiant de vérification manquant.');
+
             return $this->redirectToRoute('app_register');
         }
 
-        $user = $entityManager->getRepository(Utilisateur::class)->find($id);
+        $user = $entityManager->getRepository(User::class)->find($id);
 
-        if (!$user) {
+        if (!$user instanceof User) {
             $this->addFlash('verify_email_error', 'Utilisateur introuvable.');
+
             return $this->redirectToRoute('app_register');
         }
 

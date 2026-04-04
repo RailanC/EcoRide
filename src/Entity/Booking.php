@@ -2,11 +2,12 @@
 
 namespace App\Entity;
 
-use App\Repository\ParticipationRepository;
+use App\Repository\BookingRepository;
 use Doctrine\ORM\Mapping as ORM;
 
-#[ORM\Entity(repositoryClass: ParticipationRepository::class)]
-class Participation
+#[ORM\Entity(repositoryClass: BookingRepository::class)]
+#[ORM\Table(name: 'bookings')]
+class Booking
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -17,16 +18,18 @@ class Participation
     private ?bool $confirmation = null;
 
     #[ORM\Column]
-    private ?int $credits_utilise = null;
+    private ?int $creditsUsed = null;
 
     #[ORM\Column(length: 255)]
     private ?string $status = null;
 
-    #[ORM\ManyToOne(inversedBy: 'participations')]
-    private ?Utilisateur $utilisateur = null;
+    #[ORM\ManyToOne(inversedBy: 'bookings')]
+    #[ORM\JoinColumn(name: 'user_id', referencedColumnName: 'id', nullable: true)]
+    private ?User $user = null;
 
-    #[ORM\ManyToOne(inversedBy: 'participations')]
-    private ?Covoiturage $covoiturage = null;
+    #[ORM\ManyToOne(inversedBy: 'bookings')]
+    #[ORM\JoinColumn(name: 'trip_id', referencedColumnName: 'id', nullable: true)]
+    private ?Trip $trip = null;
 
     public function getId(): ?int
     {
@@ -45,14 +48,14 @@ class Participation
         return $this;
     }
 
-    public function getCreditsUtilise(): ?int
+    public function getCreditsUsed(): ?int
     {
-        return $this->credits_utilise;
+        return $this->creditsUsed;
     }
 
-    public function setCreditsUtilise(int $credits_utilise): static
+    public function setCreditsUsed(int $creditsUsed): static
     {
-        $this->credits_utilise = $credits_utilise;
+        $this->creditsUsed = $creditsUsed;
 
         return $this;
     }
@@ -69,26 +72,26 @@ class Participation
         return $this;
     }
 
-    public function getUtilisateur(): ?Utilisateur
+    public function getUser(): ?User
     {
-        return $this->utilisateur;
+        return $this->user;
     }
 
-    public function setUtilisateur(?Utilisateur $utilisateur): static
+    public function setUser(?User $user): static
     {
-        $this->utilisateur = $utilisateur;
+        $this->user = $user;
 
         return $this;
     }
 
-    public function getCovoiturage(): ?Covoiturage
+    public function getTrip(): ?Trip
     {
-        return $this->covoiturage;
+        return $this->trip;
     }
 
-    public function setCovoiturage(?Covoiturage $covoiturage): static
+    public function setTrip(?Trip $trip): static
     {
-        $this->covoiturage = $covoiturage;
+        $this->trip = $trip;
 
         return $this;
     }
