@@ -1,16 +1,16 @@
 <nav class="navbar navbar-expand-lg border-bottom p-3 mb-3 bg-white">
     <div class="container gap-3">
-        <a class="navbar-brand me-4" href="{{ path('app_home') }}">
+        <a class="navbar-brand me-4" href="{{ path('app_home') }}" data-turbo="false">
             <img src="{{ asset('images/logo.png') }}" alt="Logo" width="100" height="45" class="d-inline-block align-text-top" />
         </a>
 
         <div class="collapse navbar-collapse gap-lg-4" id="mainNavbar">
             <ul class="navbar-nav ms-auto align-items-lg-center gap-2 gap-lg-4 mb-3 mb-lg-0">
                 <li class="nav-item">
-                    <a href="{{ path('app_covoiturage_new') }}" class="btn btn-vert w-100 w-lg-auto">Proposer un trajet</a>
+                    <a href="{{ path('app_covoiturage_new') }}" class="btn btn-vert w-100 w-lg-auto" data-turbo="false">Proposer un trajet</a>
                 </li>
                 <li class="nav-item">
-                    <a href="{{ path('app_contact') }}" class="nav-link link-body-emphasis">Contact</a>
+                    <a href="{{ path('app_contact') }}" class="nav-link link-body-emphasis" data-turbo="false">Contact</a>
                 </li>
             </ul>
         </div>
@@ -27,12 +27,11 @@
                 </a>
                 <ul class="dropdown-menu dropdown-menu-end text-small shadow">
                     {% if app.user %}
-                        <li><a class="dropdown-item" href="#">Paramètres</a></li>
-                        <li><a class="dropdown-item" href="#">Profil</a></li>
+                        <li><a class="dropdown-item" href="{{ path('app_profile') }}" data-turbo="false">Profil</a></li>
                         <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item" href="{{ path('app_logout') }}">Déconnexion</a></li>
+                        <li><a class="dropdown-item" href="{{ path('app_logout') }}" data-turbo="false">Déconnexion</a></li>
                     {% else %}
-                        <li><a class="dropdown-item" href="{{ path('app_login') }}">Connexion</a></li>
+                        <li><a class="dropdown-item" href="{{ path('app_login') }}" data-turbo="false">Connexion</a></li>
                     {% endif %}
                 </ul>
             </div>

@@ -58,7 +58,7 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @var Collection<int, Voiture>
      */
-    #[ORM\OneToMany(targetEntity: Voiture::class, mappedBy: 'utilisateur')]
+    #[ORM\OneToMany(targetEntity: Voiture::class, mappedBy: 'utilisateur', cascade: ['persist', 'remove'], orphanRemoval: true)]
     private Collection $voitures;
 
     /**
@@ -78,6 +78,9 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2)]
     private ?string $Credit = null;
+
+    #[ORM\Column(length: 255)]
+    private ?string $type = null;
 
     public function __construct()
     {
@@ -388,6 +391,18 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
     public function setCredit(string $Credit): static
     {
         $this->Credit = $Credit;
+
+        return $this;
+    }
+
+    public function getType(): ?string
+    {
+        return $this->type;
+    }
+
+    public function setType(string $type): static
+    {
+        $this->type = $type;
 
         return $this;
     }

@@ -43,6 +43,12 @@ class Voiture
     #[ORM\OneToMany(targetEntity: Covoiturage::class, mappedBy: 'voiture')]
     private Collection $covoiturages;
 
+    #[ORM\Column(type: 'integer', nullable: true)]
+    private ?int $places = null;
+
+    #[ORM\Column(type: 'json', nullable: true)]
+    private ?array $preferences = null;
+
     public function __construct()
     {
         $this->covoiturages = new ArrayCollection();
@@ -164,6 +170,38 @@ class Voiture
                 $covoiturage->setVoiture(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getPlaces(): ?int
+    {
+        return $this->places;
+    }
+
+    public function setPlaces(?int $places): static
+    {
+        $this->places = $places;
+
+        return $this;
+    }
+
+    public function getPreferences(): ?array
+    {
+        return $this->preferences ?? [
+        'smoking' => 0,
+        'animals' => 0,
+        'custom' => [],
+        ];
+    }
+
+    public function setPreferences(?array $preferences): static
+    {
+        $this->preferences = $preferences ?? [
+        'smoking' => 0,
+        'animals' => 0,
+        'custom' => [],
+        ];
 
         return $this;
     }
