@@ -2,7 +2,7 @@
 
 namespace App\Form;
 
-use App\Entity\Utilisateur;
+use App\Entity\User;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
@@ -21,7 +21,7 @@ class RegistrationFormType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('prenom', TextType::class, [
+            ->add('firstName', TextType::class, [
                 'label' => 'Prénom',
                 'required' => true,
                 'attr' => [
@@ -29,7 +29,7 @@ class RegistrationFormType extends AbstractType
                     'autocomplete' => 'given-name',
                 ],
             ])
-            ->add('nom', TextType::class, [
+            ->add('lastName', TextType::class, [
                 'label' => 'Nom',
                 'required' => true,
                 'attr' => [
@@ -45,7 +45,7 @@ class RegistrationFormType extends AbstractType
                     'autocomplete' => 'email',
                 ],
             ])
-            ->add('telephone', TelType::class, [
+            ->add('phone', TelType::class, [
                 'label' => 'Téléphone',
                 'required' => false,
                 'empty_data' => '',
@@ -83,7 +83,7 @@ class RegistrationFormType extends AbstractType
             ])
             ->add('agreeTerms', CheckboxType::class, [
                 'mapped' => false,
-                'label' => "J'accepte les conditions d'utilisation et la politique de confidentialité",
+                'label' => 'J\'accepte les conditions d\'utilisation et la politique de confidentialité',
                 'constraints' => [
                     new IsTrue(message: 'Vous devez accepter les conditions.'),
                 ],
@@ -93,7 +93,7 @@ class RegistrationFormType extends AbstractType
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
-            'data_class' => Utilisateur::class,
+            'data_class' => User::class,
         ]);
     }
 }

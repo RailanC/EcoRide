@@ -2,27 +2,26 @@
 
 namespace App\Form;
 
-use App\Entity\Voiture;
-use App\Entity\Marque;
+use App\Entity\Brand;
+use App\Entity\Vehicle;
+use Doctrine\ORM\EntityRepository;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
-use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
-use Symfony\Component\Form\Extension\Core\Type\CollectionType;
+use Symfony\Component\Form\Extension\Core\Type\DateType;
+use Symfony\Component\Form\Extension\Core\Type\HiddenType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Bridge\Doctrine\Form\Type\EntityType;
-use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Length;
-use Doctrine\ORM\EntityRepository;
-use Symfony\Component\Form\Extension\Core\Type\HiddenType;
+use Symfony\Component\Validator\Constraints\NotBlank;
 
 class VehicleFormType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('immatriculation', TextType::class, [
+            ->add('registrationNumber', TextType::class, [
                 'label' => 'Plaque d\'immatriculation',
                 'label_attr' => ['class' => 'contact-label'],
                 'attr' => [
@@ -31,9 +30,7 @@ class VehicleFormType extends AbstractType
                 ],
                 'required' => true,
                 'constraints' => [
-                    new NotBlank(
-                        message: 'La plaque d\'immatriculation est obligatoire.',
-                    ),
+                    new NotBlank(message: 'La plaque d\'immatriculation est obligatoire.'),
                     new Length(
                         min: 3,
                         max: 50,
@@ -42,10 +39,10 @@ class VehicleFormType extends AbstractType
                     ),
                 ],
             ])
-            ->add('marque', EntityType::class, [
-                'class' => Marque::class,
-                'choice_label' => 'libelle',
-                'choice_value' => 'libelle',
+            ->add('brand', EntityType::class, [
+                'class' => Brand::class,
+                'choice_label' => 'label',
+                'choice_value' => 'label',
                 'label' => 'Marque',
                 'label_attr' => ['class' => 'contact-label'],
                 'attr' => [
@@ -54,16 +51,14 @@ class VehicleFormType extends AbstractType
                 ],
                 'required' => true,
                 'constraints' => [
-                    new NotBlank(
-                        message: 'La marque est obligatoire.',
-                    ),
+                    new NotBlank(message: 'La marque est obligatoire.'),
                 ],
-                'query_builder' => function (EntityRepository $er) {
-                    return $er->createQueryBuilder('m')
-                        ->orderBy('m.libelle', 'ASC');
+                'query_builder' => static function (EntityRepository $entityRepository) {
+                    return $entityRepository->createQueryBuilder('brand')
+                        ->orderBy('brand.label', 'ASC');
                 },
             ])
-            ->add('modele', TextType::class, [
+            ->add('model', TextType::class, [
                 'label' => 'Modèle',
                 'label_attr' => ['class' => 'contact-label'],
                 'attr' => [
@@ -72,9 +67,7 @@ class VehicleFormType extends AbstractType
                 ],
                 'required' => true,
                 'constraints' => [
-                    new NotBlank(
-                        message: 'Le modèle est obligatoire.',
-                    ),
+                    new NotBlank(message: 'Le modèle est obligatoire.'),
                     new Length(
                         min: 1,
                         max: 50,
@@ -83,7 +76,7 @@ class VehicleFormType extends AbstractType
                     ),
                 ],
             ])
-            ->add('couleur', TextType::class, [
+            ->add('color', TextType::class, [
                 'label' => 'Couleur',
                 'label_attr' => ['class' => 'contact-label'],
                 'attr' => [
@@ -98,7 +91,7 @@ class VehicleFormType extends AbstractType
                     ),
                 ],
             ])
-            ->add('energie', ChoiceType::class, [
+            ->add('energyType', ChoiceType::class, [
                 'label' => 'Type d\'énergie',
                 'label_attr' => ['class' => 'contact-label'],
                 'choices' => [
@@ -115,12 +108,10 @@ class VehicleFormType extends AbstractType
                 ],
                 'required' => true,
                 'constraints' => [
-                    new NotBlank(
-                        message: 'Le type d\'énergie est obligatoire.',
-                    ),
+                    new NotBlank(message: 'Le type d\'énergie est obligatoire.'),
                 ],
             ])
-            ->add('date_premiere_immatriculation', DateType::class, [
+            ->add('firstRegistrationDate', DateType::class, [
                 'label' => '1ère mise en circulation',
                 'label_attr' => ['class' => 'contact-label'],
                 'widget' => 'single_text',
@@ -160,7 +151,7 @@ class VehicleFormType extends AbstractType
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
-            'data_class' => Voiture::class,
+            'data_class' => Vehicle::class,
         ]);
     }
 }

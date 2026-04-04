@@ -1,0 +1,85 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Détails du covoiturage{% endblock %}
+
+{% block body %}
+<div class="container py-5" style="max-width: 760px;">
+  <a href="{{ path('app_covoiturage') }}" class="btn-details text-decoration-none">Retour</a>
+  <div class="travel-hero mt-2">
+    <div class="travel-hero-content">
+      <div class="travel-hero-route">
+        {{ trip.departureLocation }}
+        <span class="arrow-icon">→</span>
+        {{ trip.arrivalLocation }}
+      </div>
+      <div class="travel-hero-sub">Trajet proposé par {{ trip.driver.username }}</div>
+    </div>
+    <div class="travel-hero-dates">📅 {{ trip.departureDate|date('d M Y à H:i') }}</div>
+  </div>
+
+  <hr class="trips-divider">
+
+  <div class="section-header">
+    <span class="section-title">Informations</span>
+  </div>
+
+  <div class="contact-card">
+    <div class="row g-3">
+      <div class="col-md-6">
+        <label class="contact-label">Conducteur</label>
+        <div class="meta-item" style="font-size: 0.95rem;">{{ trip.driver.username }}</div>
+      </div>
+
+      <div class="col-md-6">
+        <label class="contact-label">Note</label>
+        <div class="meta-item" style="font-size: 0.95rem;">
+          {% if trip.driver.averageValidatedRating is not null %}
+            ⭐ {{ trip.driver.averageValidatedRating }}/5 ({{ trip.driver.validatedReviewCount }})
+          {% else %}
+            Pas encore noté
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="col-md-6">
+        <label class="contact-label">Véhicule</label>
+        <div class="meta-item" style="font-size: 0.95rem;">{{ trip.vehicle.brand.label }} {{ trip.vehicle.model }}</div>
+      </div>
+
+      <div class="col-md-6">
+        <label class="contact-label">Énergie</label>
+        <div class="meta-item" style="font-size: 0.95rem;">{{ trip.vehicle.energyType }}</div>
+      </div>
+
+      <div class="col-12">
+        <label class="contact-label">Type de trajet</label>
+        {% if trip.vehicle.energyType in ['Electrique', 'Électrique'] %}
+          <span class="badge-eco">Trajet écologique ⚡</span>
+        {% else %}
+          <span class="btn-details">Trajet standard</span>
+        {% endif %}
+      </div>
+
+      <div class="col-12">
+        {% if app.user %}
+          {% if hasBooking %}
+            <p>Vous participez déjà à ce trajet.</p>
+          {% elseif trip.availableSeats > 0 %}
+            <a href="{{ path('app_covoiturage_participer', {id: trip.id}) }}" class="w-50 btn btn-vert">Participer</a>
+          {% else %}
+            <p>Plus de places disponibles.</p>
+          {% endif %}
+        {% else %}
+          <a href="{{ path('app_login') }}" class="btn btn-vert w-50">Se connecter pour participer</a>
+        {% endif %}
+        {% for message in app.flashes('error') %}
+          <div class="alert alert-danger">{{ message }}</div>
+        {% endfor %}
+        {% for message in app.flashes('success') %}
+          <div class="alert alert-success">{{ message }}</div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

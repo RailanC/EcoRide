@@ -2,14 +2,14 @@
 
 namespace App\Tests\Entity;
 
-use App\Entity\Utilisateur;
+use App\Entity\User;
 use PHPUnit\Framework\TestCase;
 
-class UtilisateurTest extends TestCase
+class UserTest extends TestCase
 {
     public function testGetUserIdentifierReturnsEmail(): void
     {
-        $user = new Utilisateur();
+        $user = new User();
         $user->setEmail('test@example.com');
 
         $this->assertSame('test@example.com', $user->getUserIdentifier());
@@ -17,7 +17,7 @@ class UtilisateurTest extends TestCase
 
     public function testGetRolesAlwaysContainsRoleUser(): void
     {
-        $user = new Utilisateur();
+        $user = new User();
         $user->setRoles(['ROLE_ADMIN']);
 
         $roles = $user->getRoles();

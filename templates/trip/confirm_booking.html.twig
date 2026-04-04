@@ -1,0 +1,22 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Confirmer votre participation{% endblock %}
+
+{% block body %}
+<h1>Confirmer votre participation</h1>
+
+<p>
+    Vous allez réserver une place pour le trajet
+    {{ trip.departureLocation }} → {{ trip.arrivalLocation }}.
+</p>
+
+<p>
+    Cette participation coûtera <strong>{{ priceInCredits }}</strong> crédits.
+</p>
+
+<form method="post" action="{{ path('app_covoiturage_participer_confirm', {id: trip.id}) }}">
+    <input type="hidden" name="_token" value="{{ csrf_token('participer_' ~ trip.id) }}">
+    <button type="submit" class="btn btn-primary">Confirmer</button>
+    <a href="{{ path('app_covoiturage_show', {id: trip.id}) }}" class="btn btn-secondary">Annuler</a>
+</form>
+{% endblock %}

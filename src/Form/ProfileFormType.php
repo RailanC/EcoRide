@@ -2,27 +2,27 @@
 
 namespace App\Form;
 
-use App\Entity\Utilisateur;
+use App\Entity\User;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\Extension\Core\Type\RepeatedType;
 use Symfony\Component\Form\Extension\Core\Type\TelType;
-use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
-use Symfony\Component\Form\Extension\Core\Type\CollectionType;
+use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\Validator\Constraints\NotBlank;
-use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\Email;
+use Symfony\Component\Validator\Constraints\Length;
+use Symfony\Component\Validator\Constraints\NotBlank;
 
 class ProfileFormType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('prenom', TextType::class, [
+            ->add('firstName', TextType::class, [
                 'label' => 'Prénom',
                 'label_attr' => ['class' => 'contact-label'],
                 'required' => true,
@@ -30,11 +30,8 @@ class ProfileFormType extends AbstractType
                     'autocomplete' => 'given-name',
                     'class' => 'form-control contact-input',
                 ],
-                'required' => true,
                 'constraints' => [
-                    new NotBlank(
-                        message: 'Le prénom est obligatoire.',
-                    ),
+                    new NotBlank(message: 'Le prénom est obligatoire.'),
                     new Length(
                         min: 2,
                         minMessage: 'Le prénom doit contenir au moins {{ limit }} caractères.',
@@ -43,19 +40,16 @@ class ProfileFormType extends AbstractType
                     ),
                 ],
             ])
-            ->add('nom', TextType::class, [
+            ->add('lastName', TextType::class, [
                 'label' => 'Nom',
                 'label_attr' => ['class' => 'contact-label'],
                 'required' => true,
                 'attr' => [
-                    'autocomplete' => 'given-name',
+                    'autocomplete' => 'family-name',
                     'class' => 'form-control contact-input',
                 ],
-                'required' => true,
                 'constraints' => [
-                    new NotBlank(
-                        message: 'Le nom est obligatoire.',
-                    ),
+                    new NotBlank(message: 'Le nom est obligatoire.'),
                     new Length(
                         min: 2,
                         minMessage: 'Le nom doit contenir au moins {{ limit }} caractères.',
@@ -66,9 +60,7 @@ class ProfileFormType extends AbstractType
             ])
             ->add('email', EmailType::class, [
                 'label' => 'Email',
-                'label_attr' => [
-                    'class' => 'contact-label',
-                ],
+                'label_attr' => ['class' => 'contact-label'],
                 'attr' => [
                     'class' => 'form-control contact-input',
                     'placeholder' => 'votre@email.com',
@@ -76,19 +68,13 @@ class ProfileFormType extends AbstractType
                 ],
                 'required' => true,
                 'constraints' => [
-                    new NotBlank(
-                        message: 'L’email est obligatoire.',
-                    ),
-                    new Email(
-                        message: 'Veuillez saisir un email valide.',
-                    ),
+                    new NotBlank(message: 'L’email est obligatoire.'),
+                    new Email(message: 'Veuillez saisir un email valide.'),
                 ],
             ])
-            ->add('telephone', TelType::class, [
+            ->add('phone', TelType::class, [
                 'label' => 'Téléphone',
-                'label_attr' => [
-                    'class' => 'contact-label',
-                ],
+                'label_attr' => ['class' => 'contact-label'],
                 'empty_data' => '',
                 'attr' => [
                     'class' => 'form-control contact-input',
@@ -101,14 +87,12 @@ class ProfileFormType extends AbstractType
                     new Length(
                         max: 20,
                         maxMessage: 'Le téléphone ne peut pas dépasser {{ limit }} caractères.',
-                    )
+                    ),
                 ],
             ])
-            ->add('adresse', TextType::class, [
+            ->add('address', TextType::class, [
                 'label' => 'Adresse',
-                'label_attr' => [
-                    'class' => 'contact-label',
-                ],
+                'label_attr' => ['class' => 'contact-label'],
                 'empty_data' => '',
                 'attr' => [
                     'class' => 'form-control contact-input',
@@ -126,14 +110,12 @@ class ProfileFormType extends AbstractType
             ])
             ->add('bio', TextareaType::class, [
                 'label' => 'À propos de moi',
-                'label_attr' => [
-                    'class' => 'contact-label',
-                ],
+                'label_attr' => ['class' => 'contact-label'],
                 'attr' => [
                     'class' => 'form-control contact-input',
                     'placeholder' => 'Parlez un peu de vous…',
                     'rows' => 3,
-                    'style' => 'resize:none; ',
+                    'style' => 'resize:none;',
                 ],
                 'mapped' => false,
                 'required' => false,
@@ -197,7 +179,7 @@ class ProfileFormType extends AbstractType
                     ),
                 ],
             ])
-            ->add('voitures', CollectionType::class, [
+            ->add('vehicles', CollectionType::class, [
                 'entry_type' => VehicleFormType::class,
                 'label' => false,
                 'allow_add' => true,
@@ -213,7 +195,7 @@ class ProfileFormType extends AbstractType
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
-            'data_class' => Utilisateur::class,
+            'data_class' => User::class,
             'allow_extra_fields' => true,
         ]);
     }
