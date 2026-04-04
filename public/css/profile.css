@@ -1,0 +1,67 @@
+/* Role cards */
+.role-card { background: rgba(24,32,43,.6); }
+.role-card:has(.role-radio:checked) {
+    border-color: var(--accent) !important;
+    background: var(--accent-soft);
+    box-shadow: 0 0 0 1px var(--accent);
+}
+
+/* Pref toggles */
+.pref-toggle {
+    display: flex;
+    border: 1px solid rgba(255,255,255,.08);
+    border-radius: 999px;
+    overflow: hidden;
+    background: rgba(24,32,43,.88);
+}
+.pref-btn {
+    flex: 1;
+    background: transparent;
+    border: none;
+    padding: .4rem .65rem;
+    font-size: .78rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all .18s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: .35rem;
+    white-space: nowrap;
+}
+.pref-btn.active {
+    background: linear-gradient(135deg,var(--vert-semi-fort),var(--vert));
+    color: #fff;
+}
+
+/* Custom pref row */
+.custom-pref-row {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    margin-bottom: .5rem;
+}
+.custom-pref-row input {
+    flex: 1;
+}
+.custom-pref-delete {
+    background: transparent;
+    border: 1px solid rgba(255,255,255,.08);
+    border-radius: 8px;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #f28b82;
+    flex-shrink: 0;
+    transition: background .18s;
+}
+.custom-pref-delete:hover { background: rgba(242,139,130,.12); }
+
+.contact-input::placeholder {
+    color: var(--text-muted);
+    opacity: 1;
+}
