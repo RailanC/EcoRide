@@ -73,7 +73,7 @@ class Trip
         return $this->departureDate;
     }
 
-    public function setDepartureDate(\DateTime $departureDate): static
+    public function setDepartureDate(?\DateTime $departureDate): static
     {
         $this->departureDate = $departureDate;
 
@@ -85,7 +85,7 @@ class Trip
         return $this->departureTime;
     }
 
-    public function setDepartureTime(\DateTime $departureTime): static
+    public function setDepartureTime(?\DateTime $departureTime): static
     {
         $this->departureTime = $departureTime;
 
@@ -97,7 +97,7 @@ class Trip
         return $this->departureLocation;
     }
 
-    public function setDepartureLocation(string $departureLocation): static
+    public function setDepartureLocation(?string $departureLocation): static
     {
         $this->departureLocation = $departureLocation;
 
@@ -109,7 +109,7 @@ class Trip
         return $this->arrivalDate;
     }
 
-    public function setArrivalDate(\DateTime $arrivalDate): static
+    public function setArrivalDate(?\DateTime $arrivalDate): static
     {
         $this->arrivalDate = $arrivalDate;
 
@@ -121,7 +121,7 @@ class Trip
         return $this->arrivalTime;
     }
 
-    public function setArrivalTime(\DateTime $arrivalTime): static
+    public function setArrivalTime(?\DateTime $arrivalTime): static
     {
         $this->arrivalTime = $arrivalTime;
 
@@ -133,7 +133,7 @@ class Trip
         return $this->arrivalLocation;
     }
 
-    public function setArrivalLocation(string $arrivalLocation): static
+    public function setArrivalLocation(?string $arrivalLocation): static
     {
         $this->arrivalLocation = $arrivalLocation;
 
@@ -145,7 +145,7 @@ class Trip
         return $this->availableSeats;
     }
 
-    public function setAvailableSeats(int $availableSeats): static
+    public function setAvailableSeats(?int $availableSeats): static
     {
         $this->availableSeats = $availableSeats;
 
@@ -157,7 +157,7 @@ class Trip
         return $this->pricePerPerson;
     }
 
-    public function setPricePerPerson(string $pricePerPerson): static
+    public function setPricePerPerson(?string $pricePerPerson): static
     {
         $this->pricePerPerson = $pricePerPerson;
 
@@ -208,7 +208,7 @@ class Trip
         return $this->status;
     }
 
-    public function setStatus(string $status): static
+    public function setStatus(?string $status): static
     {
         $this->status = $status;
 

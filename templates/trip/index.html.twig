@@ -2,6 +2,10 @@
 
 {% block body %}
 <div class="container py-5" style="max-width: 1300px;">
+  {% for message in app.flashes('success') %}
+    <div class="alert alert-success" role="alert">{{ message }}</div>
+  {% endfor %}
+
   <form method="get" action="{{ path('app_covoiturage') }}" class="mb-4">
     <div class="search-pill mb-3">
       <div class="row g-0 align-items-stretch w-100">
@@ -10,11 +14,11 @@
           <input type="text" name="departure" id="from" placeholder="Ville de départ" autocomplete="off" class="form-control" value="{{ app.request.query.get('departure') }}" />
         </div>
         <div class="d-none d-lg-flex search-field search-field--swap col-lg-auto">
-          <button type="button" class="swap-btn" onclick="swapCities(event)" title="Inverser">⇄</button>
+          <button type="button" class="swap-btn" onclick="swapCities(event)" title="Inverser">&harr;</button>
         </div>
         <div class="col-6 col-lg search-field">
           <span class="field-label">Destination</span>
-          <input type="text" name="arrival" id="to" placeholder="Ville d’arrivée" autocomplete="off" class="form-control" value="{{ app.request.query.get('arrival') }}" />
+          <input type="text" name="arrival" id="to" placeholder="Ville d'arrivée" autocomplete="off" class="form-control" value="{{ app.request.query.get('arrival') }}" />
         </div>
         <div class="col-6 col-lg search-field border-top-mobile">
           <span class="field-label">Date de départ</span>
@@ -22,7 +26,7 @@
         </div>
         <div class="col-12 col-lg search-field border-top-mobile">
           <span class="field-label">Voyageurs</span>
-          <select name="passengers" class="form-select">
+          <select name="passengers" class="form-select site-search-select">
             <option value="1" {{ app.request.query.get('passengers') == '1' ? 'selected' : '' }}>1 passager</option>
             <option value="2" {{ app.request.query.get('passengers') == '2' ? 'selected' : '' }}>2 passagers</option>
             <option value="3" {{ app.request.query.get('passengers') == '3' ? 'selected' : '' }}>3 passagers</option>
@@ -40,7 +44,7 @@
       </div>
       <div class="row g-3">
         <div class="col-md-6">
-          <label class="contact-label" for="max_price">Prix maximum (€)</label>
+          <label class="contact-label" for="max_price">Prix maximum (EUR)</label>
           <input type="number" id="max_price" name="max_price" class="form-control contact-input" min="0" step="1" placeholder="Ex. 25" value="{{ app.request.query.get('max_price') }}">
         </div>
         <div class="col-md-6">
@@ -78,14 +82,14 @@
     <div class="travel-hero-content">
       <div class="travel-hero-route">
         {% if departure %}
-          {{ departure }} <span class="arrow-icon">→</span> {{ arrival }}
+          {{ departure }} <span class="arrow-icon">&rarr;</span> {{ arrival }}
         {% else %}
           Tous les trajets
         {% endif %}
       </div>
       <div class="travel-hero-sub">Trajets disponibles au départ de {{ departure ?: 'partout' }}</div>
     </div>
-    {% if date %}<div class="travel-hero-dates">📅 {{ date|date('d M Y') }}</div>{% endif %}
+    {% if date %}<div class="travel-hero-dates">Le {{ date|date('d M Y') }}</div>{% endif %}
   </div>
 
   <div class="section-header">
@@ -95,25 +99,36 @@
     {% endif %}
   </div>
 
+  {% if createdTripId %}
+    <div class="trip-created-banner">
+      Votre nouveau trajet est mis en avant ci-dessous.
+    </div>
+  {% endif %}
+
   {% if trips is empty %}
     <div class="empty-state">
-      <div class="empty-state-icon">🚗</div>
+      <div class="empty-state-icon">Aucun trajet</div>
       <div class="empty-state-title">Aucun trajet trouvé</div>
       <p style="font-size:0.88rem;">Aucun covoiturage disponible pour cette recherche.</p>
     </div>
   {% else %}
     {% for trip in trips %}
-      <a href="{{ path('app_covoiturage_show', {id: trip.id}) }}" class="trip-card">
+      <a href="{{ path('app_covoiturage_show', {id: trip.id}) }}" id="{{ createdTripId is defined and createdTripId == trip.id ? 'created-trip-card' : '' }}" class="trip-card{{ createdTripId is defined and createdTripId == trip.id ? ' trip-card--highlighted' : '' }}" data-turbo="false">
         <div class="trip-card-left">
           <div class="driver-avatar">{{ trip.driver.username|slice(0, 2) }}</div>
           <div class="trip-info">
-            <div class="trip-route">{{ trip.departureLocation }} <span class="route-arrow">→</span> {{ trip.arrivalLocation }}</div>
+            <div class="trip-route">
+              {{ trip.departureLocation }} <span class="route-arrow">&rarr;</span> {{ trip.arrivalLocation }}
+              {% if createdTripId is defined and createdTripId == trip.id %}
+                <span class="trip-card-badge">Nouveau</span>
+              {% endif %}
+            </div>
             <div class="trip-meta">
-              <span class="meta-item">🕐 {{ trip.departureTime|date('H:i') }} → {{ trip.arrivalTime|date('H:i') }}</span>
+              <span class="meta-item">{{ trip.departureTime|date('H:i') }} &rarr; {{ trip.arrivalTime|date('H:i') }}</span>
               <span class="meta-item">{{ trip.departureDate|date('d M Y') }}</span>
               <span class="meta-item">Durée: {{ trip.durationInMinutes }} min</span>
               <span class="meta-dot"></span>
-              <span class="meta-item"><span class="seats-chip">💺 {{ trip.availableSeats }} place{{ trip.availableSeats > 1 ? 's' }}</span></span>
+              <span class="meta-item"><span class="seats-chip">{{ trip.availableSeats }} place{{ trip.availableSeats > 1 ? 's' }}</span></span>
               <span class="meta-dot"></span>
               <span class="meta-item">{{ trip.driver.username }}</span>
               {% if trip.vehicle and trip.vehicle.energyType in ['Electrique', 'Électrique'] %}
@@ -125,7 +140,7 @@
         </div>
         <div class="trip-card-right">
           <div>
-            <div class="trip-price">{{ trip.pricePerPerson }} €</div>
+            <div class="trip-price">{{ trip.pricePerPerson }} EUR</div>
             <div class="trip-price-label" style="text-align:right;">par personne</div>
           </div>
           <span class="btn-details">Détails</span>

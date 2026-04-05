@@ -9,6 +9,7 @@
 parameters:
     mailer_from_address: '%env(MAILER_FROM_ADDRESS)%'
     mailer_from_name: '%env(MAILER_FROM_NAME)%'
+    openrouteservice_api_key: '%env(string:OPENROUTESERVICE_API_KEY)%'
 services:
     # default configuration for services in *this* file
     _defaults:
@@ -24,5 +25,9 @@ services:
         bind:
             string $mailerFromAddress: '%mailer_from_address%'
             string $mailerFromName: '%mailer_from_name%'
+
+    App\Service\TripRouteEstimator:
+        bind:
+            string $openRouteServiceApiKey: '%openrouteservice_api_key%'
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones

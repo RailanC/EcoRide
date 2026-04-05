@@ -5,11 +5,17 @@ namespace App\Controller;
 use App\Entity\Booking;
 use App\Entity\Trip;
 use App\Entity\User;
+use App\Exception\RouteEstimationException;
+use App\Exception\TripParticipationException;
+use App\Form\NewTripFormType;
 use App\Repository\BookingRepository;
 use App\Repository\TripRepository;
-use App\Repository\VehicleRepository;
+use App\Service\TripParticipationService;
+use App\Service\TripRouteEstimator;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Form\FormError;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -22,6 +28,7 @@ final class TripController extends AbstractController
         $departure = $request->query->get('departure');
         $arrival = $request->query->get('arrival');
         $date = $request->query->get('date');
+        $createdTripId = $request->query->getInt('created');
         $passengers = $request->query->get('passengers');
         $passengers = ($passengers !== null && $passengers !== '') ? (int) $passengers : null;
         $eco = $request->query->getBoolean('eco');
@@ -47,19 +54,147 @@ final class TripController extends AbstractController
             )
             : $tripRepository->findAvailableTrips();
 
+        if ($createdTripId > 0) {
+            usort(
+                $trips,
+                static function (Trip $left, Trip $right) use ($createdTripId): int {
+                    if ($left->getId() === $createdTripId) {
+                        return -1;
+                    }
+
+                    if ($right->getId() === $createdTripId) {
+                        return 1;
+                    }
+
+                    return 0;
+                }
+            );
+        }
+
         return $this->render('trip/index.html.twig', [
             'trips' => $trips,
             'departure' => $departure,
             'arrival' => $arrival,
             'date' => $date,
+            'createdTripId' => $createdTripId > 0 ? $createdTripId : null,
         ]);
     }
 
-    #[Route('/covoiturages/new', name: 'app_covoiturage_new')]
-    public function new(VehicleRepository $vehicleRepository): Response
-    {
+    #[Route('/covoiturages/new', name: 'app_covoiturage_new', methods: ['GET', 'POST'])]
+    public function new(
+        Request $request,
+        EntityManagerInterface $entityManager,
+        TripRouteEstimator $tripRouteEstimator,
+    ): Response {
+        $user = $this->getUser();
+
+        if (!$user instanceof User) {
+            return $this->render('trip/new.html.twig', [
+                'vehicles' => [],
+                'form' => null,
+            ]);
+        }
+
+        $vehicles = $user->getVehicles();
+
+        if ($vehicles->isEmpty()) {
+            return $this->render('trip/new.html.twig', [
+                'vehicles' => $vehicles,
+                'form' => null,
+            ]);
+        }
+
+        $trip = new Trip();
+
+        if ($vehicles->count() === 1) {
+            $trip->setVehicle($vehicles->first());
+        }
+
+        $form = $this->createForm(NewTripFormType::class, $trip, [
+            'vehicles' => $vehicles->toArray(),
+        ]);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && !$form->isValid()) {
+            $this->addFlash('error', 'Le formulaire contient des erreurs. Verifiez les champs ci-dessous.');
+        }
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $departureDateTime = $this->buildTripDateTime($trip->getDepartureDate(), $trip->getDepartureTime());
+
+            if (!$departureDateTime instanceof \DateTimeImmutable) {
+                $form->addError(new FormError('La date ou l heure de depart est invalide.'));
+            } else {
+                try {
+                    $routeEstimate = $tripRouteEstimator->estimate(
+                        (string) $trip->getDepartureLocation(),
+                        (string) $trip->getArrivalLocation(),
+                        $departureDateTime,
+                    );
+
+                    $estimatedArrival = $routeEstimate->getEstimatedArrival();
+
+                    $trip->setArrivalDate(\DateTime::createFromImmutable($estimatedArrival));
+                    $trip->setArrivalTime(\DateTime::createFromImmutable($estimatedArrival));
+                } catch (RouteEstimationException $exception) {
+                    $form->addError(new FormError($exception->getMessage()));
+                }
+            }
+        }
+
+        if ($form->isSubmitted() && $form->isValid() && $form->getErrors(true)->count() === 0) {
+            $trip->setDriver($user);
+            $trip->setStatus('planifie');
+
+            $entityManager->persist($trip);
+            $entityManager->flush();
+
+            $this->addFlash('success', 'Votre covoiturage a ete publie.');
+
+            return $this->redirectToRoute('app_covoiturage', [
+                'departure' => $trip->getDepartureLocation(),
+                'arrival' => $trip->getArrivalLocation(),
+                'date' => $trip->getDepartureDate()?->format('Y-m-d'),
+                'created' => $trip->getId(),
+            ]);
+        }
+
         return $this->render('trip/new.html.twig', [
-            'vehicles' => $vehicleRepository->findAll(),
+            'vehicles' => $vehicles,
+            'form' => $form->createView(),
+        ]);
+    }
+
+    #[Route('/covoiturages/route-preview', name: 'app_covoiturage_route_preview', methods: ['GET'])]
+    public function routePreview(Request $request, TripRouteEstimator $tripRouteEstimator): JsonResponse
+    {
+        $departure = trim((string) $request->query->get('departure', ''));
+        $destination = trim((string) $request->query->get('destination', ''));
+
+        if ($departure === '' || $destination === '') {
+            return $this->json([
+                'error' => 'Veuillez renseigner une ville de depart et une destination.',
+            ], Response::HTTP_BAD_REQUEST);
+        }
+
+        try {
+            $routeEstimate = $tripRouteEstimator->estimate(
+                $departure,
+                $destination,
+                new \DateTimeImmutable('+24 hours')
+            );
+        } catch (RouteEstimationException $exception) {
+            return $this->json([
+                'error' => $this->toFrenchRouteMessage($exception->getMessage()),
+            ], Response::HTTP_BAD_REQUEST);
+        }
+
+        return $this->json([
+            'departureLabel' => $departure,
+            'destinationLabel' => $destination,
+            'distanceMeters' => $routeEstimate->getDistanceMeters(),
+            'durationSeconds' => $routeEstimate->getDurationSeconds(),
+            'geometry' => $routeEstimate->getGeometry(),
         ]);
     }
 
@@ -68,6 +203,10 @@ final class TripController extends AbstractController
     {
         $currentUser = $this->getUser();
         $hasBooking = false;
+        $participants = array_values(array_filter(
+            $trip->getBookings()->toArray(),
+            static fn (Booking $booking): bool => $booking->isConfirmation() === true && $booking->getUser() !== null
+        ));
 
         if ($currentUser instanceof User) {
             $hasBooking = (bool) $bookingRepository->findOneBy([
@@ -79,11 +218,48 @@ final class TripController extends AbstractController
         return $this->render('trip/show.html.twig', [
             'trip' => $trip,
             'hasBooking' => $hasBooking,
+            'participants' => $participants,
         ]);
     }
 
-    #[Route('/covoiturage/{id}/participer', name: 'app_covoiturage_participer', methods: ['GET'])]
-    public function participate(Trip $trip): Response
+    #[Route('/covoiturages/{id}/route-preview', name: 'app_covoiturage_show_route_preview', methods: ['GET'])]
+    public function showRoutePreview(Trip $trip, TripRouteEstimator $tripRouteEstimator): JsonResponse
+    {
+        $departureDateTime = $this->buildTripDateTime($trip->getDepartureDate(), $trip->getDepartureTime());
+
+        if (!$departureDateTime instanceof \DateTimeImmutable) {
+            return $this->json([
+                'error' => 'Impossible de calculer la date de depart de ce trajet.',
+            ], Response::HTTP_BAD_REQUEST);
+        }
+
+        try {
+            $routeEstimate = $tripRouteEstimator->estimate(
+                (string) $trip->getDepartureLocation(),
+                (string) $trip->getArrivalLocation(),
+                $departureDateTime
+            );
+        } catch (RouteEstimationException $exception) {
+            return $this->json([
+                'error' => $this->toFrenchRouteMessage($exception->getMessage()),
+            ], Response::HTTP_BAD_REQUEST);
+        }
+
+        return $this->json([
+            'departureLabel' => $trip->getDepartureLocation(),
+            'destinationLabel' => $trip->getArrivalLocation(),
+            'distanceMeters' => $routeEstimate->getDistanceMeters(),
+            'durationSeconds' => $routeEstimate->getDurationSeconds(),
+            'geometry' => $routeEstimate->getGeometry(),
+        ]);
+    }
+
+    #[Route('/covoiturages/{id}/delete', name: 'app_covoiturage_delete', methods: ['POST'])]
+    public function delete(
+        Request $request,
+        Trip $trip,
+        TripParticipationService $tripParticipationService,
+    ): Response
     {
         $currentUser = $this->getUser();
 
@@ -91,16 +267,78 @@ final class TripController extends AbstractController
             return $this->redirectToRoute('app_login');
         }
 
-        if ($trip->getAvailableSeats() <= 0) {
-            $this->addFlash('error', 'Il n\'y a plus de places disponibles.');
+        if ($trip->getDriver()?->getId() !== $currentUser->getId()) {
+            throw $this->createAccessDeniedException('Vous ne pouvez pas supprimer ce trajet.');
+        }
+
+        if (!$this->isCsrfTokenValid('delete_trip_' . $trip->getId(), (string) $request->request->get('_token'))) {
+            throw $this->createAccessDeniedException('Token CSRF invalide.');
+        }
+
+        try {
+            $wasCanceled = $tripParticipationService->cancelTrip($trip, $currentUser);
+        } catch (TripParticipationException $exception) {
+            $this->addFlash('error', $exception->getMessage());
 
             return $this->redirectToRoute('app_covoiturage_show', ['id' => $trip->getId()]);
         }
 
-        $priceInCredits = $trip->getPricePerPerson();
+        if (!$wasCanceled) {
+            $this->addFlash('info', 'Ce covoiturage etait deja annule.');
+
+            return $this->redirectToRoute('app_covoiturage_show', ['id' => $trip->getId()]);
+        }
+
+        $this->addFlash('success', 'Votre covoiturage a ete annule et les participants ont ete rembourses.');
+
+        return $this->redirectToRoute('app_covoiturage');
+    }
+
+    #[Route('/covoiturage/{id}/participer', name: 'app_covoiturage_participer', methods: ['GET'])]
+    public function participate(
+        Trip $trip,
+        BookingRepository $bookingRepository,
+        TripParticipationService $tripParticipationService,
+    ): Response {
+        $currentUser = $this->getUser();
+
+        if (!$currentUser instanceof User) {
+            return $this->redirectToRoute('app_login');
+        }
+
+        if ($trip->getDriver()?->getId() === $currentUser->getId()) {
+            $this->addFlash('error', 'Vous ne pouvez pas participer a votre propre trajet.');
+
+            return $this->redirectToRoute('app_covoiturage_show', ['id' => $trip->getId()]);
+        }
+
+        if ($trip->getStatus() === 'canceled') {
+            $this->addFlash('error', 'Ce trajet est deja annule.');
+
+            return $this->redirectToRoute('app_covoiturage_show', ['id' => $trip->getId()]);
+        }
+
+        if (($trip->getAvailableSeats() ?? 0) <= 0) {
+            $this->addFlash('error', 'Il n y a plus de places disponibles.');
+
+            return $this->redirectToRoute('app_covoiturage_show', ['id' => $trip->getId()]);
+        }
+
+        $existingBooking = $bookingRepository->findOneBy([
+            'user' => $currentUser,
+            'trip' => $trip,
+        ]);
+
+        if ($existingBooking instanceof Booking) {
+            $this->addFlash('error', 'Vous participez deja a ce trajet.');
+
+            return $this->redirectToRoute('app_covoiturage_show', ['id' => $trip->getId()]);
+        }
+
+        $priceInCredits = (string) $trip->getPricePerPerson();
 
         if ((float) $currentUser->getCreditBalance() < (float) $priceInCredits) {
-            $this->addFlash('error', 'Vous n\'avez pas assez de crédits.');
+            $this->addFlash('error', 'Vous n avez pas assez de credits.');
 
             return $this->redirectToRoute('app_covoiturage_show', ['id' => $trip->getId()]);
         }
@@ -108,6 +346,8 @@ final class TripController extends AbstractController
         return $this->render('trip/confirm_booking.html.twig', [
             'trip' => $trip,
             'priceInCredits' => $priceInCredits,
+            'driverReceives' => $tripParticipationService->getDriverEarnings($priceInCredits),
+            'platformFee' => $tripParticipationService->getPlatformFeeCredits(),
         ]);
     }
 
@@ -115,8 +355,7 @@ final class TripController extends AbstractController
     public function confirmParticipation(
         Request $request,
         Trip $trip,
-        EntityManagerInterface $entityManager,
-        BookingRepository $bookingRepository
+        TripParticipationService $tripParticipationService,
     ): Response {
         $currentUser = $this->getUser();
 
@@ -128,48 +367,48 @@ final class TripController extends AbstractController
             throw $this->createAccessDeniedException('Token CSRF invalide.');
         }
 
-        if ($trip->getAvailableSeats() <= 0) {
-            $this->addFlash('error', 'Il n\'y a plus de places disponibles.');
+        try {
+            $tripParticipationService->confirmParticipation($trip, $currentUser);
+        } catch (TripParticipationException $exception) {
+            $this->addFlash('error', $exception->getMessage());
 
             return $this->redirectToRoute('app_covoiturage_show', ['id' => $trip->getId()]);
         }
 
-        $priceInCredits = (int) $trip->getPricePerPerson();
-
-        if ((float) $currentUser->getCreditBalance() < $priceInCredits) {
-            $this->addFlash('error', 'Vous n\'avez pas assez de crédits.');
-
-            return $this->redirectToRoute('app_covoiturage_show', ['id' => $trip->getId()]);
-        }
-
-        $existingBooking = $bookingRepository->findOneBy([
-            'user' => $currentUser,
-            'trip' => $trip,
-        ]);
-
-        if ($existingBooking !== null) {
-            $this->addFlash('error', 'Vous participez déjà à ce trajet.');
-
-            return $this->redirectToRoute('app_covoiturage_show', ['id' => $trip->getId()]);
-        }
-
-        $booking = new Booking();
-        $booking->setUser($currentUser);
-        $booking->setTrip($trip);
-        $booking->setConfirmation(true);
-        $booking->setCreditsUsed($priceInCredits);
-        $booking->setStatus('confirmée');
-
-        $currentUser->setCreditBalance((string) ((float) $currentUser->getCreditBalance() - $priceInCredits));
-        $trip->setAvailableSeats($trip->getAvailableSeats() - 1);
-
-        $entityManager->persist($booking);
-        $entityManager->persist($currentUser);
-        $entityManager->persist($trip);
-        $entityManager->flush();
-
-        $this->addFlash('success', 'Votre participation a été confirmée.');
+        $this->addFlash('success', 'Votre participation a ete confirmee.');
 
         return $this->redirectToRoute('app_covoiturage_show', ['id' => $trip->getId()]);
+    }
+
+    private function buildTripDateTime(
+        ?\DateTimeInterface $date,
+        ?\DateTimeInterface $time,
+    ): ?\DateTimeImmutable {
+        if (!$date instanceof \DateTimeInterface || !$time instanceof \DateTimeInterface) {
+            return null;
+        }
+
+        return new \DateTimeImmutable(sprintf(
+            '%s %s',
+            $date->format('Y-m-d'),
+            $time->format('H:i:s')
+        ));
+    }
+
+    private function toFrenchRouteMessage(string $message): string
+    {
+        return match ($message) {
+            'OpenRouteService API key is not configured.' => 'La cle OpenRouteService n est pas configuree.',
+            'Unable to geocode the trip locations at the moment.' => 'Impossible de localiser les villes pour le moment.',
+            'OpenRouteService geocoding returned an unexpected response.' => 'Le service de localisation a renvoye une reponse inattendue.',
+            'Unable to estimate the route at the moment.' => 'Impossible de calculer l itineraire pour le moment.',
+            'OpenRouteService directions returned an unexpected response.' => 'Le service d itineraire a renvoye une reponse inattendue.',
+            'No driving route could be found for this trip.' => 'Aucun itineraire n a ete trouve pour ce trajet.',
+            'The route summary returned by OpenRouteService is invalid.' => 'Le resume de l itineraire est invalide.',
+            'The route geometry returned by OpenRouteService is invalid.' => 'La geometrie de l itineraire est invalide.',
+            default => str_starts_with($message, 'Unable to find coordinates for ')
+                ? 'Impossible de localiser l une des villes saisies.'
+                : 'Impossible de previsualiser l itineraire pour le moment.',
+        };
     }
 }
