@@ -26,6 +26,11 @@ services:
             string $mailerFromAddress: '%mailer_from_address%'
             string $mailerFromName: '%mailer_from_name%'
 
+    App\Service\TripNotificationService:
+        bind:
+            string $mailerFromAddress: '%mailer_from_address%'
+            string $mailerFromName: '%mailer_from_name%'
+
     App\Service\TripRouteEstimator:
         bind:
             string $openRouteServiceApiKey: '%openrouteservice_api_key%'

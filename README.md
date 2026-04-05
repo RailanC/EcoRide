@@ -13,5 +13,14 @@ EcoRide is a French startup's eco-friendly carpooling platform designed to reduc
 
 ## Installation
 
+## Async email delivery
 
+Trip notification emails are sent through Symfony Mailer and routed to Messenger `async`.
+To actually deliver queued emails outside tests, run a Messenger worker such as:
+
+```bash
+php bin/console messenger:consume async -vv
+```
+
+If no worker is running, trip emails may be queued successfully but will not be delivered immediately.
    

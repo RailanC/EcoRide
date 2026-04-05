@@ -796,3 +796,22 @@ input::placeholder{
     color: var(--text-muted) !important;
     opacity: 1;
 }
+
+.site-confirm-modal {
+    background: linear-gradient(180deg, rgba(17, 24, 39, 0.98), rgba(12, 18, 28, 0.98));
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 20px;
+    color: var(--text);
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+}
+
+.site-confirm-modal .modal-title {
+    font-family: 'Sora', sans-serif;
+    font-weight: 600;
+}
+
+.site-confirm-modal .modal-body {
+    color: var(--text-muted);
+    font-size: 0.96rem;
+    line-height: 1.6;
+}

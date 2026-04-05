@@ -363,7 +363,28 @@
 
                                     {% do vehicleForm.preferences.setRendered() %}
                                     {# Delete button #}
-                                    <button type="button" class="btn btn-sm btn-outline-danger mt-3" onclick="this.closest('.vehicle-block').remove()">
+                                    {% if vehicleForm.vars.data.id %}
+                                        <button
+                                            type="button"
+                                            class="btn btn-sm btn-outline-danger mt-3"
+                                            data-confirm-message="Voulez-vous vraiment supprimer ce vehicule de votre profil ?"
+                                            data-confirm-title="Supprimer ce vehicule"
+                                            data-confirm-button="Oui, supprimer"
+                                            data-confirm-action="submit-post"
+                                            data-confirm-url="{{ path('app_profile_vehicle_delete', {id: vehicleForm.vars.data.id}) }}"
+                                            data-confirm-token="{{ csrf_token('delete_vehicle_' ~ vehicleForm.vars.data.id) }}"
+                                        >
+                                    {% else %}
+                                        <button
+                                            type="button"
+                                            class="btn btn-sm btn-outline-danger mt-3 remove-vehicle-btn"
+                                            data-confirm-message="Voulez-vous vraiment supprimer ce vehicule de votre profil ?"
+                                            data-confirm-title="Supprimer ce vehicule"
+                                            data-confirm-button="Oui, supprimer"
+                                            data-confirm-action="remove-closest"
+                                            data-confirm-target=".vehicle-block"
+                                        >
+                                    {% endif %}
                                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="me-1">
                                             <polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
                                         </svg>
@@ -426,7 +447,14 @@
             </div>{# /col right #}
         </div>{# /row #}
     {{ form_end(profileForm) }}
-    <form id="delete-profile-form" method="post" action="{{ path('app_profile_delete') }}" onsubmit="return confirm('Voulez-vous vraiment supprimer votre compte ?');">
+    <form
+        id="delete-profile-form"
+        method="post"
+        action="{{ path('app_profile_delete') }}"
+        data-confirm-message="Voulez-vous vraiment supprimer votre compte ? Cette action est irreversible."
+        data-confirm-title="Supprimer mon compte"
+        data-confirm-button="Oui, supprimer mon compte"
+    >
         <input type="hidden" name="_token" value="{{ csrf_token('delete_profile') }}">
     </form>
 </div>

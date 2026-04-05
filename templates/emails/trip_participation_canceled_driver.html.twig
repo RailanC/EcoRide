@@ -1,0 +1,26 @@
+<div style="font-family: Arial, sans-serif; color: #1f2937; line-height: 1.6;">
+    <h2 style="margin-bottom: 16px;">Un participant a annule sa participation</h2>
+
+    <p>Bonjour {{ driver.username }},</p>
+
+    <p>{{ participant.username }} ne participera plus a votre covoiturage.</p>
+
+    <p>
+        <strong>Participant :</strong><br>
+        {{ participant.firstName }} {{ participant.lastName }}<br>
+        Email : {{ participant.email }}<br>
+        Telephone : {{ participant.phone }}
+    </p>
+
+    <p>
+        <strong>Trajet concerne :</strong><br>
+        {{ trip.departureLocation }} -> {{ trip.arrivalLocation }}<br>
+        Depart le {{ trip.departureDate|date('d/m/Y') }} a {{ trip.departureTime|date('H:i') }}
+    </p>
+
+    <p>
+        <a href="{{ tripUrl }}" style="display:inline-block; padding:12px 18px; background:#1f7a5c; color:#ffffff; text-decoration:none; border-radius:8px;">
+            Voir le trajet
+        </a>
+    </p>
+</div>

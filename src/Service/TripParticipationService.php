@@ -18,6 +18,7 @@ final class TripParticipationService
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
         private readonly BookingRepository $bookingRepository,
+        private readonly TripNotificationService $tripNotificationService,
     ) {
     }
 
@@ -25,6 +26,7 @@ final class TripParticipationService
     {
         $tripId = $trip->getId();
         $passengerId = $passenger->getId();
+        $bookingToNotify = null;
 
         if ($tripId === null || $passengerId === null) {
             throw new TripParticipationException('Impossible de confirmer cette participation.');
@@ -67,6 +69,7 @@ final class TripParticipationService
             $existingBooking = $this->bookingRepository->findOneBy([
                 'user' => $lockedPassenger,
                 'trip' => $lockedTrip,
+                'confirmation' => true,
             ]);
 
             if ($existingBooking instanceof Booking) {
@@ -97,6 +100,7 @@ final class TripParticipationService
             $this->entityManager->persist($booking);
             $this->entityManager->flush();
             $this->entityManager->commit();
+            $bookingToNotify = $booking;
         } catch (\Throwable $throwable) {
             $this->entityManager->rollback();
 
@@ -106,12 +110,17 @@ final class TripParticipationService
 
             throw new TripParticipationException('Impossible de confirmer cette participation pour le moment.', 0, $throwable);
         }
+
+        if ($bookingToNotify instanceof Booking) {
+            $this->tripNotificationService->sendParticipationConfirmed($bookingToNotify);
+        }
     }
 
     public function cancelTrip(Trip $trip, User $currentUser): bool
     {
         $tripId = $trip->getId();
         $currentUserId = $currentUser->getId();
+        $bookingsToNotify = [];
 
         if ($tripId === null || $currentUserId === null) {
             throw new TripParticipationException('Impossible d annuler ce trajet.');
@@ -176,6 +185,7 @@ final class TripParticipationService
                 $lockedPassenger->setCreditBalance($this->centsToCredits($passengerBalanceCents + $tripPriceCents));
                 $booking->setConfirmation(false);
                 $booking->setStatus('remboursee');
+                $bookingsToNotify[] = $booking;
             }
 
             $lockedDriver->setCreditBalance($this->centsToCredits($driverBalanceCents - $totalDriverDebitCents));
@@ -184,8 +194,6 @@ final class TripParticipationService
 
             $this->entityManager->flush();
             $this->entityManager->commit();
-
-            return true;
         } catch (\Throwable $throwable) {
             $this->entityManager->rollback();
 
@@ -195,6 +203,108 @@ final class TripParticipationService
 
             throw new TripParticipationException('Impossible d annuler ce trajet pour le moment.', 0, $throwable);
         }
+
+        if ($bookingsToNotify !== []) {
+            $this->tripNotificationService->sendTripCanceled($trip, $bookingsToNotify);
+        }
+
+        return true;
+    }
+
+    public function cancelParticipation(Booking $booking): bool
+    {
+        $bookingId = $booking->getId();
+        $bookingToNotify = null;
+
+        if ($bookingId === null) {
+            throw new TripParticipationException('Impossible d annuler cette participation.');
+        }
+
+        $this->entityManager->beginTransaction();
+
+        try {
+            $lockedBooking = $this->entityManager->find(Booking::class, $bookingId, LockMode::PESSIMISTIC_WRITE);
+
+            if (!$lockedBooking instanceof Booking) {
+                throw new TripParticipationException('La participation demandee est introuvable.');
+            }
+
+            if ($lockedBooking->isConfirmation() !== true) {
+                $this->entityManager->commit();
+
+                return false;
+            }
+
+            $trip = $lockedBooking->getTrip();
+            $passenger = $lockedBooking->getUser();
+
+            if (!$trip instanceof Trip || !$passenger instanceof User || $trip->getId() === null || $passenger->getId() === null) {
+                throw new TripParticipationException('Cette participation est invalide.');
+            }
+
+            $lockedTrip = $this->entityManager->find(Trip::class, $trip->getId(), LockMode::PESSIMISTIC_WRITE);
+            $lockedPassenger = $this->entityManager->find(User::class, $passenger->getId(), LockMode::PESSIMISTIC_WRITE);
+
+            if (!$lockedTrip instanceof Trip || !$lockedPassenger instanceof User) {
+                throw new TripParticipationException('Impossible de charger les donnees de cette participation.');
+            }
+
+            if ($lockedTrip->getStatus() === self::TRIP_STATUS_CANCELED) {
+                $this->entityManager->commit();
+
+                return false;
+            }
+
+            if ($this->isTripStarted($lockedTrip)) {
+                throw new TripParticipationException('Ce trajet a deja commence et ne peut plus etre annule.');
+            }
+
+            $driver = $lockedTrip->getDriver();
+
+            if (!$driver instanceof User || $driver->getId() === null) {
+                throw new TripParticipationException('Le conducteur de ce trajet est introuvable.');
+            }
+
+            $lockedDriver = $this->entityManager->find(User::class, $driver->getId(), LockMode::PESSIMISTIC_WRITE);
+
+            if (!$lockedDriver instanceof User) {
+                throw new TripParticipationException('Le conducteur de ce trajet est introuvable.');
+            }
+
+            $tripPriceCents = $this->creditsToCents((string) $lockedTrip->getPricePerPerson());
+            $driverRefundCents = $this->getDriverEarningsCents($tripPriceCents);
+            $driverBalanceCents = $this->creditsToCents((string) $lockedDriver->getCreditBalance());
+
+            if ($driverBalanceCents < $driverRefundCents) {
+                throw new TripParticipationException('Le conducteur ne dispose pas de suffisamment de credits pour annuler cette participation.');
+            }
+
+            $passengerBalanceCents = $this->creditsToCents((string) $lockedPassenger->getCreditBalance());
+            $lockedPassenger->setCreditBalance($this->centsToCredits($passengerBalanceCents + $tripPriceCents));
+            $lockedDriver->setCreditBalance($this->centsToCredits($driverBalanceCents - $driverRefundCents));
+            $lockedTrip->setAvailableSeats(((int) $lockedTrip->getAvailableSeats()) + 1);
+            $lockedBooking->setConfirmation(false);
+            $lockedBooking->setStatus('annulee');
+
+            $this->entityManager->flush();
+            $this->entityManager->commit();
+            $bookingToNotify = $lockedBooking;
+
+        } catch (\Throwable $throwable) {
+            $this->entityManager->rollback();
+
+            if ($throwable instanceof TripParticipationException) {
+                throw $throwable;
+            }
+
+            throw new TripParticipationException('Impossible d annuler cette participation pour le moment.', 0, $throwable);
+        }
+
+        if ($bookingToNotify instanceof Booking) {
+            $this->tripNotificationService->sendParticipationCanceled($bookingToNotify);
+        }
+
+        return true;
     }
 
     public function getPlatformFeeCredits(): string
@@ -240,5 +350,23 @@ final class TripParticipationService
         $absolute = abs($cents);
 
         return sprintf('%s%d.%02d', $sign, intdiv($absolute, 100), $absolute % 100);
+    }
+
+    private function isTripStarted(Trip $trip): bool
+    {
+        $departureDate = $trip->getDepartureDate();
+        $departureTime = $trip->getDepartureTime();
+
+        if (!$departureDate instanceof \DateTimeInterface || !$departureTime instanceof \DateTimeInterface) {
+            return true;
+        }
+
+        $departureAt = new \DateTimeImmutable(sprintf(
+            '%s %s',
+            $departureDate->format('Y-m-d'),
+            $departureTime->format('H:i:s')
+        ));
+
+        return $departureAt <= new \DateTimeImmutable();
     }
 }

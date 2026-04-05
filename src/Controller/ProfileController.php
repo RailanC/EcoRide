@@ -185,4 +185,39 @@ final class ProfileController extends AbstractController
 
         return $this->redirectToRoute('app_home');
     }
+
+    #[Route('/profile/vehicles/{id}/delete', name: 'app_profile_vehicle_delete', methods: ['POST'])]
+    public function deleteVehicle(
+        Vehicle $vehicle,
+        Request $request,
+        EntityManagerInterface $entityManager
+    ): Response {
+        $user = $this->getUser();
+
+        if (!$user instanceof User) {
+            throw $this->createAccessDeniedException('Vous devez etre connecte pour acceder a cette page.');
+        }
+
+        if ($vehicle->getOwner()?->getId() !== $user->getId()) {
+            throw $this->createAccessDeniedException('Vous ne pouvez pas supprimer ce vehicule.');
+        }
+
+        if (!$this->isCsrfTokenValid('delete_vehicle_' . $vehicle->getId(), (string) $request->request->get('_token'))) {
+            throw $this->createAccessDeniedException('Token CSRF invalide.');
+        }
+
+        if (!$vehicle->getTrips()->isEmpty()) {
+            $this->addFlash('error', 'Ce vehicule est lie a un ou plusieurs covoiturages et ne peut pas etre supprime.');
+
+            return $this->redirectToRoute('app_profile');
+        }
+
+        $user->removeVehicle($vehicle);
+        $entityManager->remove($vehicle);
+        $entityManager->flush();
+
+        $this->addFlash('success', 'Le vehicule a ete supprime.');
+
+        return $this->redirectToRoute('app_profile');
+    }
 }

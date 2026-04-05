@@ -199,10 +199,15 @@ final class TripController extends AbstractController
     }
 
     #[Route('/covoiturages/{id}', name: 'app_covoiturage_show', methods: ['GET'])]
-    public function show(Trip $trip, BookingRepository $bookingRepository): Response
+    public function show(
+        Trip $trip,
+        BookingRepository $bookingRepository,
+        TripParticipationService $tripParticipationService,
+    ): Response
     {
         $currentUser = $this->getUser();
         $hasBooking = false;
+        $priceInCredits = (string) $trip->getPricePerPerson();
         $participants = array_values(array_filter(
             $trip->getBookings()->toArray(),
             static fn (Booking $booking): bool => $booking->isConfirmation() === true && $booking->getUser() !== null
@@ -212,6 +217,7 @@ final class TripController extends AbstractController
             $hasBooking = (bool) $bookingRepository->findOneBy([
                 'user' => $currentUser,
                 'trip' => $trip,
+                'confirmation' => true,
             ]);
         }
 
@@ -219,6 +225,8 @@ final class TripController extends AbstractController
             'trip' => $trip,
             'hasBooking' => $hasBooking,
             'participants' => $participants,
+            'priceInCredits' => $priceInCredits,
+            'driverReceives' => $tripParticipationService->getDriverEarnings($priceInCredits),
         ]);
     }
 
@@ -327,6 +335,7 @@ final class TripController extends AbstractController
         $existingBooking = $bookingRepository->findOneBy([
             'user' => $currentUser,
             'trip' => $trip,
+            'confirmation' => true,
         ]);
 
         if ($existingBooking instanceof Booking) {
