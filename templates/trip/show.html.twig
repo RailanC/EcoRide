@@ -1,6 +1,16 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Détails du covoiturage{% endblock %}
+{% block title %}Details du covoiturage{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link
+        rel="stylesheet"
+        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+        crossorigin=""
+    />
+{% endblock %}
 
 {% block body %}
 <div class="container py-5" style="max-width: 760px;">
@@ -9,13 +19,19 @@
     <div class="travel-hero-content">
       <div class="travel-hero-route">
         {{ trip.departureLocation }}
-        <span class="arrow-icon">→</span>
+        <span class="arrow-icon">&rarr;</span>
         {{ trip.arrivalLocation }}
       </div>
-      <div class="travel-hero-sub">Trajet proposé par {{ trip.driver.username }}</div>
+      <div class="travel-hero-sub">Trajet propose par {{ trip.driver.username }}</div>
     </div>
-    <div class="travel-hero-dates">📅 {{ trip.departureDate|date('d M Y à H:i') }}</div>
+    <div class="travel-hero-dates">Depart le {{ trip.departureDate|date('d M Y') }} a {{ trip.departureTime|date('H:i') }}</div>
   </div>
+
+  {% if trip.status == 'canceled' %}
+    <div class="alert alert-warning mt-3">
+      Ce covoiturage est annule. Les remboursements ont ete appliques lorsque l annulation a ete traitee.
+    </div>
+  {% endif %}
 
   <hr class="trips-divider">
 
@@ -25,6 +41,39 @@
 
   <div class="contact-card">
     <div class="row g-3">
+      <div class="col-12">
+        <div class="trip-schedule-grid">
+          <div class="trip-schedule-card">
+            <div class="trip-schedule-label">Depart</div>
+            <div class="trip-schedule-city">{{ trip.departureLocation }}</div>
+            <div class="trip-schedule-value">{{ trip.departureDate|date('d/m/Y') }}</div>
+            <div class="trip-schedule-time">{{ trip.departureTime|date('H:i') }}</div>
+          </div>
+          <div class="trip-schedule-card trip-schedule-card--arrival">
+            <div class="trip-schedule-label">Arrivee</div>
+            <div class="trip-schedule-city">{{ trip.arrivalLocation }}</div>
+            <div class="trip-schedule-value">{{ trip.arrivalDate|date('d/m/Y') }}</div>
+            <div class="trip-schedule-time">{{ trip.arrivalTime|date('H:i') }}</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12">
+        <div
+            class="trip-map-card"
+            data-trip-map-root
+            data-map-mode="detail"
+            data-endpoint="{{ path('app_covoiturage_show_route_preview', {id: trip.id}) }}"
+        >
+          <div class="trip-map-header">
+            <span class="contact-label" style="margin-bottom:0;">Carte du trajet</span>
+            <div class="trip-map-summary" data-trip-map-summary>Chargement de l itineraire...</div>
+          </div>
+          <div class="trip-map-status" data-trip-map-status>La carte affiche le trajet enregistre.</div>
+          <div class="trip-map-canvas" data-trip-map></div>
+        </div>
+      </div>
+
       <div class="col-md-6">
         <label class="contact-label">Conducteur</label>
         <div class="meta-item" style="font-size: 0.95rem;">{{ trip.driver.username }}</div>
@@ -34,37 +83,65 @@
         <label class="contact-label">Note</label>
         <div class="meta-item" style="font-size: 0.95rem;">
           {% if trip.driver.averageValidatedRating is not null %}
-            ⭐ {{ trip.driver.averageValidatedRating }}/5 ({{ trip.driver.validatedReviewCount }})
+            {{ trip.driver.averageValidatedRating }}/5 ({{ trip.driver.validatedReviewCount }})
           {% else %}
-            Pas encore noté
+            Pas encore note
           {% endif %}
         </div>
       </div>
 
       <div class="col-md-6">
-        <label class="contact-label">Véhicule</label>
+        <label class="contact-label">Vehicule</label>
         <div class="meta-item" style="font-size: 0.95rem;">{{ trip.vehicle.brand.label }} {{ trip.vehicle.model }}</div>
       </div>
 
       <div class="col-md-6">
-        <label class="contact-label">Énergie</label>
+        <label class="contact-label">Energie</label>
         <div class="meta-item" style="font-size: 0.95rem;">{{ trip.vehicle.energyType }}</div>
       </div>
 
       <div class="col-12">
         <label class="contact-label">Type de trajet</label>
         {% if trip.vehicle.energyType in ['Electrique', 'Électrique'] %}
-          <span class="badge-eco">Trajet écologique ⚡</span>
+          <span class="badge-eco">Trajet ecologique</span>
         {% else %}
           <span class="btn-details">Trajet standard</span>
         {% endif %}
       </div>
 
       <div class="col-12">
+        <label class="contact-label">Participants</label>
+        <div class="participant-list">
+          {% if participants is empty %}
+            <div class="participant-empty">Aucun participant pour le moment.</div>
+          {% else %}
+            {% for participant in participants %}
+              <div class="participant-chip">
+                <span class="participant-avatar">{{ participant.user.username|slice(0, 2)|upper }}</span>
+                <span class="participant-name">{{ participant.user.username }}</span>
+              </div>
+            {% endfor %}
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="col-12">
         {% if app.user %}
-          {% if hasBooking %}
-            <p>Vous participez déjà à ce trajet.</p>
+          {% if trip.status == 'canceled' %}
+            <p>Ce trajet n accepte plus de participants.</p>
+          {% elseif hasBooking %}
+            <p>Vous participez deja a ce trajet.</p>
+          {% elseif trip.driver and app.user.id == trip.driver.id %}
+            <form method="post" action="{{ path('app_covoiturage_delete', {id: trip.id}) }}" onsubmit="return confirm('Voulez-vous vraiment annuler ce covoiturage ? Tous les participants seront rembourses.');">
+              <input type="hidden" name="_token" value="{{ csrf_token('delete_trip_' ~ trip.id) }}">
+              <button type="submit" class="w-50 btn btn-outline-danger">
+                {{ trip.status == 'canceled' ? 'Covoiturage annule' : 'Annuler ce covoiturage' }}
+              </button>
+            </form>
           {% elseif trip.availableSeats > 0 %}
+            <p class="mb-2">
+              Vous paierez {{ trip.pricePerPerson }} credits. Le conducteur recevra {{ (trip.pricePerPerson - 2) > 0 ? ((trip.pricePerPerson - 2)|number_format(2, '.', '')) : '0.00' }} credits.
+            </p>
             <a href="{{ path('app_covoiturage_participer', {id: trip.id}) }}" class="w-50 btn btn-vert">Participer</a>
           {% else %}
             <p>Plus de places disponibles.</p>
@@ -78,8 +155,21 @@
         {% for message in app.flashes('success') %}
           <div class="alert alert-success">{{ message }}</div>
         {% endfor %}
+        {% for message in app.flashes('info') %}
+          <div class="alert alert-info">{{ message }}</div>
+        {% endfor %}
       </div>
     </div>
   </div>
 </div>
+{% endblock %}
+
+{% block javascript %}
+    {{ parent() }}
+    <script
+        src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+        crossorigin=""
+    ></script>
+    <script type="module" src="{{ asset('js/trip-route-map.js') }}"></script>
 {% endblock %}

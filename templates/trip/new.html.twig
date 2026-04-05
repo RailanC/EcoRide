@@ -1,57 +1,131 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Créer un covoiturage{% endblock %}
+{% block title %}Creer un covoiturage{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('css/trip-seat-selector.css') }}">
+{% endblock %}
+
+{% block javascript %}
+    {{ parent() }}
+    <script type="module" src="{{ asset('js/trip-seat-selector.js') }}"></script>
+{% endblock %}
 
 {% block body %}
 <div class="container py-5" style="max-width: 880px;">
-    <div class="section-header">
-        <span class="section-title">Informations du trajet</span>
-    </div>
-
-    <div class="contact-card">
-        <form method="post">
-            <div class="row g-3">
-                <div class="col-md-6">
-                    <label class="contact-label" for="departure_city">Ville de départ</label>
-                    <input type="text" id="departure_city" name="departure_city" class="form-control contact-input" placeholder="Ex. Paris" required>
-                </div>
-                <div class="col-md-6">
-                    <label class="contact-label" for="arrival_city">Ville d'arrivée</label>
-                    <input type="text" id="arrival_city" name="arrival_city" class="form-control contact-input" placeholder="Ex. Lyon" required>
-                </div>
-                <div class="col-md-6">
-                    <label class="contact-label" for="departure_date">Date de départ</label>
-                    <input type="date" id="departure_date" name="departure_date" class="form-control contact-input" required>
-                </div>
-                <div class="col-md-6">
-                    <label class="contact-label" for="departure_time">Heure de départ</label>
-                    <input type="time" id="departure_time" name="departure_time" class="form-control contact-input">
-                </div>
-                <div class="col-md-6">
-                    <label class="contact-label" for="price">Prix (€)</label>
-                    <input type="number" id="price" name="price" class="form-control contact-input" min="0" placeholder="Ex. 15">
-                </div>
-                <div class="col-md-6">
-                    <label class="contact-label" for="seats">Places disponibles</label>
-                    <input type="number" id="seats" name="seats" class="form-control contact-input" min="1" placeholder="Ex. 3">
-                </div>
-                <div class="col-12">
-                    <label class="contact-label" for="car">Voiture utilisée</label>
-                    <select id="car" class="form-select contact-input" name="car">
-                        <option value="">Choisir une voiture</option>
-                        {% for vehicle in vehicles %}
-                            <option value="{{ vehicle.id }}">{{ vehicle.brand.label }} - {{ vehicle.model }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
+    {% if app.user %}
+        {% if vehicles|length > 0 %}
+            <div class="section-header">
+                <span class="section-title">Informations du trajet</span>
             </div>
 
-            <hr class="trips-divider">
+            <div class="contact-card">
+                {% for message in app.flashes('success') %}
+                    <div class="alert alert-success" role="alert">{{ message }}</div>
+                {% endfor %}
+                {% for message in app.flashes('error') %}
+                    <div class="alert alert-danger" role="alert">{{ message }}</div>
+                {% endfor %}
 
-            <div class="d-flex flex-wrap gap-2 justify-content-between align-items-center">
-                <button type="submit" class="btn-search" style="width:auto; border-radius: 12px; padding: 0.85rem 1.4rem;">Publier le covoiturage</button>
+                {{ form_start(form, { attr: { novalidate: 'novalidate' } }) }}
+                    {{ form_errors(form) }}
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            {{ form_label(form.departure_city) }}
+                            {{ form_widget(form.departure_city) }}
+                            {{ form_errors(form.departure_city) }}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form_label(form.arrival_city) }}
+                            {{ form_widget(form.arrival_city) }}
+                            {{ form_errors(form.arrival_city) }}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form_label(form.departure_date) }}
+                            {{ form_widget(form.departure_date) }}
+                            {{ form_errors(form.departure_date) }}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form_label(form.departure_time) }}
+                            {{ form_widget(form.departure_time) }}
+                            {{ form_errors(form.departure_time) }}
+                        </div>
+                        <div class="col-12">
+                            <div class="trip-helper-note" role="note">
+                                Arrivee estimee automatiquement. Depart au moins 24h a l'avance.
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            {{ form_label(form.price) }}
+                            {{ form_widget(form.price) }}
+                            {{ form_errors(form.price) }}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form_label(form.car) }}
+                            {{ form_widget(form.car) }}
+                            {{ form_errors(form.car) }}
+                        </div>
+                        <div class="col-md-6">
+                            <div class="trip-helper-note" role="note">
+                                Chaque trajet inclut 2 credits de frais fixes deduits du gain du conducteur.
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <label class="contact-label" for="seat-adjustment">Places disponibles</label>
+                            <div
+                                class="trip-seat-control"
+                                data-trip-seat-control
+                                data-vehicle-select-id="{{ form.car.vars.id }}"
+                                data-seat-input-id="{{ form.seats.vars.id }}"
+                            >
+                                {{ form_widget(form.seats) }}
+                                <div class="trip-seat-summary">
+                                    <span class="trip-seat-summary__value" data-seat-display>Selectionnez une voiture</span>
+                                    <span class="trip-seat-summary__hint" data-seat-hint>
+                                        Par defaut, toutes les places passagers sont disponibles.
+                                    </span>
+                                </div>
+                                <div class="trip-seat-actions">
+                                    <button type="button" class="btn-details trip-seat-toggle" data-seat-toggle>
+                                        Vous voyagez avec des proches ?
+                                    </button>
+                                    <button type="button" class="btn-details trip-seat-reset" data-seat-reset>
+                                        Utiliser toutes les places disponibles
+                                    </button>
+                                </div>
+                                <div class="trip-seat-dropdown d-none" data-seat-dropdown>
+                                    <label class="contact-label mb-2" for="seat-adjustment">Vous voyagez avec des proches ? Reduisez les places disponibles.</label>
+                                    <select id="seat-adjustment" class="form-select contact-input" data-seat-select>
+                                        <option value="">Utiliser toutes les places disponibles</option>
+                                    </select>
+                                    <div class="trip-seat-dropdown__help" data-seat-help>
+                                        Choisissez une voiture pour voir les reductions possibles.
+                                    </div>
+                                </div>
+                            </div>
+                            {{ form_errors(form.seats) }}
+                        </div>
+                        
+                    </div>
+
+                    <hr class="trips-divider">
+
+                    <div class="d-flex flex-wrap gap-2 justify-content-between align-items-center">
+                        <button type="submit" class="btn-search" style="width:auto; border-radius: 12px; padding: 0.85rem 1.4rem;">Publier le covoiturage</button>
+                    </div>
+                {{ form_end(form) }}
             </div>
-        </form>
-    </div>
+        {% else %}
+            <div class="alert alert-info" role="alert">
+                Vous devez avoir au moins une voiture enregistree pour proposer un covoiturage. <a href="{{ path('app_profile') }}" class="alert-link" data-turbo="false">Ajoutez une voiture ici</a>.
+            </div>
+        {% endif %}
+    {% else %}
+        <div class="alert alert-warning" role="alert">
+            Vous devez etre connecte pour proposer un covoiturage. <a href="{{ path('app_login') }}" class="alert-link">Connectez-vous ici</a>.
+        </div>
+    {% endif %}
 </div>
 {% endblock %}

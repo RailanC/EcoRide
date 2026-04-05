@@ -29,6 +29,8 @@ class TripRepository extends ServiceEntityRepository
         $queryBuilder = $this->createQueryBuilder('trip')
             ->leftJoin('trip.vehicle', 'vehicle')
             ->leftJoin('trip.driver', 'driver')
+            ->andWhere('trip.status != :canceledStatus')
+            ->setParameter('canceledStatus', 'canceled')
             ->orderBy('trip.departureDate', 'ASC');
 
         if (!empty($departure)) {
@@ -100,6 +102,8 @@ class TripRepository extends ServiceEntityRepository
             ->leftJoin('trip.vehicle', 'vehicle')
             ->leftJoin('trip.driver', 'driver')
             ->andWhere('trip.availableSeats > 0')
+            ->andWhere('trip.status != :canceledStatus')
+            ->setParameter('canceledStatus', 'canceled')
             ->orderBy('trip.departureDate', 'ASC')
             ->getQuery()
             ->getResult();
