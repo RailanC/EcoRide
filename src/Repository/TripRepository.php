@@ -3,6 +3,8 @@
 namespace App\Repository;
 
 use App\Entity\Trip;
+use App\Entity\User;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -11,6 +13,10 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class TripRepository extends ServiceEntityRepository
 {
+    public const HISTORY_TAB_ALL = 'all';
+    public const HISTORY_TAB_ACTIVE = 'active';
+    public const HISTORY_TAB_OLD = 'old';
+
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Trip::class);
@@ -107,5 +113,240 @@ class TripRepository extends ServiceEntityRepository
             ->orderBy('trip.departureDate', 'ASC')
             ->getQuery()
             ->getResult();
+    }
+
+    /**
+     * @return array<Trip>
+     */
+    public function findDriverHistoryTrips(User $driver, string $tab, ?string $search = null): array
+    {
+        $queryBuilder = $this->createDriverHistoryQueryBuilder($driver, $tab);
+        $this->applyHistorySearch($queryBuilder, $search);
+
+        return array_values($queryBuilder->getQuery()->getResult());
+    }
+
+    /**
+     * @return array<Trip>
+     */
+    public function findPassengerHistoryTrips(User $passenger, string $tab, ?string $search = null): array
+    {
+        $queryBuilder = $this->createPassengerHistoryQueryBuilder($passenger, $tab);
+        $this->applyHistorySearch($queryBuilder, $search);
+
+        return array_values($queryBuilder->getQuery()->getResult());
+    }
+
+    /**
+     * @return array{all: int, active: int, old: int}
+     */
+    public function countDriverHistoryTrips(User $driver): array
+    {
+        return [
+            self::HISTORY_TAB_ALL => $this->countDriverHistoryTripsForTab($driver, self::HISTORY_TAB_ALL),
+            self::HISTORY_TAB_ACTIVE => $this->countDriverHistoryTripsForTab($driver, self::HISTORY_TAB_ACTIVE),
+            self::HISTORY_TAB_OLD => $this->countDriverHistoryTripsForTab($driver, self::HISTORY_TAB_OLD),
+        ];
+    }
+
+    /**
+     * @return array{all: int, active: int, old: int}
+     */
+    public function countPassengerHistoryTrips(User $passenger): array
+    {
+        return [
+            self::HISTORY_TAB_ALL => $this->countPassengerHistoryTripsForTab($passenger, self::HISTORY_TAB_ALL),
+            self::HISTORY_TAB_ACTIVE => $this->countPassengerHistoryTripsForTab($passenger, self::HISTORY_TAB_ACTIVE),
+            self::HISTORY_TAB_OLD => $this->countPassengerHistoryTripsForTab($passenger, self::HISTORY_TAB_OLD),
+        ];
+    }
+
+    private function applyHistorySearch($queryBuilder, ?string $search): void
+    {
+        $search = trim((string) $search);
+
+        if ($search !== '') {
+            $normalizedSearch = mb_strtolower($search);
+            $searchConditions = $queryBuilder->expr()->orX(
+                'LOWER(trip.departureLocation) LIKE :search',
+                'LOWER(trip.arrivalLocation) LIKE :search',
+                'LOWER(trip.status) LIKE :search',
+                'LOWER(COALESCE(driver.username, \'\')) LIKE :search',
+                'LOWER(COALESCE(vehicle.model, \'\')) LIKE :search',
+                'LOWER(COALESCE(vehicle.energyType, \'\')) LIKE :search',
+                'LOWER(COALESCE(brand.label, \'\')) LIKE :search'
+            );
+
+            $date = $this->parseSearchDate($search);
+
+            if ($date instanceof \DateTimeImmutable) {
+                $searchConditions->add('trip.departureDate = :searchDate');
+                $searchConditions->add('trip.arrivalDate = :searchDate');
+                $queryBuilder->setParameter(
+                    'searchDate',
+                    \DateTime::createFromImmutable($date->setTime(0, 0)),
+                    Types::DATE_MUTABLE
+                );
+            }
+
+            $queryBuilder
+                ->andWhere($searchConditions)
+                ->setParameter('search', '%' . $normalizedSearch . '%');
+        }
+    }
+
+    private function countDriverHistoryTripsForTab(User $driver, string $tab): int
+    {
+        return (int) $this->createDriverHistoryQueryBuilder($driver, $tab, false)
+            ->select('COUNT(trip.id)')
+            ->resetDQLPart('orderBy')
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
+    private function countPassengerHistoryTripsForTab(User $passenger, string $tab): int
+    {
+        return (int) $this->createPassengerHistoryQueryBuilder($passenger, $tab, false)
+            ->select('COUNT(trip.id)')
+            ->resetDQLPart('orderBy')
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
+    private function createDriverHistoryQueryBuilder(User $driver, string $tab, bool $withSelects = true)
+    {
+        $tab = $this->normalizeHistoryTab($tab);
+        $now = new \DateTimeImmutable();
+        $today = $now->setTime(0, 0);
+        $currentTime = $now->format('H:i:s');
+
+        $queryBuilder = $this->createQueryBuilder('trip')
+            ->leftJoin('trip.vehicle', 'vehicle')
+            ->leftJoin('vehicle.brand', 'brand')
+            ->leftJoin('trip.driver', 'driver')
+            ->andWhere('trip.driver = :driver')
+            ->setParameter('driver', $driver);
+
+        if ($withSelects) {
+            $queryBuilder->addSelect('vehicle', 'brand', 'driver');
+        }
+
+        if ($tab === self::HISTORY_TAB_ACTIVE) {
+            $queryBuilder
+                ->andWhere('trip.status != :canceledStatus')
+                ->andWhere('(trip.departureDate > :today OR (trip.departureDate = :today AND trip.departureTime >= :currentTime))')
+                ->setParameter('canceledStatus', 'canceled')
+                ->setParameter('today', $today)
+                ->setParameter('currentTime', $currentTime)
+                ->orderBy('trip.departureDate', 'ASC')
+                ->addOrderBy('trip.departureTime', 'ASC');
+
+            return $queryBuilder;
+        }
+
+        if ($tab === self::HISTORY_TAB_OLD) {
+            $queryBuilder
+                ->andWhere('(trip.status = :canceledStatus OR trip.departureDate < :today OR (trip.departureDate = :today AND trip.departureTime < :currentTime))')
+                ->setParameter('canceledStatus', 'canceled')
+                ->setParameter('today', $today)
+                ->setParameter('currentTime', $currentTime)
+                ->orderBy('trip.departureDate', 'DESC')
+                ->addOrderBy('trip.departureTime', 'DESC');
+
+            return $queryBuilder;
+        }
+
+        $queryBuilder
+            ->orderBy('trip.departureDate', 'DESC')
+            ->addOrderBy('trip.departureTime', 'DESC');
+
+        return $queryBuilder;
+    }
+
+    private function createPassengerHistoryQueryBuilder(User $passenger, string $tab, bool $withSelects = true)
+    {
+        $tab = $this->normalizeHistoryTab($tab);
+        $now = new \DateTimeImmutable();
+        $today = $now->setTime(0, 0);
+        $currentTime = $now->format('H:i:s');
+        $entityManager = $this->getEntityManager();
+        $bookingSubquery = $entityManager->createQueryBuilder()
+            ->select('1')
+            ->from('App\Entity\Booking', 'booking_history')
+            ->andWhere('booking_history.trip = trip')
+            ->andWhere('booking_history.user = :passenger')
+            ->andWhere('booking_history.confirmation = :confirmed');
+        $expr = $this->createQueryBuilder('trip_expr')->expr();
+
+        $queryBuilder = $this->createQueryBuilder('trip')
+            ->leftJoin('trip.vehicle', 'vehicle')
+            ->leftJoin('vehicle.brand', 'brand')
+            ->leftJoin('trip.driver', 'driver')
+            ->andWhere($expr->exists($bookingSubquery->getDQL()))
+            ->setParameter('passenger', $passenger)
+            ->setParameter('confirmed', true);
+
+        if ($withSelects) {
+            $queryBuilder->addSelect('vehicle', 'brand', 'driver');
+        }
+
+        if ($tab === self::HISTORY_TAB_ACTIVE) {
+            $queryBuilder
+                ->andWhere('trip.status != :canceledStatus')
+                ->andWhere('(trip.departureDate > :today OR (trip.departureDate = :today AND trip.departureTime >= :currentTime))')
+                ->setParameter('canceledStatus', 'canceled')
+                ->setParameter('today', $today)
+                ->setParameter('currentTime', $currentTime)
+                ->orderBy('trip.departureDate', 'ASC')
+                ->addOrderBy('trip.departureTime', 'ASC');
+
+            return $queryBuilder;
+        }
+
+        if ($tab === self::HISTORY_TAB_OLD) {
+            $queryBuilder
+                ->andWhere('(trip.status = :canceledStatus OR trip.departureDate < :today OR (trip.departureDate = :today AND trip.departureTime < :currentTime))')
+                ->setParameter('canceledStatus', 'canceled')
+                ->setParameter('today', $today)
+                ->setParameter('currentTime', $currentTime)
+                ->orderBy('trip.departureDate', 'DESC')
+                ->addOrderBy('trip.departureTime', 'DESC');
+
+            return $queryBuilder;
+        }
+
+        $queryBuilder
+            ->orderBy('trip.departureDate', 'DESC')
+            ->addOrderBy('trip.departureTime', 'DESC');
+
+        return $queryBuilder;
+    }
+
+    private function normalizeHistoryTab(string $tab): string
+    {
+        return in_array($tab, [self::HISTORY_TAB_ALL, self::HISTORY_TAB_ACTIVE, self::HISTORY_TAB_OLD], true)
+            ? $tab
+            : self::HISTORY_TAB_ALL;
+    }
+
+    private function parseSearchDate(string $search): ?\DateTimeImmutable
+    {
+        $normalized = trim($search);
+
+        if ($normalized === '') {
+            return null;
+        }
+
+        $formats = ['Y-m-d', 'd/m/Y', 'd-m-Y'];
+
+        foreach ($formats as $format) {
+            $date = \DateTimeImmutable::createFromFormat($format, $normalized);
+
+            if ($date instanceof \DateTimeImmutable) {
+                return $date;
+            }
+        }
+
+        return null;
     }
 }

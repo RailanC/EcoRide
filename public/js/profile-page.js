@@ -127,7 +127,7 @@ function buildVehicleBlock(index) {
                 <input type="text" id="profile_form_vehicles_${index}_registrationNumber" name="profile_form[vehicles][${index}][registrationNumber]" class="form-control contact-input" placeholder="AB-123-CD" required>
             </div>
             <div class="col-12 col-sm-6">
-                <label class="contact-label" for="profile_form_vehicles_${index}_firstRegistrationDate">1ère mise en circulation</label>
+                <label class="contact-label" for="profile_form_vehicles_${index}_firstRegistrationDate">1ere mise en circulation</label>
                 <input type="date" id="profile_form_vehicles_${index}_firstRegistrationDate" name="profile_form[vehicles][${index}][firstRegistrationDate]" class="form-control contact-input" style="color-scheme:dark;">
             </div>
             <div class="col-12 col-sm-4">
@@ -138,20 +138,20 @@ function buildVehicleBlock(index) {
                 </select>
             </div>
             <div class="col-12 col-sm-4">
-                <label class="contact-label" for="profile_form_vehicles_${index}_model">Modèle</label>
-                <input type="text" id="profile_form_vehicles_${index}_model" name="profile_form[vehicles][${index}][model]" class="form-control contact-input" placeholder="Zoé" required>
+                <label class="contact-label" for="profile_form_vehicles_${index}_model">Modele</label>
+                <input type="text" id="profile_form_vehicles_${index}_model" name="profile_form[vehicles][${index}][model]" class="form-control contact-input" placeholder="Zoe" required>
             </div>
             <div class="col-12 col-sm-4">
                 <label class="contact-label" for="profile_form_vehicles_${index}_color">Couleur</label>
                 <input type="text" id="profile_form_vehicles_${index}_color" name="profile_form[vehicles][${index}][color]" class="form-control contact-input" placeholder="Blanche">
             </div>
             <div class="col-12 col-sm-4">
-                <label class="contact-label" for="profile_form_vehicles_${index}_energyType">Type d'énergie</label>
+                <label class="contact-label" for="profile_form_vehicles_${index}_energyType">Type d'energie</label>
                 <select id="profile_form_vehicles_${index}_energyType" name="profile_form[vehicles][${index}][energyType]" class="form-select contact-input" required>
                     <option value="">Choisir</option>
                     <option value="Essence">Essence</option>
                     <option value="Diesel">Diesel</option>
-                    <option value="Électrique">Électrique</option>
+                    <option value="Electrique">Electrique</option>
                     <option value="Hybride">Hybride</option>
                     <option value="Hybride rechargeable">Hybride rechargeable</option>
                     <option value="GNV">GNV</option>
@@ -173,7 +173,7 @@ function buildVehicleBlock(index) {
         </div>
         <div class="mt-4 pt-3" style="border-top:1px solid rgba(255,255,255,.07);">
             <div class="d-flex align-items-center justify-content-between mb-3">
-                <p class="contact-label mb-0" style="font-size:.78rem;">Préférences à bord</p>
+                <p class="contact-label mb-0" style="font-size:.78rem;">Preferences a bord</p>
                 <span style="font-size:.7rem;color:var(--text-muted);">Configurables</span>
             </div>
             <div class="row g-2 mb-3">
@@ -192,7 +192,7 @@ function buildVehicleBlock(index) {
             </div>
         </div>
         <input type="hidden" name="profile_form[vehicles][${index}][preferences]" value='{"smoking":0,"animals":0,"custom":[]}' data-preferences-hidden>
-        <button type="button" class="btn btn-sm btn-outline-danger mt-3 remove-vehicle-btn">Supprimer ce véhicule</button>
+        <button type="button" class="btn btn-sm btn-outline-danger mt-3 remove-vehicle-btn" data-confirm-message="Voulez-vous vraiment supprimer ce vehicule de votre profil ?" data-confirm-title="Supprimer ce vehicule" data-confirm-button="Oui, supprimer" data-confirm-action="remove-closest" data-confirm-target=".vehicle-block">Supprimer ce vehicule</button>
     `;
 
     return block;
@@ -217,10 +217,6 @@ function initProfilePage() {
 
     document.querySelectorAll('.vehicle-block').forEach(initializeVehicleBlock);
 
-    document.querySelectorAll('.remove-vehicle-btn').forEach(button => {
-        button.onclick = () => button.closest('.vehicle-block')?.remove();
-    });
-
     const addVehicleButton = document.getElementById('addVehicleBtn');
     if (addVehicleButton && !addVehicleButton.dataset.bound) {
         addVehicleButton.dataset.bound = 'true';
@@ -242,11 +238,6 @@ document.addEventListener('click', event => {
             updateToggleButton(toggle, preferenceButton.dataset.prefValue);
             updatePreferencesJson(vehicleBlock);
         }
-    }
-
-    const removeButton = event.target.closest('.remove-vehicle-btn');
-    if (removeButton) {
-        removeButton.closest('.vehicle-block')?.remove();
     }
 });
 
