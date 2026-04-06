@@ -1,0 +1,402 @@
+{% extends 'base.html.twig' %}
+
+{% set tabLabels = {
+    all: selectedMode == 'driver' ? 'Tous les trajets crees' : 'Tous les trajets reserves',
+    active: selectedMode == 'driver' ? 'Trajets actifs' : 'Trajets a venir',
+    old: selectedMode == 'driver' ? 'Anciens trajets' : 'Trajets passes'
+} %}
+{% set statusLabels = {
+    planned: 'Planifie',
+    in_progress: 'En cours',
+    arrived: 'Arrive',
+    completed: 'Complete',
+    disputed: 'Litige',
+    canceled: 'Annule'
+} %}
+
+{% block title %}Mes trajets{% endblock %}
+
+{% block body %}
+<div class="container py-5">
+    <div class="mb-5">
+        <p class="search-eyebrow mb-1">Espace personnel</p>
+        <h1 class="fw-bold" style="font-family:'Sora',sans-serif;font-size:2rem;letter-spacing:-0.02em;">Mes trajets</h1>
+        <p style="color:var(--text-muted);font-size:0.92rem;margin-top:0.25rem;">
+            Suivez vos trajets conducteur, vos validations passager et la moderation.
+        </p>
+    </div>
+
+    {% for msg in app.flashes('success') %}
+        <div class="alert alert-success">{{ msg }}</div>
+    {% endfor %}
+    {% for msg in app.flashes('error') %}
+        <div class="alert alert-danger">{{ msg }}</div>
+    {% endfor %}
+    {% for msg in app.flashes('info') %}
+        <div class="alert alert-info">{{ msg }}</div>
+    {% endfor %}
+
+    <div class="d-flex gap-2 flex-wrap mb-4">
+        <a href="{{ path('app_profile') }}" class="btn btn-outline-light btn-sm">Retour au profil</a>
+        <a href="#trip-sections" class="btn btn-outline-light btn-sm">Voir mes espaces</a>
+    </div>
+
+    <div id="trip-sections" class="contact-card mb-4">
+        <div class="d-flex flex-wrap gap-2 mb-4" role="tablist" aria-label="Espaces trajets">
+            {% if isHistoryAvailable %}
+                <button
+                    class="btn btn-vert btn-sm active"
+                    id="history-tab"
+                    data-bs-toggle="tab"
+                    data-bs-target="#history-pane"
+                    type="button"
+                    role="tab"
+                    aria-controls="history-pane"
+                    aria-selected="true"
+                >
+                    Historique de mes trajets
+                </button>
+            {% endif %}
+            {% if isPassenger %}
+                <button
+                    class="btn btn-details btn-sm {{ not isHistoryAvailable ? 'active' }}"
+                    id="reviews-tab"
+                    data-bs-toggle="tab"
+                    data-bs-target="#reviews-pane"
+                    type="button"
+                    role="tab"
+                    aria-controls="reviews-pane"
+                    aria-selected="{{ not isHistoryAvailable ? 'true' : 'false' }}"
+                >
+                    Mes notes et avis
+                </button>
+                <button
+                    class="btn btn-details btn-sm"
+                    id="validations-tab"
+                    data-bs-toggle="tab"
+                    data-bs-target="#validations-pane"
+                    type="button"
+                    role="tab"
+                    aria-controls="validations-pane"
+                    aria-selected="false"
+                >
+                    Mes validations de trajets
+                </button>
+            {% endif %}
+            {% if isDriver %}
+                <button
+                    class="btn btn-details btn-sm {{ not isHistoryAvailable and not isPassenger ? 'active' }}"
+                    id="driver-tab"
+                    data-bs-toggle="tab"
+                    data-bs-target="#driver-pane"
+                    type="button"
+                    role="tab"
+                    aria-controls="driver-pane"
+                    aria-selected="{{ not isHistoryAvailable and not isPassenger ? 'true' : 'false' }}"
+                >
+                    Mes trajets conducteur
+                </button>
+            {% endif %}
+        </div>
+
+        <div class="tab-content">
+            {% if isHistoryAvailable %}
+                <div class="tab-pane fade show active" id="history-pane" role="tabpanel" aria-labelledby="history-tab" tabindex="0">
+                    <h2 id="history" class="contact-title mb-3" style="font-size:1rem;text-align:left;">Historique de mes trajets</h2>
+
+                    {% if availableModes|length > 1 %}
+                        <div class="d-flex flex-wrap gap-2 mb-4">
+                            <a
+                                href="{{ path('app_profile_trips', {mode: 'driver', tab: selectedTab, q: selectedMode == 'driver' ? search : ''}) }}#history"
+                                class="btn {{ selectedMode == 'driver' ? 'btn-vert' : 'btn-details' }}"
+                            >
+                                Historique conducteur
+                            </a>
+                            <a
+                                href="{{ path('app_profile_trips', {mode: 'passenger', tab: selectedTab, q: selectedMode == 'passenger' ? search : ''}) }}#history"
+                                class="btn {{ selectedMode == 'passenger' ? 'btn-vert' : 'btn-details' }}"
+                            >
+                                Historique passager
+                            </a>
+                        </div>
+                    {% endif %}
+
+                    <div class="d-flex flex-wrap gap-2 mb-4">
+                        {% for tabKey, tabLabel in tabLabels %}
+                            <a
+                                href="{{ path('app_profile_trips', {mode: selectedMode, tab: tabKey, q: tabKey == selectedTab ? search : ''}) }}#history"
+                                class="btn {{ selectedTab == tabKey ? 'btn-vert' : 'btn-details' }}"
+                            >
+                                {{ tabLabel }} ({{ historyTabCounts[tabKey] }})
+                            </a>
+                        {% endfor %}
+                    </div>
+
+                    <form method="get" action="{{ path('app_profile_trips') }}" class="mb-4">
+                        <input type="hidden" name="mode" value="{{ selectedMode }}">
+                        <input type="hidden" name="tab" value="{{ selectedTab }}">
+                        <div class="search-pill">
+                            <div class="row g-0 align-items-center w-100">
+                                <div class="col-12 col-lg search-field">
+                                    <span class="field-label">Recherche</span>
+                                    <input
+                                        type="text"
+                                        name="q"
+                                        class="form-control"
+                                        value="{{ search }}"
+                                        placeholder="{{ selectedMode == 'driver' ? 'Ville de depart, destination, date, statut, vehicule...' : 'Ville de depart, destination, date, statut, conducteur, vehicule...' }}"
+                                    />
+                                </div>
+                                <div class="col-12 col-lg-auto p-3">
+                                    <div class="d-flex gap-2">
+                                        <button type="submit" class="btn-search" style="width:auto; border-radius: 12px; padding: 0.85rem 1.4rem;">Rechercher</button>
+                                        <a href="{{ path('app_profile_trips', {mode: selectedMode, tab: selectedTab}) }}#history" class="btn-details text-decoration-none">Reinitialiser</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+
+                    <div class="section-header">
+                        <span class="section-title">{{ tabLabels[selectedTab] }}</span>
+                        <span class="results-count">{{ historyTrips|length }} resultat{{ historyTrips|length > 1 ? 's' }}</span>
+                    </div>
+
+                    {% if historyTrips is empty %}
+                        <div class="empty-state">
+                            <div class="empty-state-icon">Aucun trajet</div>
+                            <div class="empty-state-title">Aucun trajet correspondant</div>
+                            <p style="font-size:0.95rem;">
+                                Aucun trajet ne correspond a votre recherche dans cet onglet.
+                            </p>
+                        </div>
+                    {% else %}
+                        {% for trip in historyTrips %}
+                            <a href="{{ path('app_covoiturage_show', {id: trip.id}) }}" class="trip-card mb-3" data-turbo="false">
+                                <div class="trip-card-left">
+                                    <div class="driver-avatar">{{ app.user.username|slice(0, 2)|upper }}</div>
+                                    <div class="trip-info">
+                                        <div class="trip-route">
+                                            {{ trip.departureLocation }} <span class="route-arrow">&rarr;</span> {{ trip.arrivalLocation }}
+                                            {% if trip.status == 'canceled' %}
+                                                <span class="trip-card-badge" style="background:#fce8e6; color:#b42318;">Annule</span>
+                                            {% elseif trip.status == 'completed' %}
+                                                <span class="trip-card-badge" style="background:#e7f6ec; color:#166534;">Complete</span>
+                                            {% elseif selectedTab == 'active' %}
+                                                <span class="trip-card-badge">Actif</span>
+                                            {% endif %}
+                                        </div>
+                                        <div class="trip-meta">
+                                            <span class="meta-item">{{ trip.departureDate|date('d M Y') }}</span>
+                                            <span class="meta-dot"></span>
+                                            <span class="meta-item">{{ trip.departureTime|date('H:i') }} &rarr; {{ trip.arrivalTime|date('H:i') }}</span>
+                                            <span class="meta-dot"></span>
+                                            <span class="meta-item">{{ trip.availableSeats }} place{{ trip.availableSeats > 1 ? 's' }}</span>
+                                            <span class="meta-dot"></span>
+                                            <span class="meta-item">Statut: {{ statusLabels[trip.status]|default(trip.status) }}</span>
+                                            {% if selectedMode == 'passenger' and trip.driver %}
+                                                <span class="meta-dot"></span>
+                                                <span class="meta-item">Conducteur: {{ trip.driver.username }}</span>
+                                            {% endif %}
+                                            {% if trip.vehicle %}
+                                                <span class="meta-dot"></span>
+                                                <span class="meta-item">
+                                                    {{ trip.vehicle.brand ? trip.vehicle.brand.label ~ ' ' : '' }}{{ trip.vehicle.model }}
+                                                </span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="trip-card-right">
+                                    <div>
+                                        <div class="trip-price">{{ trip.pricePerPerson }} credits</div>
+                                        <div class="trip-price-label" style="text-align:right;">par passager</div>
+                                    </div>
+                                    <span class="btn-details">Voir le trajet</span>
+                                </div>
+                            </a>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            {% endif %}
+
+            {% if isPassenger %}
+                <div class="tab-pane fade {{ not isHistoryAvailable ? 'show active' }}" id="reviews-pane" role="tabpanel" aria-labelledby="reviews-tab" tabindex="0">
+                    <h2 class="contact-title mb-3" style="font-size:1rem;text-align:left;">Mes notes et avis</h2>
+
+                    {% if authoredReviews is empty %}
+                        <p class="mb-0" style="color:var(--text-muted);">Vous n avez pas encore laisse d avis.</p>
+                    {% else %}
+                        <div class="d-flex flex-column gap-3">
+                            {% for review in authoredReviews %}
+                                <div style="border:1px solid rgba(255,255,255,.08);border-radius:var(--radius-sm);padding:1rem;">
+                                    <div class="d-flex justify-content-between align-items-start gap-2 flex-wrap">
+                                        <div>
+                                            <div class="fw-semibold">
+                                                {{ review.trip ? review.trip.departureLocation ~ ' → ' ~ review.trip.arrivalLocation : 'Trajet supprime' }}
+                                            </div>
+                                            <div style="font-size:.82rem;color:var(--text-muted);">
+                                                {% if review.trip and review.trip.departureDate and review.trip.departureTime %}
+                                                    {{ review.trip.departureDate|date('d/m/Y') }} a {{ review.trip.departureTime|date('H:i') }}
+                                                {% endif %}
+                                                {% if review.user %}
+                                                    {% if review.trip and review.trip.departureDate and review.trip.departureTime %} | {% endif %}
+                                                    Conducteur: {{ review.user.username }}
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                        <div class="d-flex flex-column align-items-end gap-2">
+                                            <span class="badge-eco">{{ review.rating }}/5</span>
+                                            <span class="btn-details">
+                                                {% if review.status == 'approved' %}
+                                                    Approuve
+                                                {% elseif review.status == 'rejected' %}
+                                                    Refuse
+                                                {% else %}
+                                                    En attente
+                                                {% endif %}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div style="margin-top:.85rem;color:var(--text-muted);font-size:.9rem;">
+                                        {{ review.comment }}
+                                    </div>
+                                    {% if review.moderationNote %}
+                                        <div style="margin-top:.7rem;font-size:.82rem;color:var(--text-muted);">
+                                            Moderation: {{ review.moderationNote }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="tab-pane fade" id="validations-pane" role="tabpanel" aria-labelledby="validations-tab" tabindex="0">
+                    <h2 class="contact-title mb-3" style="font-size:1rem;text-align:left;">Mes validations de trajets</h2>
+
+                    {% if pendingConfirmations is empty %}
+                        <p class="mb-0" style="color:var(--text-muted);">Aucun trajet n attend encore votre confirmation.</p>
+                    {% else %}
+                        <div class="d-flex flex-column gap-3">
+                            {% for booking in pendingConfirmations %}
+                                <div style="border:1px solid rgba(255,255,255,.08);border-radius:var(--radius-sm);padding:1rem;">
+                                    <div class="fw-semibold">{{ booking.trip.departureLocation }} &rarr; {{ booking.trip.arrivalLocation }}</div>
+                                    <div style="font-size:.82rem;color:var(--text-muted);">
+                                        Conducteur: {{ booking.trip.driver.username }} | Statut: {{ booking.trip.status }}
+                                    </div>
+                                    <div class="mt-3">
+                                        <a href="{{ path('app_covoiturage_validate', {id: booking.trip.id}) }}" class="btn btn-vert btn-sm">Valider le trajet</a>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            {% endif %}
+
+            {% if isDriver %}
+                <div class="tab-pane fade {{ not isHistoryAvailable and not isPassenger ? 'show active' }}" id="driver-pane" role="tabpanel" aria-labelledby="driver-tab" tabindex="0">
+                    <h2 class="contact-title mb-3" style="font-size:1rem;text-align:left;">Mes trajets conducteur</h2>
+
+                    {% if driverTrips is empty %}
+                        <p class="mb-0" style="color:var(--text-muted);">Vous n avez aucun trajet conducteur actif pour le moment.</p>
+                    {% else %}
+                        <div class="d-flex flex-column gap-3">
+                            {% for trip in driverTrips %}
+                                {% set departureAt = date(trip.departureDate|date('Y-m-d') ~ ' ' ~ trip.departureTime|date('H:i:s')) %}
+                                {% set startsEarly = departureAt > date() %}
+                                <div style="border:1px solid rgba(255,255,255,.08);border-radius:var(--radius-sm);padding:1rem;">
+                                    <div class="d-flex justify-content-between align-items-start gap-2 flex-wrap">
+                                        <div>
+                                            <div class="fw-semibold">{{ trip.departureLocation }} &rarr; {{ trip.arrivalLocation }}</div>
+                                            <div style="font-size:.82rem;color:var(--text-muted);">
+                                                {{ trip.departureDate|date('d/m/Y') }} a {{ trip.departureTime|date('H:i') }}
+                                            </div>
+                                        </div>
+                                        <span class="badge-eco">{{ trip.status }}</span>
+                                    </div>
+                                    <div class="d-flex gap-2 flex-wrap mt-3">
+                                        <a href="{{ path('app_covoiturage_show', {id: trip.id}) }}" class="btn btn-outline-light btn-sm">Voir</a>
+                                        {% if trip.status == 'planned' %}
+                                            <form
+                                                method="post"
+                                                action="{{ path('app_covoiturage_start', {id: trip.id}) }}"
+                                                {% if startsEarly %}
+                                                    data-confirm-message="Ce trajet est prevu pour le {{ trip.departureDate|date('d/m/Y') }} a {{ trip.departureTime|date('H:i') }}. Voulez-vous vraiment le demarrer avant l heure prevue ?"
+                                                    data-confirm-title="Demarrer le trajet en avance"
+                                                    data-confirm-button="Oui, demarrer quand meme"
+                                                {% endif %}
+                                            >
+                                                <input type="hidden" name="_token" value="{{ csrf_token('start_trip_' ~ trip.id) }}">
+                                                <button type="submit" class="btn btn-vert btn-sm">Demarrer</button>
+                                            </form>
+                                        {% elseif trip.status == 'in_progress' %}
+                                            <form method="post" action="{{ path('app_covoiturage_arrive', {id: trip.id}) }}">
+                                                <input type="hidden" name="_token" value="{{ csrf_token('arrive_trip_' ~ trip.id) }}">
+                                                <button type="submit" class="btn btn-vert btn-sm">Arrive a destination</button>
+                                            </form>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+
+                    <div class="mt-4 pt-4" style="border-top:1px solid rgba(255,255,255,.08);">
+                        <h3 class="contact-title mb-3" style="font-size:1rem;text-align:left;">Avis recus sur mes trajets</h3>
+
+                        {% if receivedDriverReviews is empty %}
+                            <p class="mb-0" style="color:var(--text-muted);">Aucun avis n a encore ete laisse sur vos trajets.</p>
+                        {% else %}
+                            <div class="d-flex flex-column gap-3">
+                                {% for review in receivedDriverReviews %}
+                                    <div style="border:1px solid rgba(255,255,255,.08);border-radius:var(--radius-sm);padding:1rem;">
+                                        <div class="d-flex justify-content-between align-items-start gap-2 flex-wrap">
+                                            <div>
+                                                <div class="fw-semibold">
+                                                    {{ review.trip ? review.trip.departureLocation ~ ' → ' ~ review.trip.arrivalLocation : 'Trajet supprime' }}
+                                                </div>
+                                                <div style="font-size:.82rem;color:var(--text-muted);">
+                                                    {% if review.trip and review.trip.departureDate and review.trip.departureTime %}
+                                                        {{ review.trip.departureDate|date('d/m/Y') }} a {{ review.trip.departureTime|date('H:i') }}
+                                                    {% endif %}
+                                                    {% if review.author %}
+                                                        {% if review.trip and review.trip.departureDate and review.trip.departureTime %} | {% endif %}
+                                                        Passager: {{ review.author.username }}
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                            <div class="d-flex flex-column align-items-end gap-2">
+                                                <span class="badge-eco">{{ review.rating }}/5</span>
+                                                <span class="btn-details">
+                                                    {% if review.status == 'approved' %}
+                                                        Approuve
+                                                    {% elseif review.status == 'rejected' %}
+                                                        Refuse
+                                                    {% else %}
+                                                        En attente
+                                                    {% endif %}
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div style="margin-top:.85rem;color:var(--text-muted);font-size:.9rem;">
+                                            {{ review.comment }}
+                                        </div>
+                                        {% if review.moderationNote %}
+                                            <div style="margin-top:.7rem;font-size:.82rem;color:var(--text-muted);">
+                                                Moderation: {{ review.moderationNote }}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+</div>
+{% endblock %}

@@ -8,6 +8,7 @@ use App\Entity\User;
 use App\Exception\RouteEstimationException;
 use App\Exception\TripParticipationException;
 use App\Form\NewTripFormType;
+use App\Form\TripOutcomeFormType;
 use App\Repository\BookingRepository;
 use App\Repository\TripRepository;
 use App\Service\TripParticipationService;
@@ -144,7 +145,7 @@ final class TripController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid() && $form->getErrors(true)->count() === 0) {
             $trip->setDriver($user);
-            $trip->setStatus('planifie');
+            $trip->setStatus(Trip::STATUS_PLANNED);
 
             $entityManager->persist($trip);
             $entityManager->flush();
@@ -320,7 +321,13 @@ final class TripController extends AbstractController
             return $this->redirectToRoute('app_covoiturage_show', ['id' => $trip->getId()]);
         }
 
-        if ($trip->getStatus() === 'canceled') {
+        if ($trip->getStatus() !== Trip::STATUS_PLANNED) {
+            $this->addFlash('error', 'Ce trajet n accepte plus de nouvelles participations.');
+
+            return $this->redirectToRoute('app_covoiturage_show', ['id' => $trip->getId()]);
+        }
+
+        if ($trip->getStatus() === Trip::STATUS_CANCELED) {
             $this->addFlash('error', 'Ce trajet est deja annule.');
 
             return $this->redirectToRoute('app_covoiturage_show', ['id' => $trip->getId()]);
@@ -387,6 +394,130 @@ final class TripController extends AbstractController
         $this->addFlash('success', 'Votre participation a ete confirmee.');
 
         return $this->redirectToRoute('app_covoiturage_show', ['id' => $trip->getId()]);
+    }
+
+    #[Route('/covoiturages/{id}/start', name: 'app_covoiturage_start', methods: ['POST'])]
+    public function startTrip(
+        Request $request,
+        Trip $trip,
+        TripParticipationService $tripParticipationService,
+    ): Response {
+        $currentUser = $this->getUser();
+
+        if (!$currentUser instanceof User) {
+            return $this->redirectToRoute('app_login');
+        }
+
+        if (!$this->isCsrfTokenValid('start_trip_' . $trip->getId(), (string) $request->request->get('_token'))) {
+            throw $this->createAccessDeniedException('Token CSRF invalide.');
+        }
+
+        try {
+            $tripParticipationService->startTrip($trip, $currentUser);
+            $this->addFlash('success', 'Le trajet est maintenant en cours.');
+        } catch (TripParticipationException $exception) {
+            $this->addFlash('error', $exception->getMessage());
+        }
+
+        return $this->redirectToRoute('app_profile_trips');
+    }
+
+    #[Route('/covoiturages/{id}/arrive', name: 'app_covoiturage_arrive', methods: ['POST'])]
+    public function markArrived(
+        Request $request,
+        Trip $trip,
+        TripParticipationService $tripParticipationService,
+    ): Response {
+        $currentUser = $this->getUser();
+
+        if (!$currentUser instanceof User) {
+            return $this->redirectToRoute('app_login');
+        }
+
+        if (!$this->isCsrfTokenValid('arrive_trip_' . $trip->getId(), (string) $request->request->get('_token'))) {
+            throw $this->createAccessDeniedException('Token CSRF invalide.');
+        }
+
+        try {
+            $tripParticipationService->markTripArrived($trip, $currentUser);
+            $this->addFlash('success', 'Le trajet a ete marque comme arrive.');
+        } catch (TripParticipationException $exception) {
+            $this->addFlash('error', $exception->getMessage());
+        }
+
+        return $this->redirectToRoute('app_profile_trips');
+    }
+
+    #[Route('/covoiturages/{id}/validate', name: 'app_covoiturage_validate', methods: ['GET', 'POST'])]
+    public function validateTrip(
+        Request $request,
+        Trip $trip,
+        BookingRepository $bookingRepository,
+        TripParticipationService $tripParticipationService,
+    ): Response {
+        $currentUser = $this->getUser();
+
+        if (!$currentUser instanceof User) {
+            return $this->redirectToRoute('app_login');
+        }
+
+        $booking = $bookingRepository->findParticipantBookingForTrip($currentUser, $trip);
+
+        if (!$booking instanceof Booking) {
+            throw $this->createAccessDeniedException('Vous ne pouvez pas valider ce trajet.');
+        }
+
+        $form = $this->createForm(TripOutcomeFormType::class);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $data = (array) $form->getData();
+            $score = (int) ($data['outcome'] ?? 0);
+            $normalizedOutcome = $score >= 4 ? 'good' : 'bad';
+
+            try {
+                $tripParticipationService->submitTripOutcome(
+                    $trip,
+                    $currentUser,
+                    $score,
+                    $normalizedOutcome,
+                    (string) ($data['comment'] ?? '')
+                );
+                $this->addFlash('success', 'Votre retour et votre avis ont bien ete enregistres.');
+
+                return $this->redirectToRoute('app_profile_trips');
+            } catch (TripParticipationException $exception) {
+                $this->addFlash('error', $exception->getMessage());
+            }
+        }
+
+        return $this->render('trip/validate.html.twig', [
+            'trip' => $trip,
+            'booking' => $booking,
+            'form' => $form->createView(),
+        ]);
+    }
+
+    #[Route('/covoiturages/{id}/review', name: 'app_covoiturage_review', methods: ['GET', 'POST'])]
+    public function reviewTrip(
+        Trip $trip,
+        BookingRepository $bookingRepository,
+    ): Response {
+        $currentUser = $this->getUser();
+
+        if (!$currentUser instanceof User) {
+            return $this->redirectToRoute('app_login');
+        }
+
+        $booking = $bookingRepository->findParticipantBookingForTrip($currentUser, $trip);
+
+        if (!$booking instanceof Booking) {
+            throw $this->createAccessDeniedException('Vous ne pouvez pas laisser un avis pour ce trajet.');
+        }
+
+        $this->addFlash('info', 'Votre avis est desormais collecte lors de la validation du trajet.');
+
+        return $this->redirectToRoute('app_covoiturage_validate', ['id' => $trip->getId()]);
     }
 
     private function buildTripDateTime(

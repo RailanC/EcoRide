@@ -39,8 +39,11 @@ security:
 
     # Note: Only the *first* matching rule is applied
     access_control:
-        # - { path: ^/admin, roles: ROLE_ADMIN }
-        # - { path: ^/profile, roles: ROLE_USER }
+        - { path: ^/profile, roles: ROLE_USER }
+        - { path: ^/history, roles: ROLE_USER }
+        - { path: ^/covoiturage/.+/participer/confirm$, roles: ROLE_USER }
+        - { path: ^/covoiturage/.+/annuler-participation$, roles: ROLE_USER }
+        - { path: ^/covoiturages/.+/(start|arrive|validate|review)$, roles: ROLE_USER }
 
 when@test:
     security:

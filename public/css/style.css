@@ -815,3 +815,124 @@ input::placeholder{
     font-size: 0.96rem;
     line-height: 1.6;
 }
+
+.trip-rating-shell {
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 28px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
+    padding: 1.5rem;
+}
+
+.trip-rating-card {
+    max-width: 460px;
+    margin: 0 auto;
+    padding: 1.6rem 1.4rem;
+    border-radius: 24px;
+    background: linear-gradient(180deg, rgba(33, 42, 56, 0.98), rgba(24, 32, 43, 0.98));
+    border: 1px solid rgba(255,255,255,0.08);
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.22);
+    text-align: center;
+}
+
+.trip-rating-title {
+    color: var(--text);
+    font-family: 'Sora', sans-serif;
+    font-size: 1.15rem;
+    font-weight: 700;
+    margin-bottom: 0.35rem;
+}
+
+.trip-rating-subtitle {
+    color: var(--text-muted);
+    font-size: 0.92rem;
+    margin-bottom: 1.1rem;
+}
+
+.trip-rating-stars {
+    display: inline-flex;
+    flex-direction: row-reverse;
+    gap: 0.35rem;
+    align-items: center;
+    justify-content: center;
+}
+
+.trip-rating-stars input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.trip-rating-stars label {
+    cursor: pointer;
+    font-size: 2.5rem;
+    line-height: 1;
+    color: #d7dbe0;
+    transition: transform 0.18s ease, color 0.18s ease;
+    text-shadow: 0 6px 14px rgba(0, 0, 0, 0.08);
+}
+
+.trip-rating-stars label:hover,
+.trip-rating-stars label:hover ~ label,
+.trip-rating-stars input:checked ~ label {
+    color: #ffab2e;
+}
+
+.trip-rating-stars label:hover {
+    transform: translateY(-2px) scale(1.04);
+}
+
+.trip-rating-feedback {
+    margin-top: 1rem;
+    min-height: 4.8rem;
+    padding: 1rem 1.1rem;
+    border-radius: 16px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.06);
+    text-align: left;
+}
+
+.trip-rating-feedback-title {
+    color: var(--text);
+    font-weight: 700;
+    font-size: 0.92rem;
+    margin-bottom: 0.3rem;
+}
+
+.trip-rating-feedback-note {
+    color: var(--text-muted);
+    font-size: 0.86rem;
+    line-height: 1.45;
+}
+
+.trip-validate-comment {
+    border: 1px solid rgba(255,255,255,0.08) !important;
+    border-radius: 14px !important;
+    background: linear-gradient(180deg, rgba(33, 42, 56, 0.96), rgba(24, 32, 43, 0.96)) !important;
+    color: #ffffff !important;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
+}
+
+.trip-validate-comment:focus {
+    border-color: var(--accent) !important;
+    background: linear-gradient(180deg, rgba(38, 50, 68, 0.98), rgba(24, 32, 43, 0.98)) !important;
+    color: #ffffff !important;
+    box-shadow: 0 0 0 3px rgba(94, 188, 103, 0.15) !important;
+}
+
+.trip-validate-comment::placeholder {
+    color: rgba(255, 255, 255, 0.7) !important;
+}
+
+@media (max-width: 575.98px) {
+    .trip-rating-card {
+        padding: 1.25rem 1rem;
+    }
+
+    .trip-rating-stars label {
+        font-size: 2.1rem;
+    }
+
+    .trip-rating-feedback {
+        min-height: 5.4rem;
+    }
+}

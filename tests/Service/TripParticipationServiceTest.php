@@ -56,8 +56,11 @@ class TripParticipationServiceTest extends KernelTestCase
 
         self::assertInstanceOf(Booking::class, $booking);
         self::assertSame('18', (string) $passenger->getCreditBalance());
-        self::assertSame('60', (string) $driver->getCreditBalance());
+        self::assertSame('50', (string) $driver->getCreditBalance());
         self::assertSame(2, $trip->getAvailableSeats());
+        self::assertSame(Booking::OUTCOME_PENDING, $booking->getOutcomeStatus());
+        self::assertFalse($booking->isPayoutApplied());
+        self::assertSame('10.00', $booking->getDriverCreditAmount());
     }
 
     public function testCancelTripNotifiesConfirmedParticipants(): void
