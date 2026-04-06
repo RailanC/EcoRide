@@ -5,6 +5,14 @@
     active: selectedMode == 'driver' ? 'Trajets actifs' : 'Trajets a venir',
     old: selectedMode == 'driver' ? 'Anciens trajets' : 'Trajets passes'
 } %}
+{% set statusLabels = {
+    planned: 'Planifie',
+    in_progress: 'En cours',
+    arrived: 'Arrive',
+    completed: 'Complete',
+    disputed: 'Litige',
+    canceled: 'Annule'
+} %}
 
 {% block title %}Historique des trajets{% endblock %}
 
@@ -126,6 +134,8 @@
                                 {{ trip.departureLocation }} <span class="route-arrow">&rarr;</span> {{ trip.arrivalLocation }}
                                 {% if trip.status == 'canceled' %}
                                     <span class="trip-card-badge" style="background:#fce8e6; color:#b42318;">Annule</span>
+                                {% elseif trip.status == 'completed' %}
+                                    <span class="trip-card-badge" style="background:#e7f6ec; color:#166534;">Complete</span>
                                 {% elseif selectedTab == 'active' %}
                                     <span class="trip-card-badge">Actif</span>
                                 {% endif %}
@@ -137,7 +147,7 @@
                                 <span class="meta-dot"></span>
                                 <span class="meta-item">{{ trip.availableSeats }} place{{ trip.availableSeats > 1 ? 's' }}</span>
                                 <span class="meta-dot"></span>
-                                <span class="meta-item">Statut: {{ trip.status }}</span>
+                                <span class="meta-item">Statut: {{ statusLabels[trip.status]|default(trip.status) }}</span>
                                 {% if selectedMode == 'passenger' and trip.driver %}
                                     <span class="meta-dot"></span>
                                     <span class="meta-item">Conducteur: {{ trip.driver.username }}</span>

@@ -12,6 +12,13 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Table(name: 'trips')]
 class Trip
 {
+    public const STATUS_PLANNED = 'planned';
+    public const STATUS_IN_PROGRESS = 'in_progress';
+    public const STATUS_ARRIVED = 'arrived';
+    public const STATUS_COMPLETED = 'completed';
+    public const STATUS_CANCELED = 'canceled';
+    public const STATUS_DISPUTED = 'disputed';
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]

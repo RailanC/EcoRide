@@ -18,6 +18,7 @@ final class TripNotificationService
     private const NOTIFICATION_PARTICIPATION_CANCELED_DRIVER = 'participation_canceled_driver';
     private const NOTIFICATION_PARTICIPATION_CANCELED_PARTICIPANT = 'participation_canceled_participant';
     private const NOTIFICATION_TRIP_CANCELED_PARTICIPANT = 'trip_canceled_participant';
+    private const NOTIFICATION_TRIP_ARRIVED_PARTICIPANT = 'trip_arrived_participant';
 
     public function __construct(
         private readonly MailerInterface $mailer,
@@ -149,6 +150,45 @@ final class TripNotificationService
                         'driver' => $driver,
                         'participant' => $participant,
                         'tripUrl' => $tripUrl,
+                    ])
+            );
+        }
+    }
+
+    /**
+     * @param array<Booking> $bookings
+     */
+    public function sendTripArrivedForValidation(Trip $trip, array $bookings): void
+    {
+        $driver = $trip->getDriver();
+
+        if (!$driver instanceof User) {
+            return;
+        }
+
+        $tripUrl = $this->generateTripUrl($trip);
+        $dashboardUrl = $this->urlGenerator->generate('app_profile_trips', [], UrlGeneratorInterface::ABSOLUTE_URL);
+
+        foreach ($bookings as $booking) {
+            $participant = $booking->getUser();
+
+            if (!$participant instanceof User) {
+                continue;
+            }
+
+            $this->send(
+                self::NOTIFICATION_TRIP_ARRIVED_PARTICIPANT,
+                (new TemplatedEmail())
+                    ->from(new Address($this->mailerFromAddress, $this->mailerFromName))
+                    ->to(new Address((string) $participant->getEmail(), (string) $participant->getUsername()))
+                    ->subject('Confirmez le deroulement de votre trajet EcoRide')
+                    ->htmlTemplate('emails/trip_arrived_participant.html.twig')
+                    ->context([
+                        'trip' => $trip,
+                        'driver' => $driver,
+                        'participant' => $participant,
+                        'tripUrl' => $tripUrl,
+                        'dashboardUrl' => $dashboardUrl,
                     ])
             );
         }

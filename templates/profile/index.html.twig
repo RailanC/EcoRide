@@ -62,6 +62,25 @@
                         {{ app.user.email }}
                     </p>
 
+                    {% if app.user.type in ['driver', 'both'] %}
+                        <div class="mt-3 px-3 py-2 rounded-3"
+                             style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);">
+                            <p class="mb-1 fw-semibold" style="font-size:.86rem;font-family:'Sora',sans-serif;">
+                                Ma note conducteur
+                            </p>
+                            {% if app.user.averageValidatedRating is not null %}
+                                <p class="mb-0" style="font-size:.9rem;color:var(--text-muted);">
+                                    <span style="color:var(--lime);font-weight:700;">{{ app.user.averageValidatedRating }}/5</span>
+                                    sur {{ app.user.validatedReviewCount }} avis valide{{ app.user.validatedReviewCount > 1 ? 's' }}
+                                </p>
+                            {% else %}
+                                <p class="mb-0" style="font-size:.82rem;color:var(--text-muted);">
+                                    Aucune note validee pour le moment.
+                                </p>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+
                     {# Role badges #}
                     <div class="d-flex gap-2 justify-content-center mt-3 flex-wrap" id="roleBadges">
                         <span class="badge-eco" id="badgePassenger" style="display:none;">Passager</span>

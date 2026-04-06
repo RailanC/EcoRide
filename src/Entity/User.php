@@ -317,7 +317,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         $validatedReviews = array_filter(
             $this->reviews->toArray(),
-            static fn (Review $review): bool => $review->getStatus() === 'VALIDE'
+            static fn (Review $review): bool => $review->getStatus() === Review::STATUS_APPROVED
         );
 
         if ($validatedReviews === []) {
@@ -337,7 +337,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         return count(array_filter(
             $this->reviews->toArray(),
-            static fn (Review $review): bool => $review->getStatus() === 'VALIDE'
+            static fn (Review $review): bool => $review->getStatus() === Review::STATUS_APPROVED
         ));
     }
 

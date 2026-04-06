@@ -32,11 +32,19 @@ class TripRepository extends ServiceEntityRepository
         ?int $maxDuration = null,
         ?float $minRating = null
     ): array {
+        $now = new \DateTimeImmutable();
+        $today = $now->setTime(0, 0);
+        $currentTime = $now->format('H:i:s');
+
         $queryBuilder = $this->createQueryBuilder('trip')
             ->leftJoin('trip.vehicle', 'vehicle')
             ->leftJoin('trip.driver', 'driver')
-            ->andWhere('trip.status != :canceledStatus')
-            ->setParameter('canceledStatus', 'canceled')
+            ->andWhere('trip.availableSeats > 0')
+            ->andWhere('trip.status IN (:availableStatuses)')
+            ->andWhere('(trip.departureDate > :today OR (trip.departureDate = :today AND trip.departureTime >= :currentTime))')
+            ->setParameter('availableStatuses', [Trip::STATUS_PLANNED, 'planifie'])
+            ->setParameter('today', $today)
+            ->setParameter('currentTime', $currentTime)
             ->orderBy('trip.departureDate', 'ASC');
 
         if (!empty($departure)) {
@@ -104,13 +112,57 @@ class TripRepository extends ServiceEntityRepository
 
     public function findAvailableTrips(): array
     {
+        $now = new \DateTimeImmutable();
+        $today = $now->setTime(0, 0);
+        $currentTime = $now->format('H:i:s');
+
         return $this->createQueryBuilder('trip')
             ->leftJoin('trip.vehicle', 'vehicle')
             ->leftJoin('trip.driver', 'driver')
             ->andWhere('trip.availableSeats > 0')
-            ->andWhere('trip.status != :canceledStatus')
-            ->setParameter('canceledStatus', 'canceled')
+            ->andWhere('trip.status IN (:availableStatuses)')
+            ->andWhere('(trip.departureDate > :today OR (trip.departureDate = :today AND trip.departureTime >= :currentTime))')
+            ->setParameter('availableStatuses', [Trip::STATUS_PLANNED, 'planifie'])
+            ->setParameter('today', $today)
+            ->setParameter('currentTime', $currentTime)
             ->orderBy('trip.departureDate', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
+     * @return array<Trip>
+     */
+    public function findDrivenTrips(User $driver): array
+    {
+        return $this->createQueryBuilder('trip')
+            ->leftJoin('trip.vehicle', 'vehicle')->addSelect('vehicle')
+            ->andWhere('trip.driver = :driver')
+            ->setParameter('driver', $driver)
+            ->orderBy('trip.departureDate', 'DESC')
+            ->addOrderBy('trip.departureTime', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
+     * @return array<Trip>
+     */
+    public function findActiveDrivenTrips(User $driver): array
+    {
+        return $this->createQueryBuilder('trip')
+            ->leftJoin('trip.vehicle', 'vehicle')->addSelect('vehicle')
+            ->andWhere('trip.driver = :driver')
+            ->andWhere('trip.status IN (:statuses)')
+            ->setParameter('driver', $driver)
+            ->setParameter('statuses', [
+                Trip::STATUS_PLANNED,
+                Trip::STATUS_IN_PROGRESS,
+                Trip::STATUS_ARRIVED,
+                Trip::STATUS_DISPUTED,
+            ])
+            ->orderBy('trip.departureDate', 'ASC')
+            ->addOrderBy('trip.departureTime', 'ASC')
             ->getQuery()
             ->getResult();
     }
@@ -233,9 +285,19 @@ class TripRepository extends ServiceEntityRepository
 
         if ($tab === self::HISTORY_TAB_ACTIVE) {
             $queryBuilder
-                ->andWhere('trip.status != :canceledStatus')
-                ->andWhere('(trip.departureDate > :today OR (trip.departureDate = :today AND trip.departureTime >= :currentTime))')
-                ->setParameter('canceledStatus', 'canceled')
+                ->andWhere('trip.status IN (:activeStatuses)')
+                ->andWhere('(trip.departureDate > :today OR (trip.departureDate = :today AND trip.departureTime >= :currentTime) OR trip.status IN (:alwaysActiveStatuses))')
+                ->setParameter('activeStatuses', [
+                    Trip::STATUS_PLANNED,
+                    Trip::STATUS_IN_PROGRESS,
+                    Trip::STATUS_ARRIVED,
+                    Trip::STATUS_DISPUTED,
+                ])
+                ->setParameter('alwaysActiveStatuses', [
+                    Trip::STATUS_IN_PROGRESS,
+                    Trip::STATUS_ARRIVED,
+                    Trip::STATUS_DISPUTED,
+                ])
                 ->setParameter('today', $today)
                 ->setParameter('currentTime', $currentTime)
                 ->orderBy('trip.departureDate', 'ASC')
@@ -246,8 +308,11 @@ class TripRepository extends ServiceEntityRepository
 
         if ($tab === self::HISTORY_TAB_OLD) {
             $queryBuilder
-                ->andWhere('(trip.status = :canceledStatus OR trip.departureDate < :today OR (trip.departureDate = :today AND trip.departureTime < :currentTime))')
-                ->setParameter('canceledStatus', 'canceled')
+                ->andWhere('(trip.status IN (:oldStatuses) OR trip.departureDate < :today OR (trip.departureDate = :today AND trip.departureTime < :currentTime))')
+                ->setParameter('oldStatuses', [
+                    Trip::STATUS_CANCELED,
+                    Trip::STATUS_COMPLETED,
+                ])
                 ->setParameter('today', $today)
                 ->setParameter('currentTime', $currentTime)
                 ->orderBy('trip.departureDate', 'DESC')
@@ -292,9 +357,19 @@ class TripRepository extends ServiceEntityRepository
 
         if ($tab === self::HISTORY_TAB_ACTIVE) {
             $queryBuilder
-                ->andWhere('trip.status != :canceledStatus')
-                ->andWhere('(trip.departureDate > :today OR (trip.departureDate = :today AND trip.departureTime >= :currentTime))')
-                ->setParameter('canceledStatus', 'canceled')
+                ->andWhere('trip.status IN (:activeStatuses)')
+                ->andWhere('(trip.departureDate > :today OR (trip.departureDate = :today AND trip.departureTime >= :currentTime) OR trip.status IN (:alwaysActiveStatuses))')
+                ->setParameter('activeStatuses', [
+                    Trip::STATUS_PLANNED,
+                    Trip::STATUS_IN_PROGRESS,
+                    Trip::STATUS_ARRIVED,
+                    Trip::STATUS_DISPUTED,
+                ])
+                ->setParameter('alwaysActiveStatuses', [
+                    Trip::STATUS_IN_PROGRESS,
+                    Trip::STATUS_ARRIVED,
+                    Trip::STATUS_DISPUTED,
+                ])
                 ->setParameter('today', $today)
                 ->setParameter('currentTime', $currentTime)
                 ->orderBy('trip.departureDate', 'ASC')
@@ -305,8 +380,11 @@ class TripRepository extends ServiceEntityRepository
 
         if ($tab === self::HISTORY_TAB_OLD) {
             $queryBuilder
-                ->andWhere('(trip.status = :canceledStatus OR trip.departureDate < :today OR (trip.departureDate = :today AND trip.departureTime < :currentTime))')
-                ->setParameter('canceledStatus', 'canceled')
+                ->andWhere('(trip.status IN (:oldStatuses) OR trip.departureDate < :today OR (trip.departureDate = :today AND trip.departureTime < :currentTime))')
+                ->setParameter('oldStatuses', [
+                    Trip::STATUS_CANCELED,
+                    Trip::STATUS_COMPLETED,
+                ])
                 ->setParameter('today', $today)
                 ->setParameter('currentTime', $currentTime)
                 ->orderBy('trip.departureDate', 'DESC')

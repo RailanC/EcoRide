@@ -9,6 +9,14 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Table(name: 'bookings')]
 class Booking
 {
+    public const STATUS_CONFIRMED = 'confirmed';
+    public const STATUS_REFUNDED = 'refunded';
+    public const STATUS_CANCELED = 'canceled';
+
+    public const OUTCOME_PENDING = 'pending';
+    public const OUTCOME_CONFIRMED_GOOD = 'confirmed_good';
+    public const OUTCOME_REPORTED_PROBLEM = 'reported_problem';
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -22,6 +30,18 @@ class Booking
 
     #[ORM\Column(length: 255)]
     private ?string $status = null;
+
+    #[ORM\Column(length: 50)]
+    private ?string $outcomeStatus = self::OUTCOME_PENDING;
+
+    #[ORM\Column(type: 'datetime', nullable: true)]
+    private ?\DateTimeInterface $respondedAt = null;
+
+    #[ORM\Column]
+    private bool $payoutApplied = false;
+
+    #[ORM\Column(type: 'decimal', precision: 10, scale: 2, nullable: true)]
+    private ?string $driverCreditAmount = null;
 
     #[ORM\ManyToOne(inversedBy: 'bookings')]
     #[ORM\JoinColumn(name: 'user_id', referencedColumnName: 'id', nullable: true)]
@@ -92,6 +112,54 @@ class Booking
     public function setTrip(?Trip $trip): static
     {
         $this->trip = $trip;
+
+        return $this;
+    }
+
+    public function getOutcomeStatus(): ?string
+    {
+        return $this->outcomeStatus;
+    }
+
+    public function setOutcomeStatus(string $outcomeStatus): static
+    {
+        $this->outcomeStatus = $outcomeStatus;
+
+        return $this;
+    }
+
+    public function getRespondedAt(): ?\DateTimeInterface
+    {
+        return $this->respondedAt;
+    }
+
+    public function setRespondedAt(?\DateTimeInterface $respondedAt): static
+    {
+        $this->respondedAt = $respondedAt;
+
+        return $this;
+    }
+
+    public function isPayoutApplied(): bool
+    {
+        return $this->payoutApplied;
+    }
+
+    public function setPayoutApplied(bool $payoutApplied): static
+    {
+        $this->payoutApplied = $payoutApplied;
+
+        return $this;
+    }
+
+    public function getDriverCreditAmount(): ?string
+    {
+        return $this->driverCreditAmount;
+    }
+
+    public function setDriverCreditAmount(?string $driverCreditAmount): static
+    {
+        $this->driverCreditAmount = $driverCreditAmount;
 
         return $this;
     }
