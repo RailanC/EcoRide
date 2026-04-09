@@ -1,0 +1,87 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Signalements - Dashboard{% endblock %}
+
+{% block body %}
+<div class="container py-5" style="max-width: 1080px;">
+    <div class="d-flex flex-wrap justify-content-between align-items-end gap-3 mb-4">
+        <div>
+            <p class="search-eyebrow mb-1">Espace de supervision</p>
+            <h1 class="fw-bold mb-1" style="font-family:'Sora',sans-serif;font-size:2rem;letter-spacing:-0.02em;">
+                Tous les signalements
+            </h1>
+            <p style="color:var(--text-muted);font-size:0.94rem;margin-bottom:0;">
+                Parcourez l ensemble des covoiturages signalés sur la plateforme.
+            </p>
+        </div>
+
+        <a href="{{ path('app_dashboard') }}" class="btn btn-outline-light text-decoration-none">Retour au dashboard</a>
+    </div>
+
+    <div class="contact-card">
+        <div class="section-header mb-4">
+            <span class="section-title">Liste des signalements</span>
+            <span class="results-count">{{ reports|length }} resultat{{ reports|length > 1 ? 's' }}</span>
+        </div>
+
+        {% if reports is empty %}
+            <div class="empty-state">
+                <div class="empty-state-title">Aucun signalement</div>
+                <p style="font-size:0.95rem;">Il n y a aucun signalement pour le moment.</p>
+            </div>
+        {% else %}
+            <div class="d-flex flex-column gap-3">
+                {% for report in reports %}
+                    <div style="border:1px solid rgba(255,255,255,.08);border-radius:var(--radius-sm);padding:1rem;">
+                        <div class="d-flex justify-content-between align-items-start gap-3 flex-wrap">
+                            <div>
+                                <div class="fw-semibold">
+                                    #{{ report.trip ? report.trip.id : report.id }}
+                                    -
+                                    {{ report.trip ? report.trip.departureLocation ~ ' &rarr; ' ~ report.trip.arrivalLocation : 'Trajet supprime' }}
+                                </div>
+                                <div style="font-size:.82rem;color:var(--text-muted);">
+                                    {% if report.trip and report.trip.departureDate and report.trip.departureTime %}
+                                        Depart: {{ report.trip.departureDate|date('d/m/Y') }} a {{ report.trip.departureTime|date('H:i') }}
+                                    {% endif %}
+                                    {% if report.trip and report.trip.arrivalDate and report.trip.arrivalTime %}
+                                        {% if report.trip and report.trip.departureDate and report.trip.departureTime %} | {% endif %}
+                                        Arrivee: {{ report.trip.arrivalDate|date('d/m/Y') }} a {{ report.trip.arrivalTime|date('H:i') }}
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <div class="d-flex flex-column align-items-end gap-2">
+                                <span class="badge-eco">{{ reportStatusLabels[report.status]|default(report.status) }}</span>
+                                <a href="{{ path('app_report', {id: report.id}) }}" class="btn-details text-decoration-none">Voir le detail</a>
+                            </div>
+                        </div>
+
+                        <div class="row g-3 mt-2">
+                            <div class="col-12 col-md-4">
+                                <div class="contact-label">Participant</div>
+                                <div class="fw-semibold">{{ report.participant ? report.participant.username : 'Utilisateur supprime' }}</div>
+                                <div style="color:var(--text-muted);font-size:.9rem;">{{ report.participant ? report.participant.email : 'Email indisponible' }}</div>
+                            </div>
+                            <div class="col-12 col-md-4">
+                                <div class="contact-label">Conducteur</div>
+                                <div class="fw-semibold">{{ report.driver ? report.driver.username : 'Utilisateur supprime' }}</div>
+                                <div style="color:var(--text-muted);font-size:.9rem;">{{ report.driver ? report.driver.email : 'Email indisponible' }}</div>
+                            </div>
+                            <div class="col-12 col-md-4">
+                                <div class="contact-label">Signale le</div>
+                                <div class="fw-semibold">{{ report.createdAt ? report.createdAt|date('d/m/Y H:i') : 'Non renseigne' }}</div>
+                            </div>
+                        </div>
+
+                        <div class="mt-3">
+                            <div class="contact-label">Description</div>
+                            <p class="mb-0" style="white-space:pre-wrap;">{{ report.comment }}</p>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

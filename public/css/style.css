@@ -792,6 +792,71 @@ main,
     color: var(--text);
 }
 
+.trip-resolution-choice {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.trip-resolution-option {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    width: 100%;
+    margin: 0;
+    padding: 0.95rem 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 14px;
+    background: linear-gradient(180deg, rgba(33, 42, 56, 0.96), rgba(24, 32, 43, 0.96));
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+    transition: border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease, background 0.18s ease;
+    cursor: pointer;
+}
+
+.trip-resolution-option:hover {
+    border-color: rgba(167, 217, 48, 0.35);
+    transform: translateY(-1px);
+    background: linear-gradient(180deg, rgba(38, 50, 68, 0.98), rgba(24, 32, 43, 0.98));
+}
+
+.trip-resolution-input {
+    flex: 0 0 auto;
+    margin: 0;
+    width: 1.05rem;
+    height: 1.05rem;
+    border: 1px solid rgba(255, 255, 255, 0.28);
+    background-color: var(--surface);
+    box-shadow: none;
+}
+
+.trip-resolution-option-text {
+    color: var(--text);
+    font-weight: 500;
+    line-height: 1.35;
+}
+
+.trip-resolution-option:has(.trip-resolution-input:checked) {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(94, 188, 103, 0.15);
+    background:
+        linear-gradient(180deg, rgba(38, 50, 68, 0.98), rgba(24, 32, 43, 0.98)),
+        radial-gradient(circle at top right, rgba(167, 217, 48, 0.09), transparent 35%);
+}
+
+.trip-resolution-input:checked {
+    background-color: var(--accent);
+    border-color: var(--accent);
+}
+
+.trip-resolution-input:focus {
+    box-shadow: 0 0 0 3px rgba(94, 188, 103, 0.18);
+    border-color: var(--accent);
+}
+
+.trip-resolution-input:checked + .trip-resolution-option-text {
+    color: #eef7d8;
+}
+
 input::placeholder{
     color: var(--text-muted) !important;
     opacity: 1;
@@ -935,4 +1000,17 @@ input::placeholder{
     .trip-rating-feedback {
         min-height: 5.4rem;
     }
+}
+
+.trip-resolution-choice .form-check {
+    padding: 0.85rem 1rem;
+    border: 1px solid rgba(255,255,255,.08);
+    border-radius: 12px;
+    background: var(--surface-alt);
+    margin-bottom: 0.75rem;
+}
+
+.trip-resolution-choice .form-check:has(.form-check-input:checked) {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(94,188,103,.15);
 }
