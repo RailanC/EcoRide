@@ -1,0 +1,203 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Signalement de trajet{% endblock %}
+
+{% block body %}
+<div class="container py-5" style="max-width: 980px;">
+    <div class="d-flex flex-wrap justify-content-between align-items-end gap-3 mb-4">
+        <div>
+            <p class="search-eyebrow mb-1">Espace de supervision</p>
+            <h1 class="fw-bold mb-1" style="font-family:'Sora',sans-serif;font-size:2rem;letter-spacing:-0.02em;">
+                Signalement de trajet
+            </h1>
+            <p style="color:var(--text-muted);font-size:0.94rem;margin-bottom:0;">
+                Consultez les details du litige avant de prendre une decision.
+            </p>
+        </div>
+
+        <a href="{{ path('app_dashboard') }}" class="btn btn-outline-light text-decoration-none">Retour au dashboard</a>
+    </div>
+
+    {% for msg in app.flashes('success') %}
+        <div class="alert alert-success">{{ msg }}</div>
+    {% endfor %}
+    {% for msg in app.flashes('error') %}
+        <div class="alert alert-danger">{{ msg }}</div>
+    {% endfor %}
+    {% for msg in app.flashes('info') %}
+        <div class="alert alert-info">{{ msg }}</div>
+    {% endfor %}
+
+    <div class="contact-card mb-4">
+        <div class="section-header">
+            <span class="section-title">Vue d ensemble</span>
+            <span class="badge-eco">{{ issueStatusLabels[issue.status]|default(issue.status) }}</span>
+        </div>
+
+        <div class="row g-3">
+            <div class="col-12 col-md-6 col-lg-4">
+                <div style="border:1px solid rgba(255,255,255,.08);border-radius:var(--radius-sm);padding:1rem;height:100%;">
+                    <div class="contact-label">Trip ID</div>
+                    <div class="fw-semibold">{{ issue.trip.id }}</div>
+                </div>
+            </div>
+
+            <div class="col-12 col-md-6 col-lg-4">
+                <div style="border:1px solid rgba(255,255,255,.08);border-radius:var(--radius-sm);padding:1rem;height:100%;">
+                    <div class="contact-label">Statut du signalement</div>
+                    <div class="fw-semibold">{{ issueStatusLabels[issue.status]|default(issue.status) }}</div>
+                </div>
+            </div>
+
+            <div class="col-12 col-md-6 col-lg-4">
+                <div style="border:1px solid rgba(255,255,255,.08);border-radius:var(--radius-sm);padding:1rem;height:100%;">
+                    <div class="contact-label">Date de creation</div>
+                    <div class="fw-semibold">{{ issue.createdAt ? issue.createdAt|date('d/m/Y H:i') : 'Non renseignee' }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-12 col-lg-7">
+            <div class="contact-card h-100">
+                <div class="section-header">
+                    <span class="section-title">Details du trajet</span>
+                </div>
+
+                <div class="trip-schedule-grid mb-4">
+                    <div class="trip-schedule-card">
+                        <div class="trip-schedule-label">Depart</div>
+                        <div class="trip-schedule-city">{{ issue.trip.departureLocation }}</div>
+                        <div class="trip-schedule-value">{{ issue.trip.departureDate|date('d/m/Y') }}</div>
+                        <div class="trip-schedule-time">{{ issue.trip.departureTime|date('H:i') }}</div>
+                    </div>
+                    <div class="trip-schedule-card trip-schedule-card--arrival">
+                        <div class="trip-schedule-label">Arrivee</div>
+                        <div class="trip-schedule-city">{{ issue.trip.arrivalLocation }}</div>
+                        <div class="trip-schedule-value">{{ issue.trip.arrivalDate|date('d/m/Y') }}</div>
+                        <div class="trip-schedule-time">{{ issue.trip.arrivalTime|date('H:i') }}</div>
+                    </div>
+                </div>
+
+                <div class="row g-3">
+                    <div class="col-12 col-md-6">
+                        <div style="border:1px solid rgba(255,255,255,.08);border-radius:var(--radius-sm);padding:1rem;height:100%;">
+                            <div class="contact-label">Departure date</div>
+                            <div class="fw-semibold">{{ issue.trip.departureDate|date('d/m/Y') }}</div>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-md-6">
+                        <div style="border:1px solid rgba(255,255,255,.08);border-radius:var(--radius-sm);padding:1rem;height:100%;">
+                            <div class="contact-label">Arrival date</div>
+                            <div class="fw-semibold">{{ issue.trip.arrivalDate|date('d/m/Y') }}</div>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-md-6">
+                        <div style="border:1px solid rgba(255,255,255,.08);border-radius:var(--radius-sm);padding:1rem;height:100%;">
+                            <div class="contact-label">Departure location</div>
+                            <div class="fw-semibold">{{ issue.trip.departureLocation }}</div>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-md-6">
+                        <div style="border:1px solid rgba(255,255,255,.08);border-radius:var(--radius-sm);padding:1rem;height:100%;">
+                            <div class="contact-label">Destination</div>
+                            <div class="fw-semibold">{{ issue.trip.arrivalLocation }}</div>
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <div style="border:1px solid rgba(255,255,255,.08);border-radius:var(--radius-sm);padding:1rem;">
+                            <div class="contact-label">Participant comment</div>
+                            <p class="mb-0" style="white-space:pre-wrap;">{{ issue.comment }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-lg-5">
+            <div class="contact-card h-100">
+                <div class="section-header">
+                    <span class="section-title">Participants</span>
+                </div>
+
+                <div class="d-flex flex-column gap-3 mb-4">
+                    <div style="border:1px solid rgba(255,255,255,.08);border-radius:var(--radius-sm);padding:1rem;">
+                        <div class="contact-label">Driver</div>
+                        <div class="fw-semibold">{{ issue.driver ? issue.driver.username : 'Utilisateur supprime' }}</div>
+                        <div style="color:var(--text-muted);font-size:.9rem;">{{ issue.driver ? issue.driver.email : 'Email indisponible' }}</div>
+                    </div>
+
+                    <div style="border:1px solid rgba(255,255,255,.08);border-radius:var(--radius-sm);padding:1rem;">
+                        <div class="contact-label">Participant</div>
+                        <div class="fw-semibold">{{ issue.participant ? issue.participant.username : 'Utilisateur supprime' }}</div>
+                        <div style="color:var(--text-muted);font-size:.9rem;">{{ issue.participant ? issue.participant.email : 'Email indisponible' }}</div>
+                    </div>
+                </div>
+
+                <div style="border:1px solid rgba(255,255,255,.08);border-radius:var(--radius-sm);padding:1rem;">
+                    <div class="contact-label">Current incident status</div>
+                    <div class="d-flex align-items-center gap-2 flex-wrap">
+                        <span class="badge-eco">{{ issueStatusLabels[issue.status]|default(issue.status) }}</span>
+                        {% if issue.resolvedAt %}
+                            <span class="btn-details">Traite le {{ issue.resolvedAt|date('d/m/Y H:i') }}</span>
+                        {% endif %}
+                    </div>
+
+                    {% if issue.resolvedBy %}
+                        <p class="mt-3 mb-1" style="color:var(--text-muted);font-size:.9rem;">
+                            Resolution par {{ issue.resolvedBy.username }}
+                        </p>
+                    {% endif %}
+
+                    {% if issue.resolutionNote %}
+                        <div class="mt-3">
+                            <div class="contact-label">Resolution note</div>
+                            <p class="mb-0" style="white-space:pre-wrap;">{{ issue.resolutionNote }}</p>
+                        </div>
+                    {% endif %}
+                </div>
+
+                {% if issue.status == 'open' %}
+                    <div class="mt-4 pt-4" style="border-top:1px solid rgba(255,255,255,.08);">
+                        <h2 class="contact-title mb-3" style="text-align:left;font-size:1rem;">Traiter le signalement</h2>
+
+                        {{ form_start(resolutionForm, {action: path('app_tripIssue_resolve', {id: issue.id})}) }}
+                            <div class="mb-3">
+                                {{ form_label(resolutionForm.resolution, null, {label_attr: {class: 'contact-label mb-2'}}) }}
+                                <div class="trip-resolution-choice">
+                                    {% for choice in resolutionForm.resolution %}
+                                        <label class="trip-resolution-option">
+                                            {{ form_widget(choice, {attr: {class: 'trip-resolution-input'}}) }}
+                                            <span class="trip-resolution-option-text">{{ choice.vars.label }}</span>
+                                        </label>
+                                    {% endfor %}
+                                </div>
+                                {{ form_errors(resolutionForm.resolution) }}
+                            </div>
+
+                            <div class="mb-3">
+                                {{ form_label(resolutionForm.resolutionNote) }}
+                                {{ form_widget(resolutionForm.resolutionNote) }}
+                                {{ form_errors(resolutionForm.resolutionNote) }}
+                            </div>
+
+                            <button type="submit" class="btn btn-vert w-100">Enregistrer la resolution</button>
+                        {{ form_end(resolutionForm) }}
+                    </div>
+                {% else %}
+                    <div class="mt-4 pt-4" style="border-top:1px solid rgba(255,255,255,.08);">
+                        <p class="mb-0" style="color:var(--text-muted);">
+                            Ce signalement a deja ete traite. Vous pouvez consulter les details ci-dessus.
+                        </p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

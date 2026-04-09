@@ -73,6 +73,21 @@ class ReviewRepository extends ServiceEntityRepository
     /**
      * @return array<Review>
      */
+    public function findAllReviews(): array
+    {
+        return $this->createQueryBuilder('review')
+            ->leftJoin('review.trip', 'trip')->addSelect('trip')
+            ->leftJoin('review.author', 'author')->addSelect('author')
+            ->leftJoin('review.user', 'driver')->addSelect('driver')
+            ->leftJoin('review.moderatedBy', 'moderator')->addSelect('moderator')
+            ->orderBy('review.id', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
+     * @return array<Review>
+     */
     public function findAuthoredReviewsForUser(User $author): array
     {
         return $this->createQueryBuilder('review')

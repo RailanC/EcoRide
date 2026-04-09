@@ -31,4 +31,19 @@ class TripIssueRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    /**
+     * @return array<TripIssue>
+     */
+    public function findAllIssues(): array
+    {
+        return $this->createQueryBuilder('issue')
+            ->leftJoin('issue.trip', 'trip')->addSelect('trip')
+            ->leftJoin('issue.participant', 'participant')->addSelect('participant')
+            ->leftJoin('issue.driver', 'driver')->addSelect('driver')
+            ->leftJoin('issue.resolvedBy', 'resolvedBy')->addSelect('resolvedBy')
+            ->orderBy('issue.createdAt', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
 }
