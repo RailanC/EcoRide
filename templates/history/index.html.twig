@@ -50,7 +50,7 @@
             <p style="font-size:0.95rem;">
                 Cette page affichera vos trajets des que votre profil vous permettra de proposer ou reserver un trajet.
             </p>
-            <a href="{{ path('app_profile') }}" class="btn btn-vert" data-turbo="false">Mettre a jour mon profil</a>
+            <a href="{{ path('app_profile') }}" class="btn btn-vert" >Mettre a jour mon profil</a>
         </div>
     {% else %}
         <div class="contact-card mb-4">
@@ -59,14 +59,14 @@
                     <a
                         href="{{ path('app_history', {mode: 'driver', tab: selectedTab, q: selectedMode == 'driver' ? search : ''}) }}"
                         class="btn {{ selectedMode == 'driver' ? 'btn-vert' : 'btn-details' }}"
-                        data-turbo="false"
+                        
                     >
                         Historique conducteur
                     </a>
                     <a
                         href="{{ path('app_history', {mode: 'passenger', tab: selectedTab, q: selectedMode == 'passenger' ? search : ''}) }}"
                         class="btn {{ selectedMode == 'passenger' ? 'btn-vert' : 'btn-details' }}"
-                        data-turbo="false"
+                        
                     >
                         Historique passager
                     </a>
@@ -78,7 +78,7 @@
                     <a
                         href="{{ path('app_history', {mode: selectedMode, tab: tabKey, q: tabKey == selectedTab ? search : ''}) }}"
                         class="btn {{ selectedTab == tabKey ? 'btn-vert' : 'btn-details' }}"
-                        data-turbo="false"
+                        
                     >
                         {{ tabLabel }} ({{ tabCounts[tabKey] }})
                     </a>
@@ -126,7 +126,7 @@
             </div>
         {% else %}
             {% for trip in trips %}
-                <a href="{{ path('app_covoiturage_show', {id: trip.id}) }}" class="trip-card mb-3" data-turbo="false">
+                <a href="{{ path('app_covoiturage_show', {id: trip.id}) }}" class="trip-card mb-3" >
                     <div class="trip-card-left">
                         <div class="driver-avatar">{{ app.user.username|slice(0, 2)|upper }}</div>
                         <div class="trip-info">

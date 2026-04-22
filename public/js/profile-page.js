@@ -249,5 +249,4 @@ document.addEventListener('submit', event => {
 
 window.togglePw = togglePw;
 document.addEventListener('DOMContentLoaded', initProfilePage);
-document.addEventListener('turbo:load', initProfilePage);
 window.addEventListener('pageshow', initProfilePage);
