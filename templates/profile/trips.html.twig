@@ -172,7 +172,7 @@
                         </div>
                     {% else %}
                         {% for trip in historyTrips %}
-                            <a href="{{ path('app_covoiturage_show', {id: trip.id}) }}" class="trip-card mb-3" data-turbo="false">
+                            <a href="{{ path('app_covoiturage_show', {id: trip.id}) }}" class="trip-card mb-3" >
                                 <div class="trip-card-left">
                                     <div class="driver-avatar">{{ app.user.username|slice(0, 2)|upper }}</div>
                                     <div class="trip-info">

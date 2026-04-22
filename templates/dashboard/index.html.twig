@@ -45,7 +45,7 @@
                     Accedez a la liste complete des avis utilisateurs pour monitorer la satisfaction et identifier les tendances.
                 </p>
                 <div class="mt-3">
-                    <a href="{{ path('app_reviews') }}" class="btn-details text-decoration-none" data-turbo=false>Voir les avis en attente</a>
+                    <a href="{{ path('app_reviews') }}" class="btn-details text-decoration-none">Voir les avis en attente</a>
                 </div>
             </div>
         </div>
@@ -83,6 +83,9 @@
                 <div class="mt-3">
                     {% if is_granted('ROLE_ADMIN') %}
                         <span class="badge-eco">Acces admin actif</span>
+                        <div class="mt-3">
+                            <a href="{{ path('app_dashboard_admin') }}" class="btn-details text-decoration-none">Voir la page admin</a>
+                        </div>
                     {% else %}
                         <span class="btn-details">Reserve admin</span>
                     {% endif %}

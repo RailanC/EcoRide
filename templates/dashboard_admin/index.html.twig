@@ -1,0 +1,469 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Gestion des utilisateurs - Admin{% endblock %}
+
+{% block body %}
+<div class="container py-5" style="max-width: 1180px;">
+
+    {# ── PAGE HEADER ── #}
+    <div class="d-flex flex-wrap justify-content-between align-items-end gap-3 mb-4">
+        <div>
+            <p class="search-eyebrow mb-1">Espace d'administration</p>
+            <h1 class="fw-bold mb-1" style="font-family:'Sora',sans-serif;font-size:2rem;letter-spacing:-0.02em;">
+                Gestion des utilisateurs
+            </h1>
+            <p style="color:var(--text-muted);font-size:0.94rem;margin-bottom:0;">
+                Modifiez les informations, les rôles ou supprimez des comptes utilisateurs.
+            </p>
+        </div>
+        <a href="{{ path('app_dashboard') }}" class="btn btn-outline-light text-decoration-none">
+            Retour au dashboard
+        </a>
+    </div>
+
+    {# ── FLASH MESSAGES ── #}
+    {% for type, messages in app.flashes %}
+        {% for message in messages %}
+            <div class="admin-flash admin-flash--{{ type }} mb-3">
+                <i class="bi bi-{{ type == 'success' ? 'check-circle' : 'exclamation-circle' }} me-2"></i>
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endfor %}
+
+    {# ── PLATFORM STATISTICS ── #}
+    <div class="contact-card admin-platform-stats mb-4">
+        <div class="section-header mb-3">
+            <span class="section-title">Platform statistics</span>
+            <span class="results-count">Live overview</span>
+        </div>
+        <div class="row g-3">
+            <div class="col-6 col-xl-2">
+                <div class="admin-platform-stat admin-platform-stat--users">
+                    <div class="admin-platform-stat__icon"><i class="bi bi-people"></i></div>
+                    <div class="admin-platform-stat__value">{{ platformStats.users }}</div>
+                    <div class="admin-platform-stat__label">Users</div>
+                    <div class="admin-platform-stat__meta">{{ platformStats.verifiedUsers }} verified</div>
+                </div>
+            </div>
+            <div class="col-6 col-xl-2">
+                <div class="admin-platform-stat admin-platform-stat--trips">
+                    <div class="admin-platform-stat__icon"><i class="bi bi-signpost-split"></i></div>
+                    <div class="admin-platform-stat__value">{{ platformStats.trips }}</div>
+                    <div class="admin-platform-stat__label">Trips</div>
+                    <div class="admin-platform-stat__meta">Published rides</div>
+                </div>
+            </div>
+            <div class="col-6 col-xl-2">
+                <div class="admin-platform-stat admin-platform-stat--bookings">
+                    <div class="admin-platform-stat__icon"><i class="bi bi-ticket-perforated"></i></div>
+                    <div class="admin-platform-stat__value">{{ platformStats.bookings }}</div>
+                    <div class="admin-platform-stat__label">Bookings</div>
+                    <div class="admin-platform-stat__meta">All reservations</div>
+                </div>
+            </div>
+            <div class="col-6 col-xl-2">
+                <div class="admin-platform-stat admin-platform-stat--reviews">
+                    <div class="admin-platform-stat__icon"><i class="bi bi-chat-square-text"></i></div>
+                    <div class="admin-platform-stat__value">{{ platformStats.reviews }}</div>
+                    <div class="admin-platform-stat__label">Reviews</div>
+                    <div class="admin-platform-stat__meta">Submitted feedback</div>
+                </div>
+            </div>
+            <div class="col-6 col-xl-2">
+                <div class="admin-platform-stat admin-platform-stat--vehicles">
+                    <div class="admin-platform-stat__icon"><i class="bi bi-car-front"></i></div>
+                    <div class="admin-platform-stat__value">{{ platformStats.vehicles }}</div>
+                    <div class="admin-platform-stat__label">Vehicles</div>
+                    <div class="admin-platform-stat__meta">Registered cars</div>
+                </div>
+            </div>
+            <div class="col-6 col-xl-2">
+                <div class="admin-platform-stat admin-platform-stat--issues">
+                    <div class="admin-platform-stat__icon"><i class="bi bi-exclamation-triangle"></i></div>
+                    <div class="admin-platform-stat__value">{{ platformStats.openIssues }}</div>
+                    <div class="admin-platform-stat__label">Open issues</div>
+                    <div class="admin-platform-stat__meta">Needs review</div>
+                </div>
+            </div>
+        </div>
+        <div class="admin-platform-breakdown mt-4">
+            <div class="admin-platform-breakdown__item">
+                <span class="admin-platform-breakdown__value">{{ platformStats.admins }}</span>
+                <span class="admin-platform-breakdown__label">Admins</span>
+            </div>
+            <div class="admin-platform-breakdown__item">
+                <span class="admin-platform-breakdown__value">{{ platformStats.employeurs }}</span>
+                <span class="admin-platform-breakdown__label">Employeurs</span>
+            </div>
+            <div class="admin-platform-breakdown__item">
+                <span class="admin-platform-breakdown__value">{{ platformStats.members }}</span>
+                <span class="admin-platform-breakdown__label">Members</span>
+            </div>
+        </div>
+    </div>
+
+    {# ── STATS BAR ── #}
+    <div class="admin-stats-bar mb-4">
+        <div class="admin-stat">
+            <span class="admin-stat__value">{{ users|length }}</span>
+            <span class="admin-stat__label">Utilisateurs</span>
+        </div>
+        <div class="admin-stat-sep"></div>
+        <div class="admin-stat">
+            <span class="admin-stat__value">{{ users|filter(u => 'ROLE_ADMIN' in u.roles)|length }}</span>
+            <span class="admin-stat__label">Admins</span>
+        </div>
+        <div class="admin-stat-sep"></div>
+        <div class="admin-stat">
+            <span class="admin-stat__value">{{ users|filter(u => 'ROLE_EMPLOYEUR' in u.roles)|length }}</span>
+            <span class="admin-stat__label">Employeurs</span>
+        </div>
+        <div class="admin-stat-sep"></div>
+        <div class="admin-stat">
+            <span class="admin-stat__value">{{ users|filter(u => u.roles == ['ROLE_USER'])|length }}</span>
+            <span class="admin-stat__label">Membres</span>
+        </div>
+    </div>
+
+    {# ── SEARCH / FILTER BAR ── #}
+    <div class="contact-card mb-4 py-3 px-4">
+        <div class="d-flex flex-wrap gap-3 align-items-center">
+            <div class="admin-search-wrap flex-grow-1">
+                <i class="bi bi-search admin-search-icon"></i>
+                <input
+                    type="text"
+                    id="adminUserSearch"
+                    class="admin-search-input"
+                    placeholder="Rechercher par nom, email…"
+                    oninput="filterUsers()"
+                >
+            </div>
+            <select id="adminRoleFilter" class="admin-role-filter" onchange="filterUsers()">
+                <option value="">Tous les rôles</option>
+                <option value="ROLE_ADMIN">Admin</option>
+                <option value="ROLE_EMPLOYEUR">Employeur</option>
+                <option value="ROLE_USER">Membre</option>
+            </select>
+        </div>
+    </div>
+
+    {# ── USERS TABLE ── #}
+    <div class="contact-card p-0" style="overflow:hidden;">
+        <div class="section-header px-4 pt-4 pb-3">
+            <span class="section-title">Liste des comptes</span>
+            <span class="results-count" id="adminUserCount">{{ users|length }} utilisateur{{ users|length > 1 ? 's' }}</span>
+        </div>
+
+        {% if users is empty %}
+            <div class="empty-state">
+                <div class="empty-state-title">Aucun utilisateur trouvé</div>
+                <p style="font-size:0.95rem;">La liste est vide pour le moment.</p>
+            </div>
+        {% else %}
+
+            {# ─ Desktop table ─ #}
+            <div class="admin-table-wrap">
+                <table class="admin-table" id="adminUsersTable">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Utilisateur</th>
+                            <th>Email</th>
+                            <th>Rôle</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in users %}
+                        <tr class="admin-user-row"
+                            data-username="{{ user.username|lower }}"
+                            data-email="{{ user.email|lower }}"
+                            data-role="{{ user.roles|join(',') }}">
+
+                            <td class="admin-td-id">{{ user.id }}</td>
+
+                            {# Avatar + username #}
+                            <td>
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="admin-avatar">
+                                        {{ user.username|slice(0,2)|upper }}
+                                    </div>
+                                    <span class="fw-semibold" style="font-size:.92rem;">{{ user.username }}</span>
+                                </div>
+                            </td>
+
+                            <td style="color:var(--text-muted);font-size:.88rem;">{{ user.email }}</td>
+
+                            {# Role badge #}
+                            <td>
+                                {% if 'ROLE_ADMIN' in user.roles %}
+                                    <span class="admin-role-badge admin-role-badge--admin">Admin</span>
+                                {% elseif 'ROLE_EMPLOYEUR' in user.roles %}
+                                    <span class="admin-role-badge admin-role-badge--employer">Employeur</span>
+                                {% else %}
+                                    <span class="admin-role-badge admin-role-badge--user">Membre</span>
+                                {% endif %}
+                            </td>
+
+                            {# Action buttons #}
+                            <td>
+                                <div class="d-flex gap-2 flex-wrap">
+                                    <button
+                                        class="admin-btn admin-btn--edit"
+                                        onclick="openEditModal({{ user.id }}, '{{ user.username|e('js') }}', '{{ user.email|e('js') }}', {{ user.roles|json_encode|e('html_attr') }}, '{{ csrf_token('edit_user_' ~ user.id)|e('js') }}')"
+                                        title="Modifier"
+                                    >
+                                        <i class="bi bi-pencil-square"></i>
+                                        <span>Modifier</span>
+                                    </button>
+                                    <button
+                                        class="admin-btn admin-btn--delete"
+                                        onclick="openDeleteModal({{ user.id }}, '{{ user.username|e('js') }}', '{{ csrf_token('delete_user_' ~ user.id)|e('js') }}')"
+                                        title="Supprimer"
+                                    >
+                                        <i class="bi bi-trash3"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            {# ─ Mobile cards (hidden on desktop) ─ #}
+            <div class="admin-mobile-list d-flex flex-column gap-3 px-3 pb-3">
+                {% for user in users %}
+                <div class="admin-mobile-card admin-user-row"
+                     data-username="{{ user.username|lower }}"
+                     data-email="{{ user.email|lower }}"
+                     data-role="{{ user.roles|join(',') }}">
+                    <div class="d-flex justify-content-between align-items-start gap-2">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="admin-avatar">{{ user.username|slice(0,2)|upper }}</div>
+                            <div>
+                                <div class="fw-semibold" style="font-size:.92rem;">{{ user.username }}</div>
+                                <div style="color:var(--text-muted);font-size:.82rem;">{{ user.email }}</div>
+                            </div>
+                        </div>
+                        {% if 'ROLE_ADMIN' in user.roles %}
+                            <span class="admin-role-badge admin-role-badge--admin">Admin</span>
+                        {% elseif 'ROLE_EMPLOYEUR' in user.roles %}
+                            <span class="admin-role-badge admin-role-badge--employer">Employeur</span>
+                        {% else %}
+                            <span class="admin-role-badge admin-role-badge--user">Membre</span>
+                        {% endif %}
+                    </div>
+                    <div class="d-flex gap-2 mt-3">
+                        <button
+                            class="admin-btn admin-btn--edit flex-grow-1 justify-content-center"
+                            onclick="openEditModal({{ user.id }}, '{{ user.username|e('js') }}', '{{ user.email|e('js') }}', {{ user.roles|json_encode|e('html_attr') }}, '{{ csrf_token('edit_user_' ~ user.id)|e('js') }}')"
+                        >
+                            <i class="bi bi-pencil-square"></i> Modifier
+                        </button>
+                        <button
+                            class="admin-btn admin-btn--delete"
+                            onclick="openDeleteModal({{ user.id }}, '{{ user.username|e('js') }}', '{{ csrf_token('delete_user_' ~ user.id)|e('js') }}')"
+                        >
+                            <i class="bi bi-trash3"></i>
+                        </button>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+        {% endif %}
+    </div>{# /contact-card #}
+</div>{# /container #}
+
+
+{# ══════════════════════════════════════════════
+   EDIT MODAL
+══════════════════════════════════════════════ #}
+<div class="modal fade" id="editUserModal" tabindex="-1" aria-labelledby="editUserModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content site-confirm-modal">
+            <div class="modal-header border-0 pb-0">
+                <div>
+                    <p class="search-eyebrow mb-0" style="font-size:.75rem;">Administration</p>
+                    <h5 class="modal-title" id="editUserModalLabel" style="font-family:'Sora',sans-serif;font-size:1.1rem;">
+                        Modifier l'utilisateur
+                    </h5>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fermer"></button>
+            </div>
+
+            <form id="editUserForm" method="post" action="">
+                <input type="hidden" name="_token" id="editCsrfToken" value="">
+
+                <div class="modal-body pt-3">
+                    <div class="admin-form-group mb-3">
+                        <label class="admin-form-label" for="editUsername">Nom d'utilisateur</label>
+                        <input type="text" id="editUsername" name="username" class="admin-form-input" required>
+                    </div>
+
+                    <div class="admin-form-group mb-3">
+                        <label class="admin-form-label" for="editEmail">Adresse email</label>
+                        <input type="email" id="editEmail" name="email" class="admin-form-input" required>
+                    </div>
+
+                    <div class="admin-form-group mb-3">
+                        <label class="admin-form-label" for="editPassword">
+                            Nouveau mot de passe
+                            <span style="color:var(--text-muted);font-weight:400;">(laisser vide pour conserver)</span>
+                        </label>
+                        <div class="admin-pw-wrap">
+                            <input type="password" id="editPassword" name="password" class="admin-form-input" autocomplete="new-password">
+                            <button type="button" class="admin-pw-toggle" onclick="togglePassword('editPassword', this)" tabindex="-1">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="admin-form-group">
+                        <label class="admin-form-label">Rôle</label>
+                        <div class="admin-role-choice">
+                            <label class="admin-role-option">
+                                <input type="radio" name="role" value="ROLE_USER" class="admin-role-radio">
+                                <div class="admin-role-card">
+                                    <i class="bi bi-person-fill"></i>
+                                    <span>Membre</span>
+                                </div>
+                            </label>
+                            <label class="admin-role-option">
+                                <input type="radio" name="role" value="ROLE_EMPLOYEUR" class="admin-role-radio">
+                                <div class="admin-role-card">
+                                    <i class="bi bi-briefcase-fill"></i>
+                                    <span>Employeur</span>
+                                </div>
+                            </label>
+                            <label class="admin-role-option">
+                                <input type="radio" name="role" value="ROLE_ADMIN" class="admin-role-radio">
+                                <div class="admin-role-card">
+                                    <i class="bi bi-shield-fill-check"></i>
+                                    <span>Admin</span>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer border-0 pt-1 gap-2">
+                    <button type="button" class="btn btn-details" data-bs-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-vert px-4">Enregistrer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+{# ══════════════════════════════════════════════
+   DELETE CONFIRM MODAL
+══════════════════════════════════════════════ #}
+<div class="modal fade" id="deleteUserModal" tabindex="-1" aria-labelledby="deleteUserModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content site-confirm-modal">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title" id="deleteUserModalLabel" style="font-family:'Sora',sans-serif;font-size:1rem;">
+                    Confirmer la suppression
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fermer"></button>
+            </div>
+            <div class="modal-body" style="color:var(--text-muted);font-size:.93rem;">
+                Supprimer définitivement le compte de
+                <strong id="deleteUserName" style="color:var(--text);"></strong> ?
+                Cette action est irréversible.
+            </div>
+            <form id="deleteUserForm" method="post" action="">
+                <input type="hidden" name="_token" id="deleteCsrfToken" value="">
+                <input type="hidden" name="_method" value="DELETE">
+                <div class="modal-footer border-0 pt-1 gap-2">
+                    <button type="button" class="btn btn-details" data-bs-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-outline-danger px-4">Supprimer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+{% block stylesheet %}
+    <link rel="stylesheet" href="{{ asset('css/admin_users.css') }}">
+{% endblock %}
+
+
+{# ══════════════════════════════════════════════
+   JAVASCRIPT
+══════════════════════════════════════════════ #}
+<script>
+/* ── Open edit modal ── */
+function openEditModal(id, username, email, roles, csrfToken) {
+    const modal = new bootstrap.Modal(document.getElementById('editUserModal'));
+
+    document.getElementById('editUserForm').action = `/dashboard/admin/users/${id}/edit`;
+    document.getElementById('editCsrfToken').value  = csrfToken;
+    document.getElementById('editUsername').value   = username;
+    document.getElementById('editEmail').value      = email;
+
+    // Determine current role (highest privilege wins)
+    let currentRole = 'ROLE_USER';
+    if (roles.includes('ROLE_ADMIN'))     currentRole = 'ROLE_ADMIN';
+    else if (roles.includes('ROLE_EMPLOYEUR')) currentRole = 'ROLE_EMPLOYEUR';
+
+    document.querySelectorAll('input[name="role"]').forEach(r => {
+        r.checked = (r.value === currentRole);
+    });
+
+    modal.show();
+}
+
+/* ── Open delete modal ── */
+function openDeleteModal(id, username, csrfToken) {
+    const modal = new bootstrap.Modal(document.getElementById('deleteUserModal'));
+
+    document.getElementById('deleteUserForm').action = `/dashboard/admin/users/${id}/delete`;
+    document.getElementById('deleteCsrfToken').value = csrfToken;
+    document.getElementById('deleteUserName').textContent = username;
+
+    modal.show();
+}
+
+/* ── Password visibility toggle ── */
+function togglePassword(inputId, btn) {
+    const input = document.getElementById(inputId);
+    const icon  = btn.querySelector('i');
+    if (input.type === 'password') {
+        input.type = 'text';
+        icon.classList.replace('bi-eye', 'bi-eye-slash');
+    } else {
+        input.type = 'password';
+        icon.classList.replace('bi-eye-slash', 'bi-eye');
+    }
+}
+
+/* ── Live search + role filter ── */
+function filterUsers() {
+    const q    = document.getElementById('adminUserSearch').value.toLowerCase().trim();
+    const role = document.getElementById('adminRoleFilter').value;
+    const rows = document.querySelectorAll('.admin-user-row');
+    let visible = 0;
+
+    rows.forEach(row => {
+        const matchText = !q
+            || row.dataset.username.includes(q)
+            || row.dataset.email.includes(q);
+        const matchRole = !role || row.dataset.role.includes(role);
+        const show = matchText && matchRole;
+        row.style.display = show ? '' : 'none';
+        if (show) visible++;
+    });
+
+    // Update count (only unique users, not duplicate mobile/desktop rows)
+    const unique = visible / 2; // one table row + one mobile card per user
+    document.getElementById('adminUserCount').textContent =
+        unique + ' utilisateur' + (unique > 1 ? 's' : '');
+}
+</script>
+{% endblock %}

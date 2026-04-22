@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Brand;
 use App\Entity\Booking;
 use App\Entity\Review;
+use App\Entity\TripIssue;
 use App\Entity\Trip;
 use App\Entity\User;
 use App\Entity\Vehicle;
@@ -18,7 +19,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
 final class ProfileController extends AbstractController
 {
@@ -194,8 +194,7 @@ final class ProfileController extends AbstractController
     #[Route('/profile/delete', name: 'app_profile_delete', methods: ['POST'])]
     public function deleteProfile(
         Request $request,
-        EntityManagerInterface $entityManager,
-        TokenStorageInterface $tokenStorage
+        EntityManagerInterface $entityManager
     ): Response {
         $user = $this->getUser();
 
@@ -204,7 +203,9 @@ final class ProfileController extends AbstractController
         }
 
         if (!$this->isCsrfTokenValid('delete_profile', (string) $request->request->get('_token'))) {
-            throw $this->createAccessDeniedException('Token CSRF invalide.');
+            $this->addFlash('error', 'Token CSRF invalide.');
+
+            return $this->redirectToRoute('app_profile');
         }
 
         foreach ($user->getBookings() as $booking) {
@@ -255,8 +256,6 @@ final class ProfileController extends AbstractController
 
         $entityManager->remove($user);
         $entityManager->flush();
-
-        $tokenStorage->setToken(null);
 
         $session = $request->getSession();
         if ($session !== null) {

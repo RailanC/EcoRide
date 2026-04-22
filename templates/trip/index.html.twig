@@ -113,7 +113,7 @@
     </div>
   {% else %}
     {% for trip in trips %}
-      <a href="{{ path('app_covoiturage_show', {id: trip.id}) }}" id="{{ createdTripId is defined and createdTripId == trip.id ? 'created-trip-card' : '' }}" class="trip-card{{ createdTripId is defined and createdTripId == trip.id ? ' trip-card--highlighted' : '' }}" data-turbo="false">
+      <a href="{{ path('app_covoiturage_show', {id: trip.id}) }}" id="{{ createdTripId is defined and createdTripId == trip.id ? 'created-trip-card' : '' }}" class="trip-card{{ createdTripId is defined and createdTripId == trip.id ? ' trip-card--highlighted' : '' }}" >
         <div class="trip-card-left">
           <div class="driver-avatar">{{ trip.driver.username|slice(0, 2) }}</div>
           <div class="trip-info">
