@@ -3,123 +3,129 @@
 {% block title %}Dashboard - EcoRide{% endblock %}
 
 {% block body %}
-<div class="container py-5" style="max-width: 1080px;">
+<div class="container py-5 mw-1080px" data-bs-theme="dark">
     <div class="mb-4">
-        <p class="search-eyebrow mb-1">Espace de supervision</p>
-        <h1 class="fw-bold" style="font-family:'Sora',sans-serif;font-size:2.1rem;letter-spacing:-0.02em;">
+        <p class="text-uppercase fw-bold mb-1 dashboard-eyebrow">Espace de supervision</p>
+        <h1 class="fw-bold text-white mb-2 dashboard-title">
             Dashboard
         </h1>
-        <p style="color:var(--text-muted);font-size:0.94rem;">
+        <p class="text-white-50 fs-94">
             Suivez l activite de la plateforme et accedez rapidement aux zones de moderation.
         </p>
     </div>
 
-    <div class="contact-card mb-4" style="padding:1.4rem 1.5rem;">
-        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
-            <div>
-                <p class="mb-1 fw-semibold" style="font-family:'Sora',sans-serif;font-size:1rem;">Bienvenue dans votre espace equipe</p>
-                <p class="mb-0" style="color:var(--text-muted);font-size:.9rem;">
-                    Utilisateur connecte:
-                    <span style="color:var(--text);font-weight:600;">{{ app.user ? app.user.username : 'Inconnu' }}</span>
-                </p>
-            </div>
-            <div class="d-flex flex-wrap gap-2">
-                <a href="{{ path('app_home') }}" class="btn btn-details text-decoration-none px-3 py-2">Accueil</a>
-                <a href="{{ path('app_profile') }}" class="btn btn-details text-decoration-none px-3 py-2">Profil</a>
-                <a href="{{ path('app_profile_trips') }}" class="btn btn-vert px-3 py-2">Mes trajets</a>
+    <div class="card bg-transparent border-0 rounded-4 shadow-sm mb-4 card-dark-custom">
+        <div class="card-body p-4">
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+                <div>
+                    <p class="mb-1 fw-bold text-white fs-1-1rem">Bienvenue dans votre espace equipe</p>
+                    <p class="mb-0 text-white-50 fs-0-9rem">
+                        Utilisateur connecte:
+                        <span class="text-white fw-bold">{{ app.user ? app.user.username : 'Inconnu' }}</span>
+                    </p>
+                </div>
+                <div class="d-flex flex-wrap gap-2">
+                    <a href="{{ path('app_home') }}" class="btn btn-outline-light rounded-pill px-4 py-2 fw-medium border-0 btn-subtle-light">Accueil</a>
+                    <a href="{{ path('app_profile') }}" class="btn btn-outline-light rounded-pill px-4 py-2 fw-medium border-0 btn-subtle-light">Profil</a>
+                    <a href="{{ path('app_profile_trips') }}" class="btn btn-primary-custom rounded-pill px-4 py-2 fw-bold border-0">Mes trajets</a>
+                </div>
             </div>
         </div>
     </div>
 
     <div class="row g-4">
         <div class="col-12 col-lg-4">
-            <div class="contact-card h-100">
+            <div class="card bg-transparent border-0 rounded-4 shadow-sm h-100 card-dark-custom">
+                <div class="card-body p-4 d-flex flex-column">
                 <div
-                    class="d-inline-flex align-items-center justify-content-center mb-3"
-                    style="width:52px;height:52px;border-radius:14px;background:rgba(94,188,103,.12);border:1px solid rgba(94,188,103,.25);"
+                    class="d-inline-flex align-items-center justify-content-center mb-3 dashboard-icon-wrapper dashboard-icon-wrapper--reviews"
                 >
-                    <i class="bi bi-chat-square-text fs-5" style="color:var(--lime);"></i>
+                    <i class="bi bi-chat-square-text fs-5 text-lime-custom"></i>
                 </div>
-                <h2 class="contact-title mb-2" style="text-align:left;font-size:1.02rem;">Regarder tous les avis</h2>
-                <p style="color:var(--text-muted);font-size:.88rem;line-height:1.6;">
+                <h2 class="fw-bold text-white mb-2 fs-1-1rem">Regarder tous les avis</h2>
+                <p class="text-white-50 flex-grow-1 dashboard-card-text">
                     Accedez a la liste complete des avis utilisateurs pour monitorer la satisfaction et identifier les tendances.
                 </p>
                 <div class="mt-3">
-                    <a href="{{ path('app_reviews') }}" class="btn-details text-decoration-none">Voir les avis en attente</a>
+                    <a href="{{ path('app_reviews') }}" class="btn btn-outline-light rounded-pill px-4 py-2 fw-medium border-0 w-100 text-center btn-subtle-light">Voir les avis en attente</a>
+                </div>
                 </div>
             </div>
         </div>
 
         <div class="col-12 col-lg-4">
-            <div class="contact-card h-100">
+            <div class="card bg-transparent border-0 rounded-4 shadow-sm h-100 card-dark-custom">
+                <div class="card-body p-4 d-flex flex-column">
                 <div
-                    class="d-inline-flex align-items-center justify-content-center mb-3"
-                    style="width:52px;height:52px;border-radius:14px;background:rgba(167,217,48,.12);border:1px solid rgba(167,217,48,.25);"
+                    class="d-inline-flex align-items-center justify-content-center mb-3 dashboard-icon-wrapper dashboard-icon-wrapper--reports"
                 >
-                    <i class="bi bi-exclamation-triangle fs-5" style="color:var(--lime);"></i>
+                    <i class="bi bi-exclamation-triangle fs-5 text-lime-custom"></i>
                 </div>
-                <h2 class="contact-title mb-2" style="text-align:left;font-size:1.02rem;">Regarder les signalements</h2>
-                <p style="color:var(--text-muted);font-size:.88rem;line-height:1.6;">
+                <h2 class="fw-bold text-white mb-2 fs-1-1rem">Regarder les signalements</h2>
+                <p class="text-white-50 flex-grow-1 dashboard-card-text">
                     Consultez les signalements de trajets pour identifier les problemes critiques et assurer la securite de la communaute.
                 </p>
                 <div class="mt-3">
-                    <a href="{{ path('app_reports') }}" class="btn-details text-decoration-none">Voir les signalements</a>
+                    <a href="{{ path('app_reports') }}" class="btn btn-outline-light rounded-pill px-4 py-2 fw-medium border-0 w-100 text-center btn-subtle-light">Voir les signalements</a>
+                </div>
                 </div>
             </div>
         </div>
 
         <div class="col-12 col-lg-4">
-            <div class="contact-card h-100">
+            <div class="card bg-transparent border-0 rounded-4 shadow-sm h-100 card-dark-custom">
+                <div class="card-body p-4 d-flex flex-column">
                 <div
-                    class="d-inline-flex align-items-center justify-content-center mb-3"
-                    style="width:52px;height:52px;border-radius:14px;background:rgba(123,68,37,.18);border:1px solid rgba(123,68,37,.32);"
+                    class="d-inline-flex align-items-center justify-content-center mb-3 dashboard-icon-wrapper dashboard-icon-wrapper--admin"
                 >
-                    <i class="bi bi-shield-check fs-5" style="color:#e6c7a2;"></i>
+                    <i class="bi bi-shield-check fs-5 text-gold-custom"></i>
                 </div>
-                <h2 class="contact-title mb-2" style="text-align:left;font-size:1.02rem;">Administration</h2>
-                <p style="color:var(--text-muted);font-size:.88rem;line-height:1.6;">
+                <h2 class="fw-bold text-white mb-2 fs-1-1rem">Administration</h2>
+                <p class="text-white-50 flex-grow-1 dashboard-card-text">
                     Accedez aux controles avances et aux parametres techniques de la plateforme.
                 </p>
                 <div class="mt-3">
                     {% if is_granted('ROLE_ADMIN') %}
-                        <span class="badge-eco">Acces admin actif</span>
+                        <span class="badge custom-badge-lime rounded-pill px-3 py-2 fw-medium fs-6 d-inline-block w-100 text-center">Acces admin actif</span>
                         <div class="mt-3">
-                            <a href="{{ path('app_dashboard_admin') }}" class="btn-details text-decoration-none">Voir la page admin</a>
+                            <a href="{{ path('app_dashboard_admin') }}" class="btn btn-outline-light rounded-pill px-4 py-2 fw-medium border-0 w-100 text-center btn-subtle-light">Voir la page admin</a>
                         </div>
                     {% else %}
-                        <span class="btn-details">Reserve admin</span>
+                        <span class="btn btn-outline-light rounded-pill px-4 py-2 fw-medium border-0 w-100 text-center disabled btn-subtle-light">Reserve admin</span>
                     {% endif %}
+                </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="contact-card mt-4">
-        <h2 class="contact-title mb-3" style="text-align:left;font-size:1rem;">Prochaines zones a connecter</h2>
-        <div class="row g-3">
+    <div class="card bg-transparent border-0 rounded-4 shadow-sm mt-4 card-dark-custom">
+        <div class="card-body p-4">
+            <h2 class="fw-bold text-white mb-4 fs-1-2rem">Prochaines zones a connecter</h2>
+            <div class="row g-4">
             <div class="col-12 col-md-6" id="signalements">
-                <div style="border:1px solid rgba(255,255,255,.08);border-radius:var(--radius-sm);padding:1rem;">
-                    <p class="mb-1 fw-semibold" style="font-family:'Sora',sans-serif;font-size:.9rem;">Liste des avis en attente</p>
+                    <div class="rounded-4 p-4 h-100 card-dark-inset">
+                        <p class="mb-4 fw-bold text-white fs-6">Liste des avis en attente</p>
                     {% if pendingReviews is empty %}
-                        <p class="mb-0" style="color:var(--text-muted);">Aucun avis en attente.</p>
+                            <p class="mb-0 text-white-50 small">Aucun avis en attente.</p>
                     {% else %}
                         <div class="d-flex flex-column gap-3">
                             {% for review in pendingReviews %}
-                                <div style="border:1px solid rgba(255,255,255,.08);border-radius:var(--radius-sm);padding:1rem;">
-                                    <div class="fw-semibold">{{ review.trip.departureLocation }} &rarr; {{ review.trip.arrivalLocation }}</div>
-                                    <div style="font-size:.82rem;color:var(--text-muted);">
+                                    <div class="rounded-3 p-3 card-dark-item">
+                                        <div class="fw-bold text-white">{{ review.trip.departureLocation }} &rarr; {{ review.trip.arrivalLocation }}</div>
+                                        <div class="text-white-50 mt-1 mb-2 fs-0-82rem">
                                         Auteur: {{ review.author.username }} | Conducteur: {{ review.user.username }} | Note: {{ review.rating }}/5
                                     </div>
-                                    <p class="mt-3 mb-3">{{ review.comment }}</p>
-                                    <div class="d-flex gap-2 flex-wrap row">
+                                        <p class="text-white-75 mb-3 fs-0-95rem">{{ review.comment }}</p>
+                                        <div class="d-flex gap-2 flex-wrap align-items-center">
                                         <form method="post" action="{{ path('app_approve_review', {id: review.id}) }}">
                                             <input type="hidden" name="_token" value="{{ csrf_token('approve_review_' ~ review.id) }}">
-                                            <button type="submit" class="btn btn-vert btn-sm">Approuver</button>
+                                                <button type="submit" class="btn btn-primary-custom rounded-pill fw-bold px-3 py-1 border-0 btn-sm">Approuver</button>
                                         </form>
-                                        <form method="post" action="{{ path('app_reject_review', {id: review.id}) }}" class="d-flex gap-2 flex-wrap">
+                                            <form method="post" action="{{ path('app_reject_review', {id: review.id}) }}" class="d-flex gap-2 flex-wrap align-items-center mb-0">
                                             <input type="hidden" name="_token" value="{{ csrf_token('reject_review_' ~ review.id) }}">
-                                            <textarea type="text" name="moderation_note" class="form-control contact-input form-control-sm" placeholder="Motif du rejet" style="max-width:240px;"></textarea>
-                                            <button type="submit" class="btn btn-outline-danger btn-sm">Rejeter</button>
+                                                <textarea type="text" name="moderation_note" class="form-control custom-input rounded-3 shadow-none px-2 py-1 form-control-sm rejection-reason-input" placeholder="Motif du rejet"></textarea>
+                                                <button type="submit" class="btn btn-outline-danger rounded-pill px-3 py-1 btn-sm">Rejeter</button>
                                         </form>
                                     </div>
                                 </div>
@@ -129,26 +135,27 @@
                 </div>
             </div>
             <div class="col-12 col-md-6">
-                <div style="border:1px solid rgba(255,255,255,.08);border-radius:var(--radius-sm);padding:1rem;">
-                    <p class="mb-1 fw-semibold" style="font-family:'Sora',sans-serif;font-size:.9rem;">Signalements de trajet</p>
+                    <div class="rounded-4 p-4 h-100 card-dark-inset">
+                        <p class="mb-4 fw-bold text-white fs-6">Signalements de trajet</p>
                     {% if pendingIssues is empty %}
-                        <p class="mb-0" style="color:var(--text-muted);">Aucun signalement en attente.</p>
+                            <p class="mb-0 text-white-50 small">Aucun signalement en attente.</p>
                     {% else %}
                         <div class="d-flex flex-column gap-3">
                             {% for issue in pendingIssues %}
-                                <div style="border:1px solid rgba(255,255,255,.08);border-radius:var(--radius-sm);padding:1rem;">
-                                    <div class="fw-semibold">{{ issue.trip.departureLocation }} &rarr; {{ issue.trip.arrivalLocation }}</div>
-                                    <div style="font-size:.82rem;color:var(--text-muted);">
+                                    <div class="rounded-3 p-3 card-dark-item">
+                                        <div class="fw-bold text-white">{{ issue.trip.departureLocation }} &rarr; {{ issue.trip.arrivalLocation }}</div>
+                                        <div class="text-white-50 mt-1 mb-2 fs-0-82rem">
                                         Auteur: {{ issue.participant.username }} | Conducteur: {{ issue.driver.username }} | Statut: {{ issue.status }}
                                     </div>
-                                    <p class="mt-3 mb-3">{{ issue.comment }}</p>
-                                    <div class="d-flex gap-2 flex-wrap row">
-                                        <a href="{{ path('app_report', {id: issue.id}) }}" class="btn btn-vert btn-sm text-decoration-none">Voir le detail</a>
+                                        <p class="text-white-75 mb-3 fs-0-95rem">{{ issue.comment }}</p>
+                                        <div class="d-flex gap-2 flex-wrap align-items-center">
+                                            <a href="{{ path('app_report', {id: issue.id}) }}" class="btn btn-primary-custom rounded-pill fw-bold px-3 py-1 border-0 btn-sm text-decoration-none">Voir le detail</a>
                                     </div>
                                 </div>
                             {% endfor %}
                         </div>
                     {% endif %}
+                </div>
                 </div>
             </div>
         </div>

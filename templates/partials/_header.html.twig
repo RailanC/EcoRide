@@ -1,52 +1,63 @@
-<nav class="navbar navbar-expand-lg border-bottom p-3 mb-3 bg-white">
-    <div class="container gap-3">
-        <a class="navbar-brand me-4" href="{{ path('app_home') }}" >
-            <img src="{{ asset('images/logo.png') }}" alt="Logo" width="100" height="45" class="d-inline-block align-text-top" />
+<nav class="navbar navbar-expand-lg bg-primary" data-bs-theme="dark">
+    <div class="container-fluid gap-2">
+        <a class="navbar-brand fw-bold" href="{{ path('app_home') }}">
+            EcoRide
         </a>
 
-        <div class="collapse navbar-collapse gap-lg-4" id="mainNavbar">
-            <ul class="navbar-nav ms-auto align-items-lg-center gap-2 gap-lg-4 mb-3 mb-lg-0">
+        <div class="collapse navbar-collapse justify-content-end" id="mainNavbar">
+            <ul class="navbar-nav mb-2 mb-lg-0 text-center">
                 <li class="nav-item">
-                    <a href="{{ path('app_covoiturage_new') }}" class="btn btn-vert w-100 w-lg-auto" >Proposer un trajet</a>
+                    <a href="{{ path('app_home') ~ '#hero-section' }}" class="nav-link">Solutions</a>
                 </li>
                 <li class="nav-item">
-                    <a href="{{ path('app_contact') }}" class="nav-link link-body-emphasis" >Contact</a>
+                    <a href="{{ path('app_home') ~ '#feature-impact' }}" class="nav-link">Eco-Impact</a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ path('app_home') ~ '#feature-fleet' }}" class="nav-link">Flotte</a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ path('app_contact') }}" class="nav-link">Contact</a>
                 </li>
             </ul>
         </div>
-
-        <div class="d-flex align-items-center">
-            <button class="navbar-toggler me-3" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar" aria-controls="mainNavbar" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-
-            {% if app.user %}
-                <div class="d-flex align-items-center gap-3">
-                    <span class="btn-details py-2 px-3" style="line-height:1;">
+        
+        <div class="d-flex align-items-center gap-3">
+            <a href="{{ path('app_covoiturage_new') }}" class="btn btn-outline-light btn-sm rounded-pill px-3">
+                Proposer
+            </a>
+            
+            <div class="d-flex align-items-center gap-2">
+                {% if app.user %}
+                    <span class="text-light d-none d-md-inline-flex align-items-center small fw-medium">
+                        <i class="bi bi-lightning-charge-fill text-warning me-1"></i>
                         {{ app.user.creditBalance }} credits
                     </span>
-                    <div class="dropdown text-end">
-                        <a href="#" class="d-block link-body-emphasis text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="bi bi-person-circle fs-4"></i>
+                    <div class="dropdown">
+                        <a href="#" class="text-light fs-4 text-decoration-none d-flex align-items-center" role="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Menu du compte">
+                            <i class="bi bi-person-circle"></i>
                         </a>
-                        <ul class="dropdown-menu dropdown-menu-end text-small shadow">
+                        <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 mt-2">
                             {% if is_granted('ROLE_EMPLOYEUR') %}
-                                <li><a class="dropdown-item" href="{{ path('app_dashboard') }}" >Dashboard</a></li>
+                                <li><a class="dropdown-item py-2" href="{{ path('app_dashboard') }}">Dashboard</a></li>
                                 <li><hr class="dropdown-divider"></li>
                             {% endif %}
-                            <li><a class="dropdown-item" href="{{ path('app_profile_trips') }}" >Mes trajets</a></li>
-                            <li><a class="dropdown-item" href="{{ path('app_profile') }}" >Profil</a></li>
+                            <li><a class="dropdown-item py-2" href="{{ path('app_profile_trips') }}">Mes trajets</a></li>
+                            <li><a class="dropdown-item py-2" href="{{ path('app_profile') }}">Profil</a></li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="{{ path('app_logout') }}" >Deconnexion</a></li>
+                            <li><a class="dropdown-item text-danger py-2" href="{{ path('app_logout') }}">Deconnexion</a></li>
                         </ul>
                     </div>
-                </div>
-            {% else %}
-                <div class="d-flex align-items-center gap-3">
-                    <a href="{{ path('app_register') }}" class="nav-link link-body-emphasis" >Inscription</a>
-                    <a href="{{ path('app_login') }}" class="nav-link link-body-emphasis" >Connexion</a>
-                </div>
-            {% endif %}
+                {% else %}
+                    <a href="{{ path('app_register') }}" class="text-light text-decoration-none fw-medium d-none d-md-inline small">Join Elite</a>
+                    <a href="{{ path('app_login') }}" class="text-light fs-4 d-flex align-items-center text-decoration-none" aria-label="Connexion">
+                        <i class="bi bi-person-circle"></i>
+                    </a>
+                {% endif %}
+            </div>
+
+            <button class="navbar-toggler border-0 p-1 ms-1" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar" aria-controls="mainNavbar" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
         </div>
     </div>
 </nav>

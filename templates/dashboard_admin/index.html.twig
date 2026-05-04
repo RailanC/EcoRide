@@ -3,16 +3,16 @@
 {% block title %}Gestion des utilisateurs - Admin{% endblock %}
 
 {% block body %}
-<div class="container py-5" style="max-width: 1180px;">
+<div class="container py-5 admin-dashboard-shell">
 
     {# ── PAGE HEADER ── #}
     <div class="d-flex flex-wrap justify-content-between align-items-end gap-3 mb-4">
         <div>
             <p class="search-eyebrow mb-1">Espace d'administration</p>
-            <h1 class="fw-bold mb-1" style="font-family:'Sora',sans-serif;font-size:2rem;letter-spacing:-0.02em;">
+            <h1 class="admin-page-title fw-bold mb-1">
                 Gestion des utilisateurs
             </h1>
-            <p style="color:var(--text-muted);font-size:0.94rem;margin-bottom:0;">
+            <p class="admin-page-subtitle mb-0">
                 Modifiez les informations, les rôles ou supprimez des comptes utilisateurs.
             </p>
         </div>
@@ -39,7 +39,7 @@
         </div>
         <div class="row g-3">
             <div class="col-6 col-xl-2">
-                <div class="admin-platform-stat admin-platform-stat--users">
+                <div class="admin-platform-stat">
                     <div class="admin-platform-stat__icon"><i class="bi bi-people"></i></div>
                     <div class="admin-platform-stat__value">{{ platformStats.users }}</div>
                     <div class="admin-platform-stat__label">Users</div>
@@ -104,23 +104,23 @@
     </div>
 
     {# ── STATS BAR ── #}
-    <div class="admin-stats-bar mb-4">
-        <div class="admin-stat">
+    <div class="admin-stats-bar d-flex align-items-center flex-wrap mb-4">
+        <div class="admin-stat d-flex flex-column align-items-center">
             <span class="admin-stat__value">{{ users|length }}</span>
             <span class="admin-stat__label">Utilisateurs</span>
         </div>
         <div class="admin-stat-sep"></div>
-        <div class="admin-stat">
+        <div class="admin-stat d-flex flex-column align-items-center">
             <span class="admin-stat__value">{{ users|filter(u => 'ROLE_ADMIN' in u.roles)|length }}</span>
             <span class="admin-stat__label">Admins</span>
         </div>
         <div class="admin-stat-sep"></div>
-        <div class="admin-stat">
+        <div class="admin-stat d-flex flex-column align-items-center">
             <span class="admin-stat__value">{{ users|filter(u => 'ROLE_EMPLOYEUR' in u.roles)|length }}</span>
             <span class="admin-stat__label">Employeurs</span>
         </div>
         <div class="admin-stat-sep"></div>
-        <div class="admin-stat">
+        <div class="admin-stat d-flex flex-column align-items-center">
             <span class="admin-stat__value">{{ users|filter(u => u.roles == ['ROLE_USER'])|length }}</span>
             <span class="admin-stat__label">Membres</span>
         </div>
@@ -149,7 +149,7 @@
     </div>
 
     {# ── USERS TABLE ── #}
-    <div class="contact-card p-0" style="overflow:hidden;">
+    <div class="contact-card p-0 overflow-hidden">
         <div class="section-header px-4 pt-4 pb-3">
             <span class="section-title">Liste des comptes</span>
             <span class="results-count" id="adminUserCount">{{ users|length }} utilisateur{{ users|length > 1 ? 's' }}</span>
@@ -158,13 +158,13 @@
         {% if users is empty %}
             <div class="empty-state">
                 <div class="empty-state-title">Aucun utilisateur trouvé</div>
-                <p style="font-size:0.95rem;">La liste est vide pour le moment.</p>
+                <p class="admin-empty-copy">La liste est vide pour le moment.</p>
             </div>
         {% else %}
 
             {# ─ Desktop table ─ #}
             <div class="admin-table-wrap">
-                <table class="admin-table" id="adminUsersTable">
+                <table class="admin-table table mb-0" id="adminUsersTable">
                     <thead>
                         <tr>
                             <th>#</th>
@@ -189,11 +189,11 @@
                                     <div class="admin-avatar">
                                         {{ user.username|slice(0,2)|upper }}
                                     </div>
-                                    <span class="fw-semibold" style="font-size:.92rem;">{{ user.username }}</span>
+                                    <span class="admin-user-name fw-semibold">{{ user.username }}</span>
                                 </div>
                             </td>
 
-                            <td style="color:var(--text-muted);font-size:.88rem;">{{ user.email }}</td>
+                            <td class="admin-user-email">{{ user.email }}</td>
 
                             {# Role badge #}
                             <td>
@@ -243,8 +243,8 @@
                         <div class="d-flex align-items-center gap-3">
                             <div class="admin-avatar">{{ user.username|slice(0,2)|upper }}</div>
                             <div>
-                                <div class="fw-semibold" style="font-size:.92rem;">{{ user.username }}</div>
-                                <div style="color:var(--text-muted);font-size:.82rem;">{{ user.email }}</div>
+                                <div class="admin-user-name fw-semibold">{{ user.username }}</div>
+                                <div class="admin-user-email admin-user-email--mobile">{{ user.email }}</div>
                             </div>
                         </div>
                         {% if 'ROLE_ADMIN' in user.roles %}
@@ -286,8 +286,8 @@
         <div class="modal-content site-confirm-modal">
             <div class="modal-header border-0 pb-0">
                 <div>
-                    <p class="search-eyebrow mb-0" style="font-size:.75rem;">Administration</p>
-                    <h5 class="modal-title" id="editUserModalLabel" style="font-family:'Sora',sans-serif;font-size:1.1rem;">
+                    <p class="search-eyebrow admin-modal-eyebrow mb-0">Administration</p>
+                    <h5 class="modal-title admin-modal-title" id="editUserModalLabel">
                         Modifier l'utilisateur
                     </h5>
                 </div>
@@ -298,30 +298,30 @@
                 <input type="hidden" name="_token" id="editCsrfToken" value="">
 
                 <div class="modal-body pt-3">
-                    <div class="admin-form-group mb-3">
+                    <div class="mb-3">
                         <label class="admin-form-label" for="editUsername">Nom d'utilisateur</label>
                         <input type="text" id="editUsername" name="username" class="admin-form-input" required>
                     </div>
 
-                    <div class="admin-form-group mb-3">
+                    <div class="mb-3">
                         <label class="admin-form-label" for="editEmail">Adresse email</label>
                         <input type="email" id="editEmail" name="email" class="admin-form-input" required>
                     </div>
 
-                    <div class="admin-form-group mb-3">
+                    <div class="mb-3" data-controller="password-visibility" data-password-visibility-show-class="bi-eye" data-password-visibility-hide-class="bi-eye-slash">
                         <label class="admin-form-label" for="editPassword">
                             Nouveau mot de passe
-                            <span style="color:var(--text-muted);font-weight:400;">(laisser vide pour conserver)</span>
+                            <span class="admin-muted-note">(laisser vide pour conserver)</span>
                         </label>
                         <div class="admin-pw-wrap">
-                            <input type="password" id="editPassword" name="password" class="admin-form-input" autocomplete="new-password">
-                            <button type="button" class="admin-pw-toggle" onclick="togglePassword('editPassword', this)" tabindex="-1">
-                                <i class="bi bi-eye"></i>
+                            <input type="password" id="editPassword" name="password" class="admin-form-input" autocomplete="new-password" data-password-visibility-target="input">
+                            <button type="button" class="admin-pw-toggle" data-action="password-visibility#toggle" tabindex="-1">
+                                <i class="bi bi-eye" data-password-visibility-target="icon"></i>
                             </button>
                         </div>
                     </div>
 
-                    <div class="admin-form-group">
+                    <div>
                         <label class="admin-form-label">Rôle</label>
                         <div class="admin-role-choice">
                             <label class="admin-role-option">
@@ -366,14 +366,14 @@
     <div class="modal-dialog modal-dialog-centered modal-sm">
         <div class="modal-content site-confirm-modal">
             <div class="modal-header border-0 pb-0">
-                <h5 class="modal-title" id="deleteUserModalLabel" style="font-family:'Sora',sans-serif;font-size:1rem;">
+                <h5 class="modal-title admin-modal-title admin-modal-title--delete" id="deleteUserModalLabel">
                     Confirmer la suppression
                 </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fermer"></button>
             </div>
-            <div class="modal-body" style="color:var(--text-muted);font-size:.93rem;">
+            <div class="modal-body admin-delete-body">
                 Supprimer définitivement le compte de
-                <strong id="deleteUserName" style="color:var(--text);"></strong> ?
+                <strong id="deleteUserName" class="admin-delete-username"></strong> ?
                 Cette action est irréversible.
             </div>
             <form id="deleteUserForm" method="post" action="">
@@ -387,11 +387,6 @@
         </div>
     </div>
 </div>
-
-
-{% block stylesheet %}
-    <link rel="stylesheet" href="{{ asset('css/admin_users.css') }}">
-{% endblock %}
 
 
 {# ══════════════════════════════════════════════
@@ -428,19 +423,6 @@ function openDeleteModal(id, username, csrfToken) {
     document.getElementById('deleteUserName').textContent = username;
 
     modal.show();
-}
-
-/* ── Password visibility toggle ── */
-function togglePassword(inputId, btn) {
-    const input = document.getElementById(inputId);
-    const icon  = btn.querySelector('i');
-    if (input.type === 'password') {
-        input.type = 'text';
-        icon.classList.replace('bi-eye', 'bi-eye-slash');
-    } else {
-        input.type = 'password';
-        icon.classList.replace('bi-eye-slash', 'bi-eye');
-    }
 }
 
 /* ── Live search + role filter ── */
