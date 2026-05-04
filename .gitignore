@@ -55,3 +55,6 @@
 # Embedded web-server pid file
 /.web-server-pid
 compose.yaml
+compose.yaml
+compose.override.yaml
+.gitignore
