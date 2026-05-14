@@ -17,20 +17,18 @@
 {% block title %}Historique des trajets{% endblock %}
 
 {% block body %}
-<div class="container py-5" style="max-width: 1200px;">
-    <div class="travel-hero mb-4">
-        <div class="travel-hero-content">
-            <div class="travel-hero-route">Historique des trajets</div>
-            <div class="travel-hero-sub">
-                {% if selectedMode == 'driver' %}
-                    Retrouvez tous les trajets que vous avez proposes, classes par statut.
-                {% elseif isPassenger %}
-                    Retrouvez les trajets auxquels vous avez participe, classes par statut.
-                {% else %}
-                    Cette page affichera vos trajets proposes des que vous utiliserez un profil conducteur.
-                {% endif %}
-            </div>
-        </div>
+<div class="container py-5 mw-1200px">
+    <div class="travel-hero p-4 p-md-5 mb-4 rounded-4 shadow-sm bg-white border">
+        <h1 class="h2 fw-bold mb-2 text-dark">Historique des trajets</h1>
+        <p class="fs-6 text-muted mb-0">
+            {% if selectedMode == 'driver' %}
+                Retrouvez tous les trajets que vous avez proposes, classes par statut.
+            {% elseif isPassenger %}
+                Retrouvez les trajets auxquels vous avez participe, classes par statut.
+            {% else %}
+                Cette page affichera vos trajets proposes des que vous utiliserez un profil conducteur.
+            {% endif %}
+        </p>
     </div>
 
     {% for message in app.flashes('error') %}
@@ -44,16 +42,16 @@
     {% endfor %}
 
     {% if not isHistoryAvailable %}
-        <div class="empty-state">
-            <div class="empty-state-icon">Historique</div>
-            <div class="empty-state-title">Aucun historique disponible pour le moment</div>
-            <p style="font-size:0.95rem;">
+        <div class="d-flex flex-column align-items-center text-center p-5 bg-light rounded-4 custom-empty-state mb-4">
+            <div class="display-6 text-muted mb-3 fw-light">Historique</div>
+            <h2 class="h4 fw-bold mb-2">Aucun historique disponible pour le moment</h2>
+            <p class="text-muted mb-4 fs-6">
                 Cette page affichera vos trajets des que votre profil vous permettra de proposer ou reserver un trajet.
             </p>
-            <a href="{{ path('app_profile') }}" class="btn btn-vert" >Mettre a jour mon profil</a>
+            <a href="{{ path('app_profile') }}" class="btn btn-vert px-4 py-2 rounded-3">Mettre a jour mon profil</a>
         </div>
     {% else %}
-        <div class="contact-card mb-4">
+        <div class="card border-0 shadow-sm rounded-4 p-4 mb-4 bg-white">
             {% if availableModes|length > 1 %}
                 <div class="d-flex flex-wrap gap-2 mb-4">
                     <a
@@ -88,22 +86,22 @@
             <form method="get" action="{{ path('app_history') }}" class="mb-0">
                 <input type="hidden" name="mode" value="{{ selectedMode }}">
                 <input type="hidden" name="tab" value="{{ selectedTab }}">
-                <div class="search-pill">
-                    <div class="row g-0 align-items-center w-100">
-                        <div class="col-12 col-lg search-field">
-                            <span class="field-label">Recherche</span>
+                <div class="bg-light border rounded-4 p-3 mt-3">
+                    <div class="row g-3 align-items-center w-100 m-0">
+                        <div class="col-12 col-lg px-0 px-lg-2">
+                            <label class="form-label small text-muted fw-bold mb-1">Recherche</label>
                             <input
                                 type="text"
                                 name="q"
-                                class="form-control"
+                                class="form-control border-0 shadow-none rounded-3 py-2"
                                 value="{{ search }}"
                                 placeholder="{{ selectedMode == 'driver' ? 'Ville de depart, destination, date, statut, vehicule...' : 'Ville de depart, destination, date, statut, conducteur, vehicule...' }}"
                             />
                         </div>
-                        <div class="col-12 col-lg-auto p-3">
-                            <div class="d-flex gap-2">
-                                <button type="submit" class="btn-search" style="width:auto; border-radius: 12px; padding: 0.85rem 1.4rem;">Rechercher</button>
-                                <a href="{{ path('app_history', {mode: selectedMode, tab: selectedTab}) }}" class="btn-details text-decoration-none">Reinitialiser</a>
+                        <div class="col-12 col-lg-auto px-0 px-lg-2 mt-3 mt-lg-0 d-flex align-items-end">
+                            <div class="d-flex gap-2 w-100 mt-lg-4 pt-lg-1">
+                                <button type="submit" class="btn btn-primary rounded-3 px-4 py-2 flex-grow-1 flex-lg-grow-0">Rechercher</button>
+                                <a href="{{ path('app_history', {mode: selectedMode, tab: selectedTab}) }}" class="btn btn-outline-secondary rounded-3 px-4 py-2 text-decoration-none flex-grow-1 flex-lg-grow-0 text-center">Reinitialiser</a>
                             </div>
                         </div>
                     </div>
@@ -111,62 +109,64 @@
             </form>
         </div>
 
-        <div class="section-header">
-            <span class="section-title">{{ tabLabels[selectedTab] }}</span>
-            <span class="results-count">{{ trips|length }} resultat{{ trips|length > 1 ? 's' }}</span>
+        <div class="d-flex justify-content-between align-items-end border-bottom pb-2 mb-3 mt-4">
+            <h2 class="h5 fw-bold mb-0 text-dark">{{ tabLabels[selectedTab] }}</h2>
+            <span class="badge bg-secondary rounded-pill fw-normal">{{ trips|length }} resultat{{ trips|length > 1 ? 's' }}</span>
         </div>
 
         {% if trips is empty %}
-            <div class="empty-state">
-                <div class="empty-state-icon">Aucun trajet</div>
-                <div class="empty-state-title">Aucun trajet correspondant</div>
-                <p style="font-size:0.95rem;">
+            <div class="d-flex flex-column align-items-center text-center p-5 bg-light rounded-4 custom-empty-state mb-4">
+                <div class="display-6 text-muted mb-3 fw-light">Aucun trajet</div>
+                <h3 class="h5 fw-bold mb-2">Aucun trajet correspondant</h3>
+                <p class="text-muted mb-0 fs-6">
                     Aucun trajet ne correspond a votre recherche dans cet onglet.
                 </p>
             </div>
         {% else %}
             {% for trip in trips %}
-                <a href="{{ path('app_covoiturage_show', {id: trip.id}) }}" class="trip-card mb-3" >
-                    <div class="trip-card-left">
-                        <div class="driver-avatar">{{ app.user.username|slice(0, 2)|upper }}</div>
-                        <div class="trip-info">
-                            <div class="trip-route">
-                                {{ trip.departureLocation }} <span class="route-arrow">&rarr;</span> {{ trip.arrivalLocation }}
+                <a href="{{ path('app_trip_show', {id: trip.id}) }}" class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center p-4 mb-3 bg-white border rounded-4 text-decoration-none text-dark shadow-sm custom-trip-card">
+                    <div class="d-flex align-items-center gap-3 mb-3 mb-md-0">
+                        <div class="d-flex align-items-center justify-content-center rounded-circle bg-primary text-white fw-bold flex-shrink-0" style="width: 48px; height: 48px; font-size: 1.1rem;">
+                            {{ app.user.username|slice(0, 2)|upper }}
+                        </div>
+                        <div>
+                            <div class="h6 fw-bold mb-2 d-flex align-items-center gap-2 flex-wrap">
+                                {{ trip.departureLocation }} <span class="text-muted mx-1">&rarr;</span> {{ trip.arrivalLocation }}
                                 {% if trip.status == 'canceled' %}
-                                    <span class="trip-card-badge" style="background:#fce8e6; color:#b42318;">Annule</span>
+                                    <span class="badge bg-danger-subtle text-danger rounded-pill fw-normal px-2 py-1">Annule</span>
                                 {% elseif trip.status == 'completed' %}
-                                    <span class="trip-card-badge" style="background:#e7f6ec; color:#166534;">Complete</span>
+                                    <span class="badge bg-success-subtle text-success rounded-pill fw-normal px-2 py-1">Complete</span>
                                 {% elseif selectedTab == 'active' %}
-                                    <span class="trip-card-badge">Actif</span>
+                                    <span class="badge bg-primary-subtle text-primary rounded-pill fw-normal px-2 py-1">Actif</span>
                                 {% endif %}
                             </div>
-                            <div class="trip-meta">
-                                <span class="meta-item">{{ trip.departureDate|date('d M Y') }}</span>
-                                <span class="meta-dot"></span>
-                                <span class="meta-item">{{ trip.departureTime|date('H:i') }} &rarr; {{ trip.arrivalTime|date('H:i') }}</span>
-                                <span class="meta-dot"></span>
-                                <span class="meta-item">{{ trip.availableSeats }} place{{ trip.availableSeats > 1 ? 's' }}</span>
-                                <span class="meta-dot"></span>
-                                <span class="meta-item">Statut: {{ statusLabels[trip.status]|default(trip.status) }}</span>
+                            <div class="d-flex flex-wrap align-items-center gap-2 text-muted small">
+                                <span>{{ trip.departureDate|date('d M Y') }}</span>
+                                <span class="text-muted opacity-50">&bull;</span>
+                                <span>{{ trip.departureTime|date('H:i') }} &rarr; {{ trip.arrivalTime|date('H:i') }}</span>
+                                <span class="text-muted opacity-50">&bull;</span>
+                                <span>{{ trip.availableSeats }} place{{ trip.availableSeats > 1 ? 's' }}</span>
+                                <span class="text-muted opacity-50">&bull;</span>
+                                <span>Statut: {{ statusLabels[trip.status]|default(trip.status) }}</span>
                                 {% if selectedMode == 'passenger' and trip.driver %}
-                                    <span class="meta-dot"></span>
-                                    <span class="meta-item">Conducteur: {{ trip.driver.username }}</span>
+                                    <span class="text-muted opacity-50">&bull;</span>
+                                    <span>Conducteur: {{ trip.driver.username }}</span>
                                 {% endif %}
                                 {% if trip.vehicle %}
-                                    <span class="meta-dot"></span>
-                                    <span class="meta-item">
+                                    <span class="text-muted opacity-50">&bull;</span>
+                                    <span>
                                         {{ trip.vehicle.brand ? trip.vehicle.brand.label ~ ' ' : '' }}{{ trip.vehicle.model }}
                                     </span>
                                 {% endif %}
                             </div>
                         </div>
                     </div>
-                    <div class="trip-card-right">
-                        <div>
-                            <div class="trip-price">{{ trip.pricePerPerson }} credits</div>
-                            <div class="trip-price-label" style="text-align:right;">par passager</div>
+                    <div class="d-flex flex-row flex-md-column align-items-center align-items-md-end justify-content-between w-100 w-md-auto gap-2 mt-2 mt-md-0">
+                        <div class="text-md-end d-flex flex-row flex-md-column align-items-center align-items-md-end gap-2 gap-md-0">
+                            <div class="h5 fw-bold text-success mb-0">{{ trip.pricePerPerson }} credits</div>
+                            <div class="small text-muted">par passager</div>
                         </div>
-                        <span class="btn-details">Voir le trajet</span>
+                        <span class="btn btn-outline-secondary btn-sm rounded-pill px-3">Voir le trajet</span>
                     </div>
                 </a>
             {% endfor %}

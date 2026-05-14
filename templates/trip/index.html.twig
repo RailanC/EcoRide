@@ -1,149 +1,243 @@
 {% extends 'base.html.twig' %}
 
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .custom-input {
+            background: #181c21 !important;
+            border: 1px solid #32353b !important;
+            color: #e0e2ea !important;
+            transition: all 0.18s ease;
+        }
+        .custom-input:focus {
+            border-color: rgba(124,219,130,0.5) !important;
+            box-shadow: 0 0 0 3px rgba(124, 219, 130, 0.1) !important;
+        }
+        .btn-primary-custom {
+            background: linear-gradient(135deg, #7adf7e, #86e683);
+            color: #00390f !important;
+            box-shadow: 0 10px 28px rgba(124, 219, 130, 0.25);
+            transition: all 0.2s ease;
+        }
+        .btn-primary-custom:hover {
+            background: linear-gradient(135deg, #86e683, #97f08f);
+            transform: translateY(-1px);
+        }
+        .swap-btn-custom {
+            width: 36px; height: 36px;
+            background: rgba(30, 34, 40, 0.98); border: 1px solid rgba(255,255,255,0.08); color: #9aa49a;
+            box-shadow: 0 6px 16px rgba(0,0,0,0.22); transition: all 0.18s ease; cursor: pointer;
+        }
+        .swap-btn-custom:hover { color: #7cdb82; border-color: rgba(124, 219, 130, 0.45); }
+        .search-field-border {
+            border-right: 1px solid #32353b;
+        }
+        @media (max-width: 991.98px) {
+            .search-field-border { border-right: none; border-bottom: 1px solid #32353b; }
+            .search-field-border-mobile { border-right: 1px solid #32353b; }
+        }
+        .trip-card-custom {
+            background: #1c2025;
+            border: 1px solid #32353b;
+            transition: all 0.2s ease;
+            color: inherit;
+        }
+        .trip-card-custom:hover {
+            border-color: rgba(124, 219, 130, 0.4);
+            transform: translateY(-2px);
+            box-shadow: 0 12px 24px rgba(0,0,0,0.2);
+        }
+        .trip-card-custom--highlighted {
+            border-color: #7cdb82 !important;
+            box-shadow: 0 0 0 1px #7cdb82;
+        }
+        .driver-avatar-custom {
+            width: 48px; height: 48px;
+            background: #272a30; border: 1px solid #32353b;
+            color: #7cdb82; font-weight: bold; text-transform: uppercase;
+        }
+        .custom-badge-lime {
+            background-color: rgba(124, 219, 130, 0.1) !important;
+            color: #7cdb82 !important;
+            border: 1px solid rgba(124, 219, 130, 0.2) !important;
+        }
+        .meta-dot-custom {
+            display: inline-block; width: 4px; height: 4px; border-radius: 50%; background: #5a6458; margin: 0 8px;
+        }
+    </style>
+{% endblock %}
+
 {% block body %}
-<div class="container py-5" style="max-width: 1300px;">
+<div class="container py-5" style="max-width: 1300px;" data-bs-theme="dark">
   {% for message in app.flashes('success') %}
-    <div class="alert alert-success" role="alert">{{ message }}</div>
+    <div class="alert alert-success d-flex align-items-center gap-3 rounded-4 border border-success border-opacity-25 mb-4" style="background: rgba(25, 135, 84, 0.1); color: #7cdb82;">
+      <i class="bi bi-check-circle fs-5"></i>
+      <div>{{ message }}</div>
+    </div>
   {% endfor %}
 
-  <form method="get" action="{{ path('app_covoiturage') }}" class="mb-4">
-    <div class="search-pill mb-3">
+  <form method="get" action="{{ path('app_trip') }}" class="mb-4">
+    <div class="rounded-4 overflow-hidden mb-3 shadow-sm" style="background: #1c2025; border: 1px solid #32353b;">
       <div class="row g-0 align-items-stretch w-100">
-        <div class="col-6 col-lg search-field border-end-mobile">
-          <span class="field-label">Départ</span>
-          <input type="text" name="departure" id="from" placeholder="Ville de départ" autocomplete="off" class="form-control" value="{{ app.request.query.get('departure') }}" />
+        <div class="col-6 col-lg p-3 search-field-border search-field-border-mobile d-flex flex-column justify-content-center">
+          <span class="text-uppercase fw-bold mb-1" style="font-size: 0.68rem; color: #9aa49a; letter-spacing: 0.08em;">Départ</span>
+          <input type="text" name="departure" id="from" placeholder="Ville de départ" autocomplete="off" class="form-control bg-transparent border-0 shadow-none p-0 text-white fw-medium" value="{{ app.request.query.get('departure') }}" />
         </div>
-        <div class="d-none d-lg-flex search-field search-field--swap col-lg-auto">
-          <button type="button" class="swap-btn" onclick="swapCities(event)" title="Inverser">&harr;</button>
+        <div class="d-none d-lg-flex align-items-center justify-content-center position-relative z-2 mx-n3" style="width: 0;">
+          <button type="button" class="swap-btn-custom rounded-circle d-flex align-items-center justify-content-center position-absolute" onclick="swapCities(event)" title="Inverser" style="z-index: 10;">
+            <i class="bi bi-arrow-left-right"></i>
+          </button>
         </div>
-        <div class="col-6 col-lg search-field">
-          <span class="field-label">Destination</span>
-          <input type="text" name="arrival" id="to" placeholder="Ville d'arrivée" autocomplete="off" class="form-control" value="{{ app.request.query.get('arrival') }}" />
+        <div class="col-6 col-lg p-3 search-field-border ps-lg-4 d-flex flex-column justify-content-center">
+          <span class="text-uppercase fw-bold mb-1" style="font-size: 0.68rem; color: #9aa49a; letter-spacing: 0.08em;">Destination</span>
+          <input type="text" name="arrival" id="to" placeholder="Ville d'arrivée" autocomplete="off" class="form-control bg-transparent border-0 shadow-none p-0 text-white fw-medium" value="{{ app.request.query.get('arrival') }}" />
         </div>
-        <div class="col-6 col-lg search-field border-top-mobile">
-          <span class="field-label">Date de départ</span>
-          <input type="date" name="date" id="departure-date" class="form-control" value="{{ app.request.query.get('date') }}" />
+        <div class="col-6 col-lg p-3 search-field-border search-field-border-mobile d-flex flex-column justify-content-center">
+          <span class="text-uppercase fw-bold mb-1" style="font-size: 0.68rem; color: #9aa49a; letter-spacing: 0.08em;">Date de départ</span>
+          <input type="date" name="date" id="departure-date" class="form-control bg-transparent border-0 shadow-none p-0 text-white fw-medium" value="{{ app.request.query.get('date') }}" />
         </div>
-        <div class="col-12 col-lg search-field border-top-mobile">
-          <span class="field-label">Voyageurs</span>
-          <select name="passengers" class="form-select site-search-select">
-            <option value="1" {{ app.request.query.get('passengers') == '1' ? 'selected' : '' }}>1 passager</option>
-            <option value="2" {{ app.request.query.get('passengers') == '2' ? 'selected' : '' }}>2 passagers</option>
-            <option value="3" {{ app.request.query.get('passengers') == '3' ? 'selected' : '' }}>3 passagers</option>
-            <option value="4" {{ app.request.query.get('passengers') == '4' ? 'selected' : '' }}>4 passagers</option>
-            <option value="5" {{ app.request.query.get('passengers') == '5' ? 'selected' : '' }}>5+ passagers</option>
+        <div class="col-12 col-lg p-3 d-flex flex-column justify-content-center">
+          <span class="text-uppercase fw-bold mb-1" style="font-size: 0.68rem; color: #9aa49a; letter-spacing: 0.08em;">Voyageurs</span>
+          <select name="passengers" class="form-select bg-transparent border-0 shadow-none p-0 text-white fw-medium" style="appearance: none; -webkit-appearance: none;">
+            <option value="1" class="text-dark" {{ app.request.query.get('passengers') == '1' ? 'selected' : '' }}>1 passager</option>
+            <option value="2" class="text-dark" {{ app.request.query.get('passengers') == '2' ? 'selected' : '' }}>2 passagers</option>
+            <option value="3" class="text-dark" {{ app.request.query.get('passengers') == '3' ? 'selected' : '' }}>3 passagers</option>
+            <option value="4" class="text-dark" {{ app.request.query.get('passengers') == '4' ? 'selected' : '' }}>4 passagers</option>
+            <option value="5" class="text-dark" {{ app.request.query.get('passengers') == '5' ? 'selected' : '' }}>5+ passagers</option>
           </select>
         </div>
       </div>
     </div>
 
-    <div class="contact-card mb-4">
-      <div class="section-header mb-3">
-        <span class="section-title">Filtres avancés</span>
-        <span class="results-count">Affinez votre recherche</span>
-      </div>
-      <div class="row g-3">
-        <div class="col-md-6">
-          <label class="contact-label" for="max_price">Prix maximum (EUR)</label>
-          <input type="number" id="max_price" name="max_price" class="form-control contact-input" min="0" step="1" placeholder="Ex. 25" value="{{ app.request.query.get('max_price') }}">
+    <div class="card bg-transparent border-0 rounded-4 shadow-sm mb-4" style="background: #1c2025 !important; border: 1px solid #32353b !important;">
+      <div class="card-body p-4 p-md-5">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <span class="fw-bold text-white" style="font-size: 1.1rem;">Filtres avancés</span>
+          <span class="text-white-50 small">Affinez votre recherche</span>
         </div>
-        <div class="col-md-6">
-          <label class="contact-label" for="max_duration">Durée maximale (min)</label>
-          <input type="number" id="max_duration" name="max_duration" class="form-control contact-input" min="1" step="1" placeholder="Ex. 120" value="{{ app.request.query.get('max_duration') }}">
-        </div>
-        <div class="col-md-6">
-          <label class="contact-label" for="min_rating">Note minimale</label>
-          <select id="min_rating" name="min_rating" class="form-select contact-input">
-            <option value="">Toutes</option>
-            <option value="1" {{ app.request.query.get('min_rating') == '1' ? 'selected' : '' }}>1+ / 5</option>
-            <option value="2" {{ app.request.query.get('min_rating') == '2' ? 'selected' : '' }}>2+ / 5</option>
-            <option value="3" {{ app.request.query.get('min_rating') == '3' ? 'selected' : '' }}>3+ / 5</option>
-            <option value="4" {{ app.request.query.get('min_rating') == '4' ? 'selected' : '' }}>4+ / 5</option>
-            <option value="4.5" {{ app.request.query.get('min_rating') == '4.5' ? 'selected' : '' }}>4.5+ / 5</option>
-          </select>
-        </div>
-        <div class="col-md-6">
-          <label class="contact-label" for="eco">Aspect écologique</label>
-          <div class="form-check mt-2">
-            <input class="form-check-input" type="checkbox" id="eco" name="eco" value="1" {{ app.request.query.get('eco') ? 'checked' : '' }}>
-            <label class="form-check-label" for="eco">Uniquement les trajets en voiture électrique</label>
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label text-uppercase fw-bold mb-1 ps-1" for="max_price" style="font-size: 0.7rem; color: #9aa49a; letter-spacing: 0.08em;">Prix maximum (EUR)</label>
+            <input type="number" id="max_price" name="max_price" class="form-control custom-input px-3 py-2 rounded-3 shadow-none" min="0" step="1" placeholder="Ex. 25" value="{{ app.request.query.get('max_price') }}">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label text-uppercase fw-bold mb-1 ps-1" for="max_duration" style="font-size: 0.7rem; color: #9aa49a; letter-spacing: 0.08em;">Durée maximale (min)</label>
+            <input type="number" id="max_duration" name="max_duration" class="form-control custom-input px-3 py-2 rounded-3 shadow-none" min="1" step="1" placeholder="Ex. 120" value="{{ app.request.query.get('max_duration') }}">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label text-uppercase fw-bold mb-1 ps-1" for="min_rating" style="font-size: 0.7rem; color: #9aa49a; letter-spacing: 0.08em;">Note minimale</label>
+            <select id="min_rating" name="min_rating" class="form-select custom-input px-3 py-2 rounded-3 shadow-none">
+              <option value="">Toutes</option>
+              <option value="1" {{ app.request.query.get('min_rating') == '1' ? 'selected' : '' }}>1+ / 5</option>
+              <option value="2" {{ app.request.query.get('min_rating') == '2' ? 'selected' : '' }}>2+ / 5</option>
+              <option value="3" {{ app.request.query.get('min_rating') == '3' ? 'selected' : '' }}>3+ / 5</option>
+              <option value="4" {{ app.request.query.get('min_rating') == '4' ? 'selected' : '' }}>4+ / 5</option>
+              <option value="4.5" {{ app.request.query.get('min_rating') == '4.5' ? 'selected' : '' }}>4.5+ / 5</option>
+            </select>
+          </div>
+          <div class="col-md-6 d-flex align-items-end pb-2">
+            <div class="form-check d-flex align-items-center gap-2 mb-0">
+              <input class="form-check-input shadow-none mt-0" type="checkbox" id="eco" name="eco" value="1" {{ app.request.query.get('eco') ? 'checked' : '' }} style="cursor: pointer;">
+              <label class="form-check-label text-white-50 small mt-1" for="eco" style="cursor: pointer;">Uniquement les trajets en voiture électrique</label>
+            </div>
           </div>
         </div>
-      </div>
-      <hr class="trips-divider">
-      <div class="d-flex flex-wrap gap-2 justify-content-between align-items-center">
-        <a href="{{ path('app_covoiturage') }}" class="btn-details text-decoration-none">Réinitialiser</a>
-        <button type="submit" class="btn-search" style="width:auto; border-radius: 12px; padding: 0.85rem 1.4rem;">Appliquer les filtres</button>
+        <hr class="my-4" style="border-color: #32353b;">
+        <div class="d-flex flex-wrap gap-2 justify-content-between align-items-center">
+          <a href="{{ path('app_trip') }}" class="btn btn-outline-secondary rounded-pill px-4 text-white-50 border-0" style="background: rgba(255,255,255,0.05);">Réinitialiser</a>
+          <button type="submit" class="btn btn-primary-custom rounded-pill fw-bold px-4 py-2 border-0">Appliquer les filtres</button>
+        </div>
       </div>
     </div>
   </form>
 
-  <div class="travel-hero">
-    <div class="travel-hero-content">
-      <div class="travel-hero-route">
-        {% if departure %}
-          {{ departure }} <span class="arrow-icon">&rarr;</span> {{ arrival }}
-        {% else %}
-          Tous les trajets
-        {% endif %}
-      </div>
-      <div class="travel-hero-sub">Trajets disponibles au départ de {{ departure ?: 'partout' }}</div>
+  <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center p-4 rounded-4 mb-4 shadow-sm" style="background: linear-gradient(135deg, rgba(124, 219, 130, 0.1) 0%, #1c2025 100%); border: 1px solid rgba(124, 219, 130, 0.2);">
+    <div>
+      <h2 class="text-white fw-bold mb-1 d-flex align-items-center gap-2" style="font-size: 1.5rem;">
+      {% if departure %}
+        {{ departure }} <i class="bi bi-arrow-right text-white-50"></i> {{ arrival }}
+      {% else %}
+        Tous les trajets
+      {% endif %}
+      </h2>
+      <div class="text-white-50 small">Trajets disponibles au départ de {{ departure ?: 'partout' }}</div>
     </div>
-    {% if date %}<div class="travel-hero-dates">Le {{ date|date('d M Y') }}</div>{% endif %}
+    {% if date %}
+    <div class="mt-3 mt-md-0">
+      <span class="badge custom-badge-lime rounded-pill px-3 py-2 fw-medium fs-6"><i class="bi bi-calendar-event me-2"></i>Le {{ date|date('d M Y') }}</span>
+    </div>
+    {% endif %}
   </div>
 
-  <div class="section-header">
-    <span class="section-title">Trajets disponibles</span>
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <span class="fw-bold text-white" style="font-size: 1.25rem;">Trajets disponibles</span>
     {% if trips is not empty %}
-      <span class="results-count">{{ trips|length }} résultat{{ trips|length > 1 ? 's' }}</span>
+      <span class="text-white-50 small fw-medium">{{ trips|length }} resultat{{ trips|length > 1 ? 's' }}</span>
     {% endif %}
   </div>
 
   {% if createdTripId %}
-    <div class="trip-created-banner">
-      Votre nouveau trajet est mis en avant ci-dessous.
+    <div class="alert alert-success d-flex align-items-center gap-3 rounded-4 border border-success border-opacity-25 mb-4" style="background: rgba(25, 135, 84, 0.1); color: #7cdb82;">
+      <i class="bi bi-info-circle fs-5"></i>
+      <div>Votre nouveau trajet est mis en avant ci-dessous.</div>
     </div>
   {% endif %}
 
   {% if trips is empty %}
-    <div class="empty-state">
-      <div class="empty-state-icon">Aucun trajet</div>
-      <div class="empty-state-title">Aucun trajet trouvé</div>
-      <p style="font-size:0.88rem;">Aucun covoiturage disponible pour cette recherche.</p>
+    <div class="card bg-transparent border-0 rounded-4 text-center py-5 shadow-sm" style="background: #1c2025 !important; border: 1px solid #32353b !important;">
+      <div class="card-body">
+        <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-3" style="width: 64px; height: 64px; background: rgba(255,255,255,0.05); color: #5a6458;">
+          <i class="bi bi-search fs-3"></i>
+        </div>
+        <h4 class="text-white fw-bold mb-2">Aucun trajet trouvé</h4>
+        <p class="text-white-50 mb-0 small">Aucun covoiturage disponible pour denne recherche.</p>
+      </div>
     </div>
   {% else %}
     {% for trip in trips %}
-      <a href="{{ path('app_covoiturage_show', {id: trip.id}) }}" id="{{ createdTripId is defined and createdTripId == trip.id ? 'created-trip-card' : '' }}" class="trip-card{{ createdTripId is defined and createdTripId == trip.id ? ' trip-card--highlighted' : '' }}" >
-        <div class="trip-card-left">
-          <div class="driver-avatar">{{ trip.driver.username|slice(0, 2) }}</div>
-          <div class="trip-info">
-            <div class="trip-route">
-              {{ trip.departureLocation }} <span class="route-arrow">&rarr;</span> {{ trip.arrivalLocation }}
-              {% if createdTripId is defined and createdTripId == trip.id %}
-                <span class="trip-card-badge">Nouveau</span>
-              {% endif %}
+      <a href="{{ path('app_trip_show', {id: trip.id}) }}" id="{{ createdTripId is defined and createdTripId == trip.id ? 'created-trip-card' : '' }}" class="card text-decoration-none trip-card-custom rounded-4 mb-3 p-3 p-md-4 {{ createdTripId is defined and createdTripId == trip.id ? 'trip-card-custom--highlighted' : '' }}" >
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
+          
+          <div class="d-flex align-items-center gap-3 gap-md-4">
+            <div class="driver-avatar-custom rounded-circle d-flex align-items-center justify-content-center flex-shrink-0">
+              {{ trip.driver.username|slice(0, 2) }}
             </div>
-            <div class="trip-meta">
-              <span class="meta-item">{{ trip.departureTime|date('H:i') }} &rarr; {{ trip.arrivalTime|date('H:i') }}</span>
-              <span class="meta-item">{{ trip.departureDate|date('d M Y') }}</span>
-              <span class="meta-item">Durée: {{ trip.durationInMinutes }} min</span>
-              <span class="meta-dot"></span>
-              <span class="meta-item"><span class="seats-chip">{{ trip.availableSeats }} place{{ trip.availableSeats > 1 ? 's' }}</span></span>
-              <span class="meta-dot"></span>
-              <span class="meta-item">{{ trip.driver.username }}</span>
-              {% if trip.vehicle and trip.vehicle.energyType in ['Electrique', 'Électrique'] %}
-                <span class="meta-dot"></span>
-                <span class="badge-eco">Éco</span>
-              {% endif %}
+            
+            <div>
+              <div class="text-white fw-bold d-flex align-items-center gap-2 mb-2" style="font-size: 1.1rem;">
+                {{ trip.departureLocation }} <i class="bi bi-arrow-right text-white-50 small"></i> {{ trip.arrivalLocation }}
+                {% if createdTripId is defined and createdTripId == trip.id %}
+                  <span class="badge bg-success rounded-pill px-2 py-1 ms-2" style="font-size: 0.65rem;">Nouveau</span>
+                {% endif %}
+              </div>
+              <div class="text-white-50 small d-flex flex-wrap align-items-center gap-1">
+                <span class="fw-medium text-white">{{ trip.departureTime|date('H:i') }} &rarr; {{ trip.arrivalTime|date('H:i') }}</span>
+                <span class="meta-dot-custom"></span>
+                <span>{{ trip.departureDate|date('d M Y') }}</span>
+                <span class="meta-dot-custom"></span>
+                <span>Durée: {{ trip.durationInMinutes }} min</span>
+                <span class="meta-dot-custom"></span>
+                <span class="badge rounded-pill bg-dark border text-light px-2 py-1" style="border-color: #32353b !important;">{{ trip.availableSeats }} place{{ trip.availableSeats > 1 ? 's' }}</span>
+                <span class="meta-dot-custom"></span>
+                <span class="text-white">{{ trip.driver.username }}</span>
+                {% if trip.vehicle and trip.vehicle.energyType in ['Electrique', 'Électrique'] %}
+                  <span class="meta-dot-custom"></span>
+                  <span class="badge custom-badge-lime rounded-pill px-2 py-1">Éco</span>
+                {% endif %}
+              </div>
             </div>
           </div>
-        </div>
-        <div class="trip-card-right">
-          <div>
-            <div class="trip-price">{{ trip.pricePerPerson }} EUR</div>
-            <div class="trip-price-label" style="text-align:right;">par personne</div>
+
+          <div class="d-flex flex-row flex-md-column justify-content-between align-items-center align-items-md-end w-100 w-md-auto mt-2 mt-md-0 border-top border-md-0 pt-3 pt-md-0" style="border-color: #32353b !important;">
+            <div class="text-end">
+              <div class="fw-bold text-white" style="font-size: 1.3rem;">{{ trip.pricePerPerson }} EUR</div>
+              <div class="text-white-50" style="font-size: 0.75rem;">par personne</div>
+            </div>
+            <div class="mt-md-2">
+              <span class="btn btn-outline-light rounded-pill btn-sm px-4 fw-medium border-0" style="background: rgba(255,255,255,0.05);">Détails</span>
+            </div>
           </div>
-          <span class="btn-details">Détails</span>
+
         </div>
       </a>
     {% endfor %}

@@ -20,10 +20,10 @@
         Une commission fixe de {{ platformFee }} credits est deduite pour chaque reservation.
     </p>
 
-    <form method="post" action="{{ path('app_covoiturage_participer_confirm', {id: trip.id}) }}">
+    <form method="post" action="{{ path('app_trip_participer_confirm', {id: trip.id}) }}">
         <input type="hidden" name="_token" value="{{ csrf_token('participer_' ~ trip.id) }}">
         <button type="submit" class="btn btn-primary">Confirmer</button>
-        <a href="{{ path('app_covoiturage_show', {id: trip.id}) }}" class="btn btn-secondary">Annuler</a>
+        <a href="{{ path('app_trip_show', {id: trip.id}) }}" class="btn btn-secondary">Annuler</a>
     </form>
 </div>
 {% endblock %}

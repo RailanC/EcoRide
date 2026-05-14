@@ -3,29 +3,43 @@
 {% block title %}Contact | EcoRide{% endblock %}
 
 {% block body %}
-<div class="container py-5" style="max-width: 760px;">
-    <div class="contact-card">
-        <p class="search-eyebrow mb-1">Besoin d'aide ?</p>
-        <h1 class="fw-bold mb-3" style="font-family:'Sora',sans-serif;">Contact</h1>
-        <p style="color:var(--text-muted);">
-            Une question sur EcoRide ? Écrivez-nous et nous vous répondrons rapidement.
-        </p>
+<section class="er-public-page er-public-page--centered">
+    <div class="er-public-page__inner er-public-page__inner--narrow">
+        <div class="er-public-hero">
+            <span class="er-pill">Support EcoRide</span>
+            <h1 class="er-public-page__title">Restons en contact</h1>
+            <p class="er-public-page__lead">
+                Une question sur EcoRide, un besoin entreprise ou un retour sur votre experience ?
+                Ecrivez-nous et notre equipe vous repondra rapidement.
+            </p>
+        </div>
 
-        <form class="mt-4">
-            <div class="contact-field mb-3">
-                <label class="contact-label">Nom</label>
-                <input type="text" class="form-control contact-input" placeholder="Votre nom">
-            </div>
-            <div class="contact-field mb-3">
-                <label class="contact-label">Email</label>
-                <input type="email" class="form-control contact-input" placeholder="votre@email.com">
-            </div>
-            <div class="contact-field mb-4">
-                <label class="contact-label">Message</label>
-                <textarea class="form-control contact-input" rows="5" placeholder="Votre message"></textarea>
-            </div>
-            <button type="submit" class="btn btn-vert px-4 rounded-pill">Envoyer</button>
-        </form>
+        <div class="er-public-card">
+            <form class="er-contact-form" method="post">
+                <div class="er-contact-form__row">
+                    <div class="er-form-group">
+                        <label class="er-form-group__label" for="contact-name">Nom complet</label>
+                        <input type="text" id="contact-name" class="er-form-group__input" placeholder="Jean Dupont" />
+                    </div>
+                    <div class="er-form-group">
+                        <label class="er-form-group__label" for="contact-email">Email</label>
+                        <input type="email" id="contact-email" class="er-form-group__input" placeholder="jean@entreprise.com" />
+                    </div>
+                </div>
+
+                <div class="er-form-group">
+                    <label class="er-form-group__label" for="contact-message">Message</label>
+                    <textarea id="contact-message" class="er-form-group__input er-form-group__textarea" rows="5" placeholder="Comment pouvons-nous collaborer ?"></textarea>
+                </div>
+
+                <div class="er-contact-form__footer">
+                    <button type="submit" class="er-btn er-btn--primary">
+                        Envoyer le message
+                        <i class="bi bi-send ms-2"></i>
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
-</div>
+</section>
 {% endblock %}

@@ -1,218 +1,206 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Créer un compte — EcoRide{% endblock %}
+{% block title %}Creer un compte | EcoRide{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .custom-pill {
+            background-color: rgba(124, 219, 130, 0.1) !important;
+            color: #7cdb82 !important;
+            border: 1px solid rgba(124, 219, 130, 0.2) !important;
+            font-size: 0.75rem !important;
+            letter-spacing: 0.05em;
+        }
+        .custom-input {
+            background: #181c21 !important;
+            border: 1px solid #32353b !important;
+            color: #e0e2ea !important;
+            transition: all 0.18s ease;
+        }
+        .custom-input:focus {
+            border-color: rgba(124,219,130,0.5) !important;
+            box-shadow: 0 0 0 3px rgba(124, 219, 130, 0.1) !important;
+        }
+        .custom-input::placeholder {
+            color: #5a6458 !important;
+        }
+        .btn-primary-custom {
+            background: linear-gradient(135deg, #7adf7e, #86e683);
+            color: #00390f !important;
+            box-shadow: 0 10px 28px rgba(124, 219, 130, 0.25);
+            transition: all 0.2s ease;
+        }
+        .btn-primary-custom:hover {
+            background: linear-gradient(135deg, #86e683, #97f08f);
+            transform: translateY(-1px);
+        }
+        .link-custom {
+            color: #7cdb82;
+            transition: color 0.2s ease;
+        }
+        .link-custom:hover {
+            color: #97f08f;
+        }
+        .btn-toggle-password {
+            transition: color 0.2s ease;
+        }
+        .btn-toggle-password:hover {
+            color: #7cdb82 !important;
+        }
+    </style>
+{% endblock %}
 
 {% block body %}
-<div class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-12 col-sm-10 col-md-8 col-lg-6">
-            <div class="text-center mb-4">
-                <p class="search-eyebrow mb-1">Rejoignez la communauté</p>
-                <h1 class="fw-bold" style="font-family: 'Sora', sans-serif; font-size: 2rem; letter-spacing: -0.02em;">
-                    Créer un compte
-                </h1>
-                <p class="mt-2" style="color: var(--text-muted); font-size: 0.92rem;">
-                    Voyagez malin, voyagez ensemble
-                </p>
+<section class="d-flex align-items-center justify-content-center min-vh-100 py-5" style="background-color: #0b0e14;" data-bs-theme="dark">
+    <div class="w-100 px-3" style="max-width: 600px;">
+        <div class="text-center mb-5">
+            <span class="badge rounded-pill custom-pill text-uppercase px-3 py-2 mb-3 fw-bold">Rejoignez la communaute</span>
+            <h1 class="fw-bold text-white mb-3" style="font-size: clamp(1.8rem, 4vw, 2.5rem); letter-spacing: -0.02em;">Creer un compte</h1>
+            <p class="text-white-50 fs-6 mb-0 lh-lg">Voyagez malin, voyagez ensemble, et entrez dans l'experience premium EcoRide.</p>
+        </div>
+
+        {% for message in app.flashes('success') %}
+            <div class="alert alert-success d-flex align-items-center gap-3 rounded-4 border border-success border-opacity-25" style="background: rgba(25, 135, 84, 0.1); color: #7cdb82;">
+                <i class="bi bi-check-circle fs-5"></i>
+                <div>{{ message }}</div>
             </div>
+        {% endfor %}
 
-            {% for message in app.flashes('success') %}
-                <div class="mb-3 px-3 py-2 rounded-3 d-flex align-items-center gap-2"
-                     style="background: rgba(25,135,84,0.12); border: 1px solid rgba(25,135,84,0.25); color: #75d39b; font-size: 0.88rem;">
-                    {{ message }}
+        {% for message in app.flashes('error') %}
+            <div class="alert alert-danger d-flex align-items-center gap-3 rounded-4 border border-danger border-opacity-25" style="background: rgba(220, 53, 69, 0.1); color: #ea868f;">
+                <i class="bi bi-exclamation-circle fs-5"></i>
+                <div>{{ message }}</div>
+            </div>
+        {% endfor %}
+
+        {% for message in app.flashes('verify_email_error') %}
+            <div class="alert alert-danger d-flex align-items-center gap-3 rounded-4 border border-danger border-opacity-25" style="background: rgba(220, 53, 69, 0.1); color: #ea868f;">
+                <i class="bi bi-exclamation-circle fs-5"></i>
+                <div>{{ message }}</div>
+            </div>
+        {% endfor %}
+
+        <div class="card bg-transparent border-0 rounded-5 shadow-lg w-100" style="background: #1c2025 !important; border: 1px solid #32353b !important;">
+            <div class="card-body p-4 p-lg-5">
+            {{ form_start(registrationForm, { attr: { class: 'd-flex flex-column gap-4' } }) }}
+                {{ form_errors(registrationForm) }}
+
+                <div class="row g-4">
+                    <div class="col-md-6 d-flex flex-column gap-2">
+                        <label class="form-label text-uppercase fw-bold mb-0 ps-1" for="{{ registrationForm.firstName.vars.id }}" style="font-size: 0.7rem; color: #9aa49a; letter-spacing: 0.08em;">Prenom</label>
+                        <div class="position-relative">
+                            <i class="bi bi-person position-absolute top-50 start-0 translate-middle-y ms-3 text-white-50"></i>
+                            {{ form_widget(registrationForm.firstName, { attr: { class: 'form-control custom-input px-3 py-3 rounded-3 shadow-none', style: 'padding-left: 2.75rem !important;' } }) }}
+                        </div>
+                        {{ form_errors(registrationForm.firstName) }}
+                    </div>
+
+                    <div class="col-md-6 d-flex flex-column gap-2">
+                        <label class="form-label text-uppercase fw-bold mb-0 ps-1" for="{{ registrationForm.lastName.vars.id }}" style="font-size: 0.7rem; color: #9aa49a; letter-spacing: 0.08em;">Nom</label>
+                        <div class="position-relative">
+                            <i class="bi bi-person position-absolute top-50 start-0 translate-middle-y ms-3 text-white-50"></i>
+                            {{ form_widget(registrationForm.lastName, { attr: { class: 'form-control custom-input px-3 py-3 rounded-3 shadow-none', style: 'padding-left: 2.75rem !important;' } }) }}
+                        </div>
+                        {{ form_errors(registrationForm.lastName) }}
+                    </div>
                 </div>
-            {% endfor %}
 
-            {% for message in app.flashes('error') %}
-                <div class="mb-3 px-3 py-2 rounded-3 d-flex align-items-center gap-2"
-                     style="background: rgba(220,53,69,0.12); border: 1px solid rgba(220,53,69,0.25); color: #f28b82; font-size: 0.88rem;">
-                    {{ message }}
+                <div class="d-flex flex-column gap-2">
+                    <label class="form-label text-uppercase fw-bold mb-0 ps-1" for="{{ registrationForm.email.vars.id }}" style="font-size: 0.7rem; color: #9aa49a; letter-spacing: 0.08em;">Email</label>
+                    <div class="position-relative">
+                        <i class="bi bi-envelope position-absolute top-50 start-0 translate-middle-y ms-3 text-white-50"></i>
+                        {{ form_widget(registrationForm.email, { attr: { class: 'form-control custom-input px-3 py-3 rounded-3 shadow-none', style: 'padding-left: 2.75rem !important;' } }) }}
+                    </div>
+                    {{ form_errors(registrationForm.email) }}
                 </div>
-            {% endfor %}
 
-            {% for message in app.flashes('verify_email_error') %}
-                <div class="mb-3 px-3 py-2 rounded-3 d-flex align-items-center gap-2"
-                     style="background: rgba(220,53,69,0.12); border: 1px solid rgba(220,53,69,0.25); color: #f28b82; font-size: 0.88rem;">
-                    {{ message }}
+                <div class="d-flex flex-column gap-2">
+                    <label class="form-label text-uppercase fw-bold mb-0 ps-1" for="{{ registrationForm.phone.vars.id }}" style="font-size: 0.7rem; color: #9aa49a; letter-spacing: 0.08em;">Telephone</label>
+                    <div class="position-relative">
+                        <i class="bi bi-telephone position-absolute top-50 start-0 translate-middle-y ms-3 text-white-50"></i>
+                        {{ form_widget(registrationForm.phone, { attr: { class: 'form-control custom-input px-3 py-3 rounded-3 shadow-none', style: 'padding-left: 2.75rem !important;' } }) }}
+                    </div>
+                    {{ form_errors(registrationForm.phone) }}
                 </div>
-            {% endfor %}
 
-            <div class="contact-card">
-                {{ form_start(registrationForm) }}
-                    {{ form_errors(registrationForm) }}
-
-                    <div class="row g-3 mb-3">
-                        <div class="col-6">
-                            <label class="contact-label" for="{{ registrationForm.firstName.vars.id }}">Prénom</label>
-                            <div class="position-relative">
-                                <span class="position-absolute d-flex align-items-center"
-                                      style="left: 0.85rem; top: 50%; transform: translateY(-50%); color: var(--vert); pointer-events: none;">
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
-                                    </svg>
-                                </span>
-                                {{ form_widget(registrationForm.firstName, {
-                                    attr: {
-                                        class: 'form-control contact-input',
-                                        style: 'padding-left: 2.5rem;'
-                                    }
-                                }) }}
-                            </div>
-                            {{ form_errors(registrationForm.firstName) }}
-                        </div>
-
-                        <div class="col-6">
-                            <label class="contact-label" for="{{ registrationForm.lastName.vars.id }}">Nom</label>
-                            <div class="position-relative">
-                                <span class="position-absolute d-flex align-items-center"
-                                      style="left: 0.85rem; top: 50%; transform: translateY(-50%); color: var(--vert); pointer-events: none;">
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
-                                    </svg>
-                                </span>
-                                {{ form_widget(registrationForm.lastName, {
-                                    attr: {
-                                        class: 'form-control contact-input',
-                                        style: 'padding-left: 2.5rem;'
-                                    }
-                                }) }}
-                            </div>
-                            {{ form_errors(registrationForm.lastName) }}
-                        </div>
-                    </div>
-
-                    <div class="contact-field mb-3">
-                        <label class="contact-label" for="{{ registrationForm.email.vars.id }}">Email</label>
-                        <div class="position-relative">
-                            <span class="position-absolute d-flex align-items-center"
-                                  style="left: 0.85rem; top: 50%; transform: translateY(-50%); color: var(--vert); pointer-events: none;">
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/>
-                                </svg>
-                            </span>
-                            {{ form_widget(registrationForm.email, {
-                                attr: {
-                                    class: 'form-control contact-input',
-                                    style: 'padding-left: 2.5rem;'
-                                }
-                            }) }}
-                        </div>
-                        {{ form_errors(registrationForm.email) }}
-                    </div>
-
-                    <div class="contact-field mb-3">
-                        <label class="contact-label" for="{{ registrationForm.phone.vars.id }}">
-                            Téléphone <span style="color: var(--text-muted); font-weight: 400; text-transform: none; letter-spacing: 0;">(optionnel)</span>
-                        </label>
-                        <div class="position-relative">
-                            <span class="position-absolute d-flex align-items-center"
-                                  style="left: 0.85rem; top: 50%; transform: translateY(-50%); color: var(--vert); pointer-events: none;">
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.4 2 2 0 0 1 3.58 1.22h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.77a16 16 0 0 0 6.29 6.29l1.84-1.84a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/>
-                                </svg>
-                            </span>
-                            {{ form_widget(registrationForm.phone, {
-                                attr: {
-                                    class: 'form-control contact-input',
-                                    style: 'padding-left: 2.5rem;'
-                                }
-                            }) }}
-                        </div>
-                        {{ form_errors(registrationForm.phone) }}
-                    </div>
-
-                    <div class="contact-field mb-3">
-                        <label class="contact-label" for="{{ registrationForm.plainPassword.first.vars.id }}">Mot de passe</label>
-                        <div class="position-relative">
-                            <span class="position-absolute d-flex align-items-center"
-                                  style="left: 0.85rem; top: 50%; transform: translateY(-50%); color: var(--vert); pointer-events: none;">
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-                                </svg>
-                            </span>
-                            {{ form_widget(registrationForm.plainPassword.first, {
-                                attr: {
-                                    class: 'form-control contact-input',
-                                    style: 'padding-left: 2.5rem; padding-right: 2.75rem;',
-                                    oninput: 'checkStrength(this.value)'
-                                }
-                            }) }}
-                            <button type="button"
-                                    onclick="togglePassword('{{ registrationForm.plainPassword.first.vars.id }}', this)"
-                                    class="position-absolute border-0 bg-transparent d-flex align-items-center p-0"
-                                    style="right: 0.85rem; top: 50%; transform: translateY(-50%); color: var(--text-muted); cursor: pointer;">
-                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
-                                </svg>
-                            </button>
-                        </div>
-                        <div class="mt-2 d-flex gap-1" id="strength-bars">
-                            <div class="strength-bar" style="height: 3px; flex: 1; border-radius: 99px; background: rgba(255,255,255,0.08); transition: background 0.2s;"></div>
-                            <div class="strength-bar" style="height: 3px; flex: 1; border-radius: 99px; background: rgba(255,255,255,0.08); transition: background 0.2s;"></div>
-                            <div class="strength-bar" style="height: 3px; flex: 1; border-radius: 99px; background: rgba(255,255,255,0.08); transition: background 0.2s;"></div>
-                            <div class="strength-bar" style="height: 3px; flex: 1; border-radius: 99px; background: rgba(255,255,255,0.08); transition: background 0.2s;"></div>
-                        </div>
-                        <p id="strength-label" style="font-size: 0.72rem; color: var(--text-muted); margin-top: 0.3rem; min-height: 1rem;"></p>
-                        {{ form_errors(registrationForm.plainPassword.first) }}
-                    </div>
-
-                    <div class="contact-field mb-4">
-                        <label class="contact-label" for="{{ registrationForm.plainPassword.second.vars.id }}">Confirmer le mot de passe</label>
-                        <div class="position-relative">
-                            <span class="position-absolute d-flex align-items-center"
-                                  style="left: 0.85rem; top: 50%; transform: translateY(-50%); color: var(--vert); pointer-events: none;">
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-                                </svg>
-                            </span>
-                            {{ form_widget(registrationForm.plainPassword.second, {
-                                attr: {
-                                    class: 'form-control contact-input',
-                                    style: 'padding-left: 2.5rem; padding-right: 2.75rem;',
-                                    oninput: 'checkMatch()'
-                                }
-                            }) }}
-                            <button type="button"
-                                    onclick="togglePassword('{{ registrationForm.plainPassword.second.vars.id }}', this)"
-                                    class="position-absolute border-0 bg-transparent d-flex align-items-center p-0"
-                                    style="right: 0.85rem; top: 50%; transform: translateY(-50%); color: var(--text-muted); cursor: pointer;">
-                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
-                                </svg>
-                            </button>
-                        </div>
-                        <p id="match-label" style="font-size: 0.72rem; margin-top: 0.3rem; min-height: 1rem;"></p>
-                        {{ form_errors(registrationForm.plainPassword.second) }}
-                    </div>
-
-                    <div class="form-check mb-4">
-                        {{ form_widget(registrationForm.agreeTerms, { attr: { class: 'form-check-input' } }) }}
-                        <label class="form-check-label" for="{{ registrationForm.agreeTerms.vars.id }}" style="font-size: 0.85rem;">
-                            J'accepte les conditions d'utilisation et la politique de confidentialité
-                        </label>
-                        {{ form_errors(registrationForm.agreeTerms) }}
-                    </div>
-
-                    <div class="text-center">
-                        <button type="submit" class="btn btn-vert px-5 rounded-pill fw-semibold w-100" style="padding-top: 0.75rem; padding-bottom: 0.75rem;">
-                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="me-2">
-                                <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/>
-                            </svg>
-                            Créer mon compte
+                <div class="d-flex flex-column gap-2">
+                    <label class="form-label text-uppercase fw-bold mb-0 ps-1" for="{{ registrationForm.plainPassword.first.vars.id }}" style="font-size: 0.7rem; color: #9aa49a; letter-spacing: 0.08em;">Mot de passe</label>
+                    <div class="position-relative">
+                        <i class="bi bi-lock position-absolute top-50 start-0 translate-middle-y ms-3 text-white-50"></i>
+                        {{ form_widget(registrationForm.plainPassword.first, {
+                            attr: {
+                                class: 'form-control custom-input px-3 py-3 rounded-3 shadow-none',
+                                style: 'padding-left: 2.75rem !important; padding-right: 2.75rem !important;',
+                                oninput: 'checkStrength(this.value)'
+                            }
+                        }) }}
+                        <button type="button" onclick="togglePassword('{{ registrationForm.plainPassword.first.vars.id }}', this)" class="btn position-absolute top-50 end-0 translate-middle-y me-1 text-white-50 border-0 shadow-none btn-toggle-password" aria-label="Afficher le mot de passe">
+                            <i class="bi bi-eye"></i>
                         </button>
                     </div>
-                {{ form_end(registrationForm) }}
-            </div>
+                    <div class="d-flex gap-2 mt-1" id="strength-bars">
+                        <div class="strength-bar flex-fill rounded-pill" style="height: 4px; background-color: #32353b; transition: all 0.3s ease;"></div>
+                        <div class="strength-bar flex-fill rounded-pill" style="height: 4px; background-color: #32353b; transition: all 0.3s ease;"></div>
+                        <div class="strength-bar flex-fill rounded-pill" style="height: 4px; background-color: #32353b; transition: all 0.3s ease;"></div>
+                        <div class="strength-bar flex-fill rounded-pill" style="height: 4px; background-color: #32353b; transition: all 0.3s ease;"></div>
+                    </div>
+                    <p id="strength-label" class="text-white-50 small mt-1 mb-0 lh-sm"></p>
+                    {{ form_errors(registrationForm.plainPassword.first) }}
+                </div>
 
-            <div class="text-center mt-4" style="font-size: 0.88rem; color: var(--text-muted);">
-                Déjà un compte ?
-                <a href="{{ path('app_login') }}" style="color: var(--lime); text-decoration: none; font-weight: 600;" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">Se connecter</a>
+                <div class="d-flex flex-column gap-2">
+                    <label class="form-label text-uppercase fw-bold mb-0 ps-1" for="{{ registrationForm.plainPassword.second.vars.id }}" style="font-size: 0.7rem; color: #9aa49a; letter-spacing: 0.08em;">Confirmer le mot de passe</label>
+                    <div class="position-relative">
+                        <i class="bi bi-shield-lock position-absolute top-50 start-0 translate-middle-y ms-3 text-white-50"></i>
+                        {{ form_widget(registrationForm.plainPassword.second, {
+                            attr: {
+                                class: 'form-control custom-input px-3 py-3 rounded-3 shadow-none',
+                                style: 'padding-left: 2.75rem !important; padding-right: 2.75rem !important;',
+                                oninput: 'checkMatch()'
+                            }
+                        }) }}
+                        <button type="button" onclick="togglePassword('{{ registrationForm.plainPassword.second.vars.id }}', this)" class="btn position-absolute top-50 end-0 translate-middle-y me-1 text-white-50 border-0 shadow-none btn-toggle-password" aria-label="Afficher le mot de passe">
+                            <i class="bi bi-eye"></i>
+                        </button>
+                    </div>
+                    <p id="match-label" class="text-white-50 small mt-1 mb-0 lh-sm"></p>
+                    {{ form_errors(registrationForm.plainPassword.second) }}
+                </div>
+
+                <div class="form-check d-flex align-items-start gap-2 mt-2 mb-2">
+                    {{ form_widget(registrationForm.agreeTerms, { attr: { class: 'form-check-input shadow-none mt-1', style: 'cursor: pointer;' } }) }}
+                    <label class="form-check-label text-white-50 small" for="{{ registrationForm.agreeTerms.vars.id }}" style="cursor: pointer; line-height: 1.5;">
+                        J'accepte les conditions d'utilisation et la politique de confidentialite
+                    </label>
+                    {{ form_errors(registrationForm.agreeTerms) }}
+                </div>
+
+                <button type="submit" class="btn btn-primary-custom rounded-pill fw-bold py-3 w-100 d-flex justify-content-center align-items-center gap-2 border-0 mt-2">
+                    <i class="bi bi-person-plus fs-5"></i>
+                    Creer mon compte
+                </button>
+            {{ form_end(registrationForm) }}
             </div>
         </div>
+
+        <p class="text-center text-white-50 mt-4 small">
+            Deja un compte ?
+            <a href="{{ path('app_login') }}" class="text-decoration-none link-custom fw-medium ms-1">Se connecter</a>
+        </p>
     </div>
-</div>
+</section>
 {% endblock %}
 
 {% block javascript %}
-<script src="{{ asset('js/register.js') }}"></script>
+    {{ parent() }}
+    <script src="{{ asset('js/register.js') }}"></script>
+    <script>
+    function togglePassword(inputId, btn) {
+        const input = document.getElementById(inputId);
+        const isText = input.type === 'text';
+        input.type = isText ? 'password' : 'text';
+        btn.innerHTML = isText ? '<i class="bi bi-eye"></i>' : '<i class="bi bi-eye-slash"></i>';
+    }
+    </script>
 {% endblock %}

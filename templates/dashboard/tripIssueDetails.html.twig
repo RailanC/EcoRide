@@ -3,56 +3,58 @@
 {% block title %}Signalement de trajet{% endblock %}
 
 {% block body %}
-<div class="container py-5" style="max-width: 980px;">
+<div class="container py-5 mw-980px">
     <div class="d-flex flex-wrap justify-content-between align-items-end gap-3 mb-4">
         <div>
-            <p class="search-eyebrow mb-1">Espace de supervision</p>
-            <h1 class="fw-bold mb-1" style="font-family:'Sora',sans-serif;font-size:2rem;letter-spacing:-0.02em;">
+            <p class="small text-muted mb-1">Espace de supervision</p>
+            <h1 class="fw-bold mb-1 page-title-custom">
                 Signalement de trajet
             </h1>
-            <p style="color:var(--text-muted);font-size:0.94rem;margin-bottom:0;">
+            <p class="text-muted fs-94 mb-0">
                 Consultez les details du litige avant de prendre une decision.
             </p>
         </div>
 
-        <a href="{{ path('app_dashboard') }}" class="btn btn-outline-light text-decoration-none">Retour au dashboard</a>
+        <a href="{{ path('app_dashboard') }}" class="btn btn-outline-secondary text-decoration-none">Retour au dashboard</a>
     </div>
 
     {% for msg in app.flashes('success') %}
-        <div class="alert alert-success">{{ msg }}</div>
+        <div class="alert alert-success rounded-3 shadow-sm">{{ msg }}</div>
     {% endfor %}
     {% for msg in app.flashes('error') %}
-        <div class="alert alert-danger">{{ msg }}</div>
+        <div class="alert alert-danger rounded-3 shadow-sm">{{ msg }}</div>
     {% endfor %}
     {% for msg in app.flashes('info') %}
-        <div class="alert alert-info">{{ msg }}</div>
+        <div class="alert alert-info rounded-3 shadow-sm">{{ msg }}</div>
     {% endfor %}
 
-    <div class="contact-card mb-4">
-        <div class="section-header">
-            <span class="section-title">Vue d ensemble</span>
-            <span class="badge-eco">{{ issueStatusLabels[issue.status]|default(issue.status) }}</span>
+    <div class="card shadow-sm border-0 rounded-4 mb-4">
+        <div class="card-header bg-white p-4 d-flex justify-content-between align-items-center border-bottom rounded-top-4">
+            <h2 class="h5 mb-0 fw-bold">Vue d ensemble</h2>
+            <span class="badge rounded-pill text-bg-secondary fw-medium">{{ issueStatusLabels[issue.status]|default(issue.status) }}</span>
         </div>
 
-        <div class="row g-3">
-            <div class="col-12 col-md-6 col-lg-4">
-                <div style="border:1px solid rgba(255,255,255,.08);border-radius:var(--radius-sm);padding:1rem;height:100%;">
-                    <div class="contact-label">Trip ID</div>
-                    <div class="fw-semibold">{{ issue.trip.id }}</div>
+        <div class="card-body p-4">
+            <div class="row g-3">
+                <div class="col-12 col-md-6 col-lg-4">
+                    <div class="bg-light border rounded-3 p-3 h-100">
+                        <div class="small text-muted mb-1">Trip ID</div>
+                        <div class="fw-semibold">{{ issue.trip.id }}</div>
+                    </div>
                 </div>
-            </div>
 
-            <div class="col-12 col-md-6 col-lg-4">
-                <div style="border:1px solid rgba(255,255,255,.08);border-radius:var(--radius-sm);padding:1rem;height:100%;">
-                    <div class="contact-label">Statut du signalement</div>
-                    <div class="fw-semibold">{{ issueStatusLabels[issue.status]|default(issue.status) }}</div>
+                <div class="col-12 col-md-6 col-lg-4">
+                    <div class="bg-light border rounded-3 p-3 h-100">
+                        <div class="small text-muted mb-1">Statut du signalement</div>
+                        <div class="fw-semibold">{{ issueStatusLabels[issue.status]|default(issue.status) }}</div>
+                    </div>
                 </div>
-            </div>
 
-            <div class="col-12 col-md-6 col-lg-4">
-                <div style="border:1px solid rgba(255,255,255,.08);border-radius:var(--radius-sm);padding:1rem;height:100%;">
-                    <div class="contact-label">Date de creation</div>
-                    <div class="fw-semibold">{{ issue.createdAt ? issue.createdAt|date('d/m/Y H:i') : 'Non renseignee' }}</div>
+                <div class="col-12 col-md-6 col-lg-4">
+                    <div class="bg-light border rounded-3 p-3 h-100">
+                        <div class="small text-muted mb-1">Date de creation</div>
+                        <div class="fw-semibold">{{ issue.createdAt ? issue.createdAt|date('d/m/Y H:i') : 'Non renseignee' }}</div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -60,59 +62,65 @@
 
     <div class="row g-4">
         <div class="col-12 col-lg-7">
-            <div class="contact-card h-100">
-                <div class="section-header">
-                    <span class="section-title">Details du trajet</span>
+            <div class="card shadow-sm border-0 rounded-4 h-100">
+                <div class="card-header bg-white p-4 border-bottom rounded-top-4">
+                    <h2 class="h5 mb-0 fw-bold">Details du trajet</h2>
                 </div>
 
-                <div class="trip-schedule-grid mb-4">
-                    <div class="trip-schedule-card">
-                        <div class="trip-schedule-label">Depart</div>
-                        <div class="trip-schedule-city">{{ issue.trip.departureLocation }}</div>
-                        <div class="trip-schedule-value">{{ issue.trip.departureDate|date('d/m/Y') }}</div>
-                        <div class="trip-schedule-time">{{ issue.trip.departureTime|date('H:i') }}</div>
-                    </div>
-                    <div class="trip-schedule-card trip-schedule-card--arrival">
-                        <div class="trip-schedule-label">Arrivee</div>
-                        <div class="trip-schedule-city">{{ issue.trip.arrivalLocation }}</div>
-                        <div class="trip-schedule-value">{{ issue.trip.arrivalDate|date('d/m/Y') }}</div>
-                        <div class="trip-schedule-time">{{ issue.trip.arrivalTime|date('H:i') }}</div>
-                    </div>
-                </div>
-
-                <div class="row g-3">
-                    <div class="col-12 col-md-6">
-                        <div style="border:1px solid rgba(255,255,255,.08);border-radius:var(--radius-sm);padding:1rem;height:100%;">
-                            <div class="contact-label">Departure date</div>
-                            <div class="fw-semibold">{{ issue.trip.departureDate|date('d/m/Y') }}</div>
+                <div class="card-body p-4">
+                    <div class="row g-3 mb-4">
+                        <div class="col-6">
+                            <div class="bg-light border rounded-3 p-3 h-100">
+                                <div class="small text-muted mb-1 text-uppercase fw-bold" style="font-size: 0.8rem;">Depart</div>
+                                <div class="fw-bold fs-5 mb-1">{{ issue.trip.departureLocation }}</div>
+                                <div class="small text-muted">{{ issue.trip.departureDate|date('d/m/Y') }}</div>
+                                <div class="small text-muted">{{ issue.trip.departureTime|date('H:i') }}</div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="bg-light border rounded-3 p-3 h-100">
+                                <div class="small text-muted mb-1 text-uppercase fw-bold" style="font-size: 0.8rem;">Arrivee</div>
+                                <div class="fw-bold fs-5 mb-1">{{ issue.trip.arrivalLocation }}</div>
+                                <div class="small text-muted">{{ issue.trip.arrivalDate|date('d/m/Y') }}</div>
+                                <div class="small text-muted">{{ issue.trip.arrivalTime|date('H:i') }}</div>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="col-12 col-md-6">
-                        <div style="border:1px solid rgba(255,255,255,.08);border-radius:var(--radius-sm);padding:1rem;height:100%;">
-                            <div class="contact-label">Arrival date</div>
-                            <div class="fw-semibold">{{ issue.trip.arrivalDate|date('d/m/Y') }}</div>
+                    <div class="row g-3">
+                        <div class="col-12 col-md-6">
+                            <div class="bg-light border rounded-3 p-3 h-100">
+                                <div class="small text-muted mb-1">Departure date</div>
+                                <div class="fw-semibold">{{ issue.trip.departureDate|date('d/m/Y') }}</div>
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="col-12 col-md-6">
-                        <div style="border:1px solid rgba(255,255,255,.08);border-radius:var(--radius-sm);padding:1rem;height:100%;">
-                            <div class="contact-label">Departure location</div>
-                            <div class="fw-semibold">{{ issue.trip.departureLocation }}</div>
+                        <div class="col-12 col-md-6">
+                            <div class="bg-light border rounded-3 p-3 h-100">
+                                <div class="small text-muted mb-1">Arrival date</div>
+                                <div class="fw-semibold">{{ issue.trip.arrivalDate|date('d/m/Y') }}</div>
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="col-12 col-md-6">
-                        <div style="border:1px solid rgba(255,255,255,.08);border-radius:var(--radius-sm);padding:1rem;height:100%;">
-                            <div class="contact-label">Destination</div>
-                            <div class="fw-semibold">{{ issue.trip.arrivalLocation }}</div>
+                        <div class="col-12 col-md-6">
+                            <div class="bg-light border rounded-3 p-3 h-100">
+                                <div class="small text-muted mb-1">Departure location</div>
+                                <div class="fw-semibold">{{ issue.trip.departureLocation }}</div>
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="col-12">
-                        <div style="border:1px solid rgba(255,255,255,.08);border-radius:var(--radius-sm);padding:1rem;">
-                            <div class="contact-label">Participant comment</div>
-                            <p class="mb-0" style="white-space:pre-wrap;">{{ issue.comment }}</p>
+                        <div class="col-12 col-md-6">
+                            <div class="bg-light border rounded-3 p-3 h-100">
+                                <div class="small text-muted mb-1">Destination</div>
+                                <div class="fw-semibold">{{ issue.trip.arrivalLocation }}</div>
+                            </div>
+                        </div>
+
+                        <div class="col-12">
+                            <div class="bg-light border rounded-3 p-3 h-100">
+                                <div class="small text-muted mb-1">Participant comment</div>
+                                <p class="mb-0 text-pre-wrap">{{ issue.comment }}</p>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -120,82 +128,84 @@
         </div>
 
         <div class="col-12 col-lg-5">
-            <div class="contact-card h-100">
-                <div class="section-header">
-                    <span class="section-title">Participants</span>
+            <div class="card shadow-sm border-0 rounded-4 h-100">
+                <div class="card-header bg-white p-4 border-bottom rounded-top-4">
+                    <h2 class="h5 mb-0 fw-bold">Participants</h2>
                 </div>
 
-                <div class="d-flex flex-column gap-3 mb-4">
-                    <div style="border:1px solid rgba(255,255,255,.08);border-radius:var(--radius-sm);padding:1rem;">
-                        <div class="contact-label">Driver</div>
-                        <div class="fw-semibold">{{ issue.driver ? issue.driver.username : 'Utilisateur supprime' }}</div>
-                        <div style="color:var(--text-muted);font-size:.9rem;">{{ issue.driver ? issue.driver.email : 'Email indisponible' }}</div>
+                <div class="card-body p-4">
+                    <div class="d-flex flex-column gap-3 mb-4">
+                        <div class="bg-light border rounded-3 p-3">
+                            <div class="small text-muted mb-1">Driver</div>
+                            <div class="fw-semibold">{{ issue.driver ? issue.driver.username : 'Utilisateur supprime' }}</div>
+                            <div class="small text-muted">{{ issue.driver ? issue.driver.email : 'Email indisponible' }}</div>
+                        </div>
+
+                        <div class="bg-light border rounded-3 p-3">
+                            <div class="small text-muted mb-1">Participant</div>
+                            <div class="fw-semibold">{{ issue.participant ? issue.participant.username : 'Utilisateur supprime' }}</div>
+                            <div class="small text-muted">{{ issue.participant ? issue.participant.email : 'Email indisponible' }}</div>
+                        </div>
                     </div>
 
-                    <div style="border:1px solid rgba(255,255,255,.08);border-radius:var(--radius-sm);padding:1rem;">
-                        <div class="contact-label">Participant</div>
-                        <div class="fw-semibold">{{ issue.participant ? issue.participant.username : 'Utilisateur supprime' }}</div>
-                        <div style="color:var(--text-muted);font-size:.9rem;">{{ issue.participant ? issue.participant.email : 'Email indisponible' }}</div>
-                    </div>
-                </div>
+                    <div class="bg-light border rounded-3 p-3">
+                        <div class="small text-muted mb-1">Current incident status</div>
+                        <div class="d-flex align-items-center gap-2 flex-wrap mb-2">
+                            <span class="badge rounded-pill text-bg-secondary fw-medium">{{ issueStatusLabels[issue.status]|default(issue.status) }}</span>
+                            {% if issue.resolvedAt %}
+                                <span class="badge bg-white text-dark border rounded-pill fw-normal">Traite le {{ issue.resolvedAt|date('d/m/Y H:i') }}</span>
+                            {% endif %}
+                        </div>
 
-                <div style="border:1px solid rgba(255,255,255,.08);border-radius:var(--radius-sm);padding:1rem;">
-                    <div class="contact-label">Current incident status</div>
-                    <div class="d-flex align-items-center gap-2 flex-wrap">
-                        <span class="badge-eco">{{ issueStatusLabels[issue.status]|default(issue.status) }}</span>
-                        {% if issue.resolvedAt %}
-                            <span class="btn-details">Traite le {{ issue.resolvedAt|date('d/m/Y H:i') }}</span>
+                        {% if issue.resolvedBy %}
+                            <p class="mt-2 mb-1 small text-muted">
+                                Resolution par {{ issue.resolvedBy.username }}
+                            </p>
+                        {% endif %}
+
+                        {% if issue.resolutionNote %}
+                            <div class="mt-3">
+                                <div class="small text-muted mb-1">Resolution note</div>
+                                <p class="mb-0 text-pre-wrap">{{ issue.resolutionNote }}</p>
+                            </div>
                         {% endif %}
                     </div>
 
-                    {% if issue.resolvedBy %}
-                        <p class="mt-3 mb-1" style="color:var(--text-muted);font-size:.9rem;">
-                            Resolution par {{ issue.resolvedBy.username }}
-                        </p>
-                    {% endif %}
+                    {% if issue.status == 'open' %}
+                        <div class="mt-4 pt-4 border-top">
+                            <h3 class="h6 fw-bold mb-3">Traiter le signalement</h3>
 
-                    {% if issue.resolutionNote %}
-                        <div class="mt-3">
-                            <div class="contact-label">Resolution note</div>
-                            <p class="mb-0" style="white-space:pre-wrap;">{{ issue.resolutionNote }}</p>
+                            {{ form_start(resolutionForm, {action: path('app_tripIssue_resolve', {id: issue.id})}) }}
+                                <div class="mb-3">
+                                    {{ form_label(resolutionForm.resolution, null, {label_attr: {class: 'small text-muted fw-bold d-block mb-2'}}) }}
+                                    <div class="d-flex flex-column gap-2">
+                                        {% for choice in resolutionForm.resolution %}
+                                            <label class="d-flex align-items-center gap-2 p-3 border rounded-3 bg-light custom-radio-option cursor-pointer m-0">
+                                                {{ form_widget(choice, {attr: {class: 'form-check-input mt-0 custom-radio-input'}}) }}
+                                                <span class="fw-medium">{{ choice.vars.label }}</span>
+                                            </label>
+                                        {% endfor %}
+                                    </div>
+                                    {{ form_errors(resolutionForm.resolution) }}
+                                </div>
+
+                                <div class="mb-4">
+                                    {{ form_label(resolutionForm.resolutionNote, null, {label_attr: {class: 'small text-muted fw-bold mb-1'}}) }}
+                                    {{ form_widget(resolutionForm.resolutionNote, {attr: {class: 'form-control shadow-none border rounded-3'}}) }}
+                                    {{ form_errors(resolutionForm.resolutionNote) }}
+                                </div>
+
+                                <button type="submit" class="btn btn-vert w-100 py-2 rounded-3 fw-bold">Enregistrer la resolution</button>
+                            {{ form_end(resolutionForm) }}
+                        </div>
+                    {% else %}
+                        <div class="mt-4 pt-4 border-top">
+                            <p class="mb-0 small text-muted">
+                                Ce signalement a deja ete traite. Vous pouvez consulter les details ci-dessus.
+                            </p>
                         </div>
                     {% endif %}
                 </div>
-
-                {% if issue.status == 'open' %}
-                    <div class="mt-4 pt-4" style="border-top:1px solid rgba(255,255,255,.08);">
-                        <h2 class="contact-title mb-3" style="text-align:left;font-size:1rem;">Traiter le signalement</h2>
-
-                        {{ form_start(resolutionForm, {action: path('app_tripIssue_resolve', {id: issue.id})}) }}
-                            <div class="mb-3">
-                                {{ form_label(resolutionForm.resolution, null, {label_attr: {class: 'contact-label mb-2'}}) }}
-                                <div class="trip-resolution-choice">
-                                    {% for choice in resolutionForm.resolution %}
-                                        <label class="trip-resolution-option">
-                                            {{ form_widget(choice, {attr: {class: 'trip-resolution-input'}}) }}
-                                            <span class="trip-resolution-option-text">{{ choice.vars.label }}</span>
-                                        </label>
-                                    {% endfor %}
-                                </div>
-                                {{ form_errors(resolutionForm.resolution) }}
-                            </div>
-
-                            <div class="mb-3">
-                                {{ form_label(resolutionForm.resolutionNote) }}
-                                {{ form_widget(resolutionForm.resolutionNote) }}
-                                {{ form_errors(resolutionForm.resolutionNote) }}
-                            </div>
-
-                            <button type="submit" class="btn btn-vert w-100">Enregistrer la resolution</button>
-                        {{ form_end(resolutionForm) }}
-                    </div>
-                {% else %}
-                    <div class="mt-4 pt-4" style="border-top:1px solid rgba(255,255,255,.08);">
-                        <p class="mb-0" style="color:var(--text-muted);">
-                            Ce signalement a deja ete traite. Vous pouvez consulter les details ci-dessus.
-                        </p>
-                    </div>
-                {% endif %}
             </div>
         </div>
     </div>

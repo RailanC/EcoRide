@@ -1,6 +1,13 @@
 function setTrip(button, isReturn) {
-    document.querySelectorAll('.trip-btn').forEach(tripButton => tripButton.classList.remove('active'));
-    button.classList.add('active');
+    const group = button.closest('[data-trip-toggle-group]');
+    if (group) {
+        group.querySelectorAll('[data-trip-toggle-option]').forEach(tripButton => {
+            const isActive = tripButton === button;
+            tripButton.classList.toggle('btn-success', isActive);
+            tripButton.classList.toggle('btn-dark', !isActive);
+            tripButton.setAttribute('aria-pressed', String(isActive));
+        });
+    }
 
     const returnField = document.getElementById('return-field');
     if (!returnField) {
@@ -8,9 +15,9 @@ function setTrip(button, isReturn) {
     }
 
     if (isReturn) {
-        returnField.classList.remove('search-field--disabled');
+        returnField.classList.remove('d-none', 'opacity-50', 'pe-none');
     } else {
-        returnField.classList.add('search-field--disabled');
+        returnField.classList.add('d-none', 'opacity-50', 'pe-none');
         const returnDateInput = document.getElementById('return-date');
         if (returnDateInput) {
             returnDateInput.value = '';
