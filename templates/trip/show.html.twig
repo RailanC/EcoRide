@@ -14,7 +14,7 @@
 
 {% block body %}
 <div class="container py-5" style="max-width: 760px;">
-  <a href="{{ path('app_covoiturage') }}" class="btn-details text-decoration-none">Retour</a>
+  <a href="{{ path('app_trip') }}" class="btn-details text-decoration-none">Retour</a>
   <div class="travel-hero mt-2">
     <div class="travel-hero-content">
       <div class="travel-hero-route">
@@ -63,7 +63,7 @@
             class="trip-map-card"
             data-trip-map-root
             data-map-mode="detail"
-            data-endpoint="{{ path('app_covoiturage_show_route_preview', {id: trip.id}) }}"
+            data-endpoint="{{ path('app_trip_show_route_preview', {id: trip.id}) }}"
         >
           <div class="trip-map-header">
             <span class="contact-label" style="margin-bottom:0;">Carte du trajet</span>
@@ -133,7 +133,7 @@
             <p>Vous participez deja a ce trajet.</p>
             <form
               method="post"
-              action="{{ path('app_covoiturage_cancel_participation', {id: trip.id}) }}"
+              action="{{ path('app_trip_cancel_participation', {id: trip.id}) }}"
               data-confirm-message="Voulez-vous vraiment annuler votre participation a ce covoiturage ?"
               data-confirm-title="Annuler ma participation"
               data-confirm-button="Oui, annuler"
@@ -144,7 +144,7 @@
           {% elseif trip.driver and app.user.id == trip.driver.id %}
             <form
               method="post"
-              action="{{ path('app_covoiturage_delete', {id: trip.id}) }}"
+              action="{{ path('app_trip_delete', {id: trip.id}) }}"
               data-confirm-message="Voulez-vous vraiment annuler ce covoiturage ? Tous les participants seront rembourses."
               data-confirm-title="Annuler ce covoiturage"
               data-confirm-button="Oui, annuler le covoiturage"
@@ -158,7 +158,7 @@
             <p class="mb-2">
               Vous paierez {{ priceInCredits }} credits. Le conducteur recevra {{ driverReceives }} credits.
             </p>
-            <a href="{{ path('app_covoiturage_participer', {id: trip.id}) }}" class="w-50 btn btn-vert">Participer</a>
+            <a href="{{ path('app_trip_participer', {id: trip.id}) }}" class="w-50 btn btn-vert">Participer</a>
           {% else %}
             <p>Plus de places disponibles.</p>
           {% endif %}

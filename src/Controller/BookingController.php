@@ -16,7 +16,7 @@ use Symfony\Component\Routing\Attribute\Route;
 
 final class BookingController extends AbstractController
 {
-    #[Route('/covoiturage/{id}/annuler-participation', name: 'app_covoiturage_cancel_participation', methods: ['POST'])]
+    #[Route('/covoiturage/{id}/annuler-participation', name: 'app_trip_cancel_participation', methods: ['POST'])]
     public function cancelParticipation(
         Request $request,
         Trip $trip,
@@ -42,7 +42,7 @@ final class BookingController extends AbstractController
         if (!$booking instanceof Booking) {
             $this->addFlash('info', 'Aucune participation active n a ete trouvee pour ce trajet.');
 
-            return $this->redirectToRoute('app_covoiturage_show', ['id' => $trip->getId()]);
+            return $this->redirectToRoute('app_trip_show', ['id' => $trip->getId()]);
         }
 
         try {
@@ -50,7 +50,7 @@ final class BookingController extends AbstractController
         } catch (TripParticipationException $exception) {
             $this->addFlash('error', $exception->getMessage());
 
-            return $this->redirectToRoute('app_covoiturage_show', ['id' => $trip->getId()]);
+            return $this->redirectToRoute('app_trip_show', ['id' => $trip->getId()]);
         }
 
         if ($wasCanceled) {
@@ -59,7 +59,7 @@ final class BookingController extends AbstractController
             $this->addFlash('info', 'Cette participation etait deja annulee ou ne peut plus etre modifiee.');
         }
 
-        return $this->redirectToRoute('app_covoiturage_show', ['id' => $trip->getId()]);
+        return $this->redirectToRoute('app_trip_show', ['id' => $trip->getId()]);
     }
 
     #[Route('/booking/{id}/cancel-from-email', name: 'app_booking_cancel_from_email', methods: ['GET'])]
@@ -75,7 +75,7 @@ final class BookingController extends AbstractController
             $this->addFlash('error', 'Ce lien de suppression est invalide ou a expire.');
 
             return $trip !== null
-                ? $this->redirectToRoute('app_covoiturage_show', ['id' => $trip->getId()])
+                ? $this->redirectToRoute('app_trip_show', ['id' => $trip->getId()])
                 : $this->redirectToRoute('app_home');
         }
 
@@ -85,7 +85,7 @@ final class BookingController extends AbstractController
             $this->addFlash('error', $exception->getMessage());
 
             return $trip !== null
-                ? $this->redirectToRoute('app_covoiturage_show', ['id' => $trip->getId()])
+                ? $this->redirectToRoute('app_trip_show', ['id' => $trip->getId()])
                 : $this->redirectToRoute('app_home');
         }
 
@@ -96,7 +96,7 @@ final class BookingController extends AbstractController
         }
 
         return $trip !== null
-            ? $this->redirectToRoute('app_covoiturage_show', ['id' => $trip->getId()])
+            ? $this->redirectToRoute('app_trip_show', ['id' => $trip->getId()])
             : $this->redirectToRoute('app_home');
     }
 }

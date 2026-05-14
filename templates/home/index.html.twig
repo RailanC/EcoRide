@@ -4,158 +4,136 @@
 
 {% block body %}
 
-{# ── HERO ─────────────────────────────────────────────────────────── #}
-<section class="position-relative d-flex flex-column justify-content-center align-items-center w-100 overflow-hidden" id="hero-section" style="min-height: 100svh; padding-top: clamp(5rem, 12vw, 8rem); padding-bottom: clamp(3rem, 6vw, 4rem);">
+<section class="home-hero position-relative d-flex flex-column justify-content-center align-items-center w-100 overflow-hidden" id="hero-section">
 
     <div class="position-absolute top-0 start-0 w-100 h-100 z-n1">
-        <img src="{{ asset('images/van-hero.png') }}" alt="EcoRide – véhicule électrique en route" class="w-100 h-100 object-fit-cover" style="opacity: 0.35;" />
+        <img src="{{ asset('images/car_in_the_florest.png') }}" alt="EcoRide – véhicule électrique en route" class="home-hero-image w-100 h-100 object-fit-cover" />
         <div class="position-absolute top-0 start-0 w-100 h-100 hero-bg-overlay"></div>
     </div>
 
     <div class="position-relative z-1 d-flex flex-column align-items-center text-center gap-3 gap-md-4 w-100 px-3 px-md-4">
 
-        <h1 class="fw-bold text-white lh-sm mb-0" style="font-size: clamp(2rem, 7vw, 4rem); letter-spacing: -0.03em; max-width: 900px;">
+        <h1 class="home-hero-title fw-bold text-white lh-sm mb-0">
             Conduire en groupe est<br>
             <span class="text-gradient-custom">bien mieux.</span>
         </h1>
 
-        <p class="text-white-50 mb-0 px-1" style="font-size: clamp(0.95rem, 2.5vw, 1.15rem); max-width: 700px; line-height: 1.7;">
+        <p class="home-hero-copy text-white-50 mb-0 px-1">
             Rejoignez l'élite de la mobilité durable. Partagez vos trajets dans des
             véhicules électriques premium et réduisez votre empreinte carbone sans
             compromis sur le confort.
         </p>
 
-        {# ── SEARCH BLOCK ── #}
-        <div class="w-100 mt-2 mt-md-4" style="max-width: 1100px;">
+        <div class="home-search-wrap w-100 mt-2 mt-md-4">
 
-            {# Trip toggle #}
             <div class="mb-3 d-flex justify-content-start">
-                <div class="btn-group p-1 rounded-pill" style="background: rgba(31,35,41,0.9); border: 1px solid rgba(255,255,255,0.06); box-shadow: 0 12px 30px rgba(0,0,0,0.22);" role="group" aria-label="Type de trajet">
-                    <button type="button" class="btn rounded-pill px-3 px-md-4 py-2 fw-medium text-white border-0 btn-search-custom" style="font-size: clamp(0.8rem, 2vw, 0.95rem);" onclick="setTrip(this, false)" data-trip-toggle-option aria-pressed="true">Aller simple</button>
-                    <button type="button" class="btn rounded-pill px-3 px-md-4 py-2 fw-medium text-white-50 border-0" style="background: #23272d; font-size: clamp(0.8rem, 2vw, 0.95rem);" onclick="setTrip(this, true)" data-trip-toggle-option aria-pressed="false">Aller-retour</button>
+                <div class="home-trip-toggle gap-1 btn-group p-1 rounded-pill" role="group" aria-label="Type de trajet" data-trip-toggle-group>
+                    <button type="button" class="home-trip-toggle-btn btn rounded-pill px-3 px-md-4 py-2 fw-medium text-white border-0 btn-search-custom" onclick="setTrip(this, false)" data-trip-toggle-option aria-pressed="true">Aller simple</button>
+                    <button type="button" class="home-trip-toggle-btn home-trip-toggle-btn--inactive btn rounded-pill px-3 px-md-4 py-2 fw-medium text-white-50 border-0" onclick="setTrip(this, true)" data-trip-toggle-option aria-pressed="false">Aller-retour</button>
                 </div>
             </div>
 
-            {# Search pill #}
-            <div class="search-pillar-bg shadow-lg overflow-hidden position-relative" style="border-radius: clamp(1rem, 4vw, 9999px);" data-bs-theme="dark">
-                <form method="get" action="{{ path('app_covoiturage') }}" class="d-flex flex-column flex-xl-row gap-2 gap-xl-0 align-items-stretch p-2">
+            <div class="search-pillar-bg shadow-lg overflow-hidden position-relative" data-bs-theme="dark">
+                {{ form_start(searchForm) }}
 
-                    {# Fields wrapper — stacks on mobile, row on xl #}
-                    <div class="d-flex flex-column flex-sm-row flex-wrap flex-xl-nowrap flex-grow-1 bg-white bg-opacity-10 overflow-hidden" style="border-radius: clamp(0.75rem, 3vw, 9999px);">
+                    <div class="search-fields-shell d-flex flex-column flex-sm-row flex-wrap flex-xl-nowrap flex-grow-1 bg-white bg-opacity-10 overflow-hidden">
 
-                        {# Départ #}
-                        <div class="search-field-custom flex-fill d-flex flex-column justify-content-center px-3 py-2 py-xl-0" style="min-width: 0;">
-                            <label for="from" class="form-label text-uppercase fw-bold mb-1" style="font-size: 0.65rem; color: #9aa49a; letter-spacing: 0.08em;">Départ</label>
-                            <div class="d-flex align-items-center gap-2">
-                                <i class="bi bi-geo-alt" style="color: #5a6458; font-size: 1rem; flex-shrink: 0;"></i>
-                                <input type="text" name="departure" id="from" placeholder="Ville ou aéroport" autocomplete="off" class="form-control bg-transparent border-0 shadow-none p-0 text-white fw-medium" style="font-size: clamp(0.85rem, 2vw, 0.95rem);" />
+
+                        <div class="search-field-custom flex-fill d-flex flex-column justify-content-center px-3 py-2 py-xl-0">
+                            <label for="from" class="home-search-label form-label text-uppercase fw-bold mb-1">Départ</label>
+                            <div class="search-field-control d-flex align-items-center gap-2">
+                                <i class="bi bi-geo-alt search-field-icon"></i>
+                                {{ form_widget(searchForm.departure, { id: 'from' }) }}
                             </div>
                         </div>
 
-                        {# Swap — visible only sm+ #}
-                        <div class="d-none d-sm-flex flex-column align-items-center justify-content-center position-relative" style="width: 0; z-index: 2; margin-left: -1rem; margin-right: -1rem;">
-                            <button type="button" class="swap-btn-custom rounded-circle d-flex align-items-center justify-content-center position-absolute" onclick="swapCities()" title="Inverser départ / destination" aria-label="Inverser départ et destination" style="width: 36px; height: 36px;">
-                                <i class="bi bi-arrow-left-right" style="font-size: 0.8rem;"></i>
+                        <div class="search-swap-slot d-none d-sm-flex align-items-center justify-content-center">
+                            <button type="button" class="swap-btn-custom rounded-circle d-flex align-items-center justify-content-center" onclick="swapCities()" title="Inverser départ / destination" aria-label="Inverser départ et destination">
+                                <i class="bi bi-arrow-left-right home-swap-icon"></i>
                             </button>
                         </div>
 
-                        {# Destination #}
-                        <div class="search-field-custom flex-fill d-flex flex-column justify-content-center px-3 py-2 py-xl-0" style="min-width: 0;">
-                            <label for="to" class="form-label text-uppercase fw-bold mb-1" style="font-size: 0.65rem; color: #9aa49a; letter-spacing: 0.08em;">Destination</label>
-                            <div class="d-flex align-items-center gap-2">
-                                <i class="bi bi-flag" style="color: #5a6458; font-size: 1rem; flex-shrink: 0;"></i>
-                                <input type="text" name="arrival" id="to" placeholder="Ville ou aéroport" autocomplete="off" class="form-control bg-transparent border-0 shadow-none p-0 text-white fw-medium" style="font-size: clamp(0.85rem, 2vw, 0.95rem);" />
+                        <div class="search-field-custom flex-fill d-flex flex-column justify-content-center px-3 py-2 py-xl-0">
+                            <label for="to" class="home-search-label form-label text-uppercase fw-bold mb-1">Destination</label>
+                            <div class="search-field-control d-flex align-items-center gap-2">
+                                <i class="bi bi-flag-fill search-field-icon"></i>
+                                {{ form_widget(searchForm.arrival, { id: 'to' }) }}
                             </div>
                         </div>
 
-                        {# Date départ #}
-                        <div class="search-field-custom flex-fill d-flex flex-column justify-content-center px-3 py-2 py-xl-0" style="min-width: 0;">
-                            <label for="departure-date" class="form-label text-uppercase fw-bold mb-1" style="font-size: 0.65rem; color: #9aa49a; letter-spacing: 0.08em;">Date</label>
-                            <div class="d-flex align-items-center gap-2">
-                                <i class="bi bi-calendar4" style="color: #5a6458; font-size: 1rem; flex-shrink: 0;"></i>
-                                <input type="date" name="date" id="departure-date" class="form-control bg-transparent border-0 shadow-none p-0 text-white fw-medium" style="font-size: clamp(0.85rem, 2vw, 0.95rem);" value="{{ 'now'|date('Y-m-d') }}" />
+                        <div class="search-field-custom flex-fill d-flex flex-column justify-content-center px-3 py-2 py-xl-0">
+                            <label for="departure-date" class="home-search-label form-label text-uppercase fw-bold mb-1">Date</label>
+                            <div class="search-field-control d-flex align-items-center gap-2">
+                                <i class="bi bi-calendar4 search-field-icon"></i>
+                                {{ form_widget(searchForm.date, { id: 'departure-date' }) }}
                             </div>
                         </div>
 
-                        {# Date retour (hidden by default) #}
-                        <div class="search-field-custom flex-fill d-flex flex-column justify-content-center px-3 py-2 py-xl-0 d-none" id="return-field" style="min-width: 0;">
-                            <label for="return-date" class="form-label text-uppercase fw-bold mb-1" style="font-size: 0.65rem; color: #9aa49a; letter-spacing: 0.08em;">Retour</label>
-                            <div class="d-flex align-items-center gap-2">
-                                <i class="bi bi-calendar2-event" style="color: #5a6458; font-size: 1rem; flex-shrink: 0;"></i>
-                                <input type="date" name="return_date" id="return-date" class="form-control bg-transparent border-0 shadow-none p-0 text-white fw-medium" style="font-size: clamp(0.85rem, 2vw, 0.95rem);" disabled />
+                        <div class="search-field-custom flex-fill d-flex flex-column justify-content-center px-3 py-2 py-xl-0 d-none" id="return-field">
+                            <label for="return-date" class="home-search-label form-label text-uppercase fw-bold mb-1">Retour</label>
+                            <div class="search-field-control d-flex align-items-center gap-2">
+                                <i class="bi bi-calendar2-event search-field-icon"></i>
+                                {{ form_widget(searchForm.return_date, { id: 'return-date' }) }}
                             </div>
                         </div>
 
-                        {# Voyageurs #}
-                        <div class="search-field-custom flex-fill d-flex flex-column justify-content-center px-3 py-2 py-xl-0 border-0" style="min-width: 0;">
-                            <label for="passengers" class="form-label text-uppercase fw-bold mb-1" style="font-size: 0.65rem; color: #9aa49a; letter-spacing: 0.08em;">Voyageurs</label>
-                            <div class="d-flex align-items-center gap-2">
-                                <i class="bi bi-person" style="color: #5a6458; font-size: 1rem; flex-shrink: 0;"></i>
-                                <select name="passengers" id="passengers" class="form-select bg-transparent border-0 shadow-none p-0 text-white fw-medium" style="appearance: none; -webkit-appearance: none; font-size: clamp(0.85rem, 2vw, 0.95rem);">
-                                    <option value="1" class="text-dark">1 passager</option>
-                                    <option value="2" class="text-dark">2 passagers</option>
-                                    <option value="3" class="text-dark">3 passagers</option>
-                                    <option value="4" class="text-dark">4 passagers</option>
-                                    <option value="5" class="text-dark">5+ passagers</option>
-                                </select>
+                        <div class="search-field-custom flex-fill d-flex flex-column justify-content-center px-3 py-2 py-xl-0 border-0">
+                            <label for="passengers" class="home-search-label form-label text-uppercase fw-bold mb-1">Voyageurs</label>
+                            <div class="search-field-control d-flex align-items-center gap-2">
+                                <i class="bi bi-person search-field-icon"></i>
+                                {{ form_widget(searchForm.passengers, { id: 'passengers' }) }}
                             </div>
                         </div>
                     </div>
 
-                    {# Submit button — full width on mobile #}
                     <div class="ps-xl-2 pt-2 pt-xl-0 mt-1 mt-xl-0">
-                        <button type="submit" class="btn btn-search-custom rounded-pill fw-bold w-100 d-flex align-items-center justify-content-center px-4 py-3 py-xl-0 h-100 border-0" style="font-size: clamp(0.9rem, 2vw, 1rem); min-height: 52px;">
+                        <button type="submit" class="home-search-submit btn btn-search-custom rounded-pill fw-bold w-100 d-flex align-items-center justify-content-center px-4 py-3 py-xl-0 h-100 border-0">
                             Rechercher
                             <i class="bi bi-search ms-2"></i>
                         </button>
                     </div>
 
-                </form>
+                {{ form_end(searchForm, { render_rest: false }) }}
             </div>
         </div>
 
-    </div>
+        <button type="button" class="discover-scroll-btn discover-scroll-btn--home text-center text-white-50 opacity-75 animate-bounce-custom z-1 d-flex flex-column align-items-center gap-1 bg-transparent border-0 p-0" data-discover-scroll data-discover-target="feature-fleet" aria-label="Découvrir la suite">
+            <span class="discover-scroll-label text-uppercase fw-bold">Découvrir</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>
+        </button>
 
-    {# Scroll hint — hide on very small screens to save space #}
-    <div class="position-absolute bottom-0 start-50 translate-middle-x mb-4 text-center text-white-50 opacity-75 animate-bounce-custom z-1 d-none d-md-flex flex-column align-items-center gap-1">
-        <span class="text-uppercase fw-bold" style="font-size: 0.65rem; letter-spacing: 0.1em;">Découvrir</span>
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>
     </div>
 
 </section>
 
-{# ── FLEET ────────────────────────────────────────────────────────── #}
-<section class="py-4 py-md-5" id="feature-fleet" style="background-color: #101419;">
-    <div class="container-fluid py-3 py-md-5 px-3 px-md-4 px-lg-5" style="max-width: 1600px;">
+<section class="home-section home-section--fleet py-4 py-md-5" id="feature-fleet">
+    <div class="home-section-container container-fluid py-3 py-md-5 px-3 px-md-4 px-lg-5">
         <div class="row align-items-center gx-lg-5 gy-4 gy-lg-5">
-
-            {# Image card #}
             <div class="col-12 col-lg-6">
-                <div class="position-relative rounded-4 rounded-lg-5 overflow-hidden shadow-lg" style="border: 1px solid #32353b; height: clamp(260px, 50vw, 480px);">
-                    <img src="{{ asset('images/van-side.png') }}" alt="Intérieur véhicule électrique premium EcoRide" class="w-100 h-100 object-fit-cover" />
-                    <div class="position-absolute top-0 start-0 w-100 h-100" style="background: linear-gradient(to top, rgba(16,20,25,0.9) 0%, transparent 50%); pointer-events: none;"></div>
+                <div class="fleet-media-card position-relative rounded-4 rounded-lg-5 overflow-hidden shadow-lg">
+                    <img src="{{ asset('images/inside_demo_vehicle.png') }}" alt="Intérieur véhicule électrique premium EcoRide" class="w-100 h-100 object-fit-cover" />
+                    <div class="fleet-media-overlay position-absolute top-0 start-0 w-100 h-100"></div>
 
                     <div class="position-absolute bottom-0 start-0 w-100 p-3 p-md-4 z-1">
-                        <div class="d-flex align-items-center justify-content-between rounded-4 p-3" style="background: rgba(16,20,25,0.75); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.07);">
+                        <div class="fleet-caption d-flex align-items-center justify-content-between rounded-4 p-3">
                             <div>
-                                <h4 class="text-white fw-bold mb-1" style="font-size: clamp(0.95rem, 2.5vw, 1.15rem);">Classe Executive</h4>
+                                <h4 class="fleet-caption-title text-white fw-bold mb-1">Classe Executive</h4>
                                 <p class="text-white-50 small mb-0">Zéro émission, confort maximal.</p>
                             </div>
-                            <span class="badge custom-badge-lime rounded-pill py-2 px-3 fw-bold text-uppercase" style="font-size: 0.7rem; white-space: nowrap;">100 % EV</span>
+                            <span class="ev-badge badge custom-badge-lime rounded-pill py-2 px-3 fw-bold text-uppercase">100 % EV</span>
                         </div>
                     </div>
                 </div>
             </div>
 
-            {# Text + features #}
             <div class="col-12 col-lg-6 d-flex flex-column gap-3">
                 <div>
-                    <span class="badge custom-pill rounded-pill d-inline-flex align-items-center text-uppercase px-3 py-2 mb-3 fw-bold" style="font-size: 0.7rem;">
+                    <span class="fleet-eyebrow badge custom-pill rounded-pill d-inline-flex align-items-center text-uppercase px-3 py-2 mb-3 fw-bold">
                         <svg class="me-2" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
                         Flotte Électrique
                     </span>
-                    <h2 class="fw-bold text-white mb-3" style="font-size: clamp(1.5rem, 4vw, 2.4rem); letter-spacing: -0.02em;">Une expérience de voyage sans compromis.</h2>
-                    <p class="text-white-50 lh-lg mb-0" style="font-size: clamp(0.95rem, 2vw, 1.1rem);">
+                    <h2 class="home-section-title fw-bold text-white mb-3">Une expérience de voyage sans compromis.</h2>
+                    <p class="home-section-copy text-white-50 lh-lg mb-0">
                         Notre flotte exclusivement composée de véhicules électriques haut de gamme
                         garantit un trajet silencieux, fluide et respectueux de l'environnement.
                         Partagez l'espace, pas les émissions.
@@ -163,21 +141,21 @@
                 </div>
 
                 <ul class="list-unstyled d-flex flex-column gap-3 mb-0 mt-2">
-                    <li class="d-flex align-items-start gap-3 p-3 p-md-4 rounded-4" style="background: #272a30; border: 1px solid #32353b;">
-                        <div class="d-flex align-items-center justify-content-center rounded-3 flex-shrink-0" style="width: 44px; height: 44px; background: #181c21; border: 1px solid rgba(255,255,255,0.07); color: #7cdb82;">
+                    <li class="feature-list-card d-flex align-items-start gap-3 p-3 p-md-4 rounded-4">
+                        <div class="feature-list-icon d-flex align-items-center justify-content-center rounded-3 flex-shrink-0">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
                         </div>
                         <div>
-                            <strong class="d-block text-white fw-bold mb-1" style="font-size: 0.95rem;">Confort Premium</strong>
+                            <strong class="feature-list-title d-block text-white fw-bold mb-1">Confort Premium</strong>
                             <p class="text-white-50 small mb-0">Sièges ergonomiques et espace optimisé.</p>
                         </div>
                     </li>
-                    <li class="d-flex align-items-start gap-3 p-3 p-md-4 rounded-4" style="background: #272a30; border: 1px solid #32353b;">
-                        <div class="d-flex align-items-center justify-content-center rounded-3 flex-shrink-0" style="width: 44px; height: 44px; background: #181c21; border: 1px solid rgba(255,255,255,0.07); color: #7cdb82;">
+                    <li class="feature-list-card d-flex align-items-start gap-3 p-3 p-md-4 rounded-4">
+                        <div class="feature-list-icon d-flex align-items-center justify-content-center rounded-3 flex-shrink-0">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>
                         </div>
                         <div>
-                            <strong class="d-block text-white fw-bold mb-1" style="font-size: 0.95rem;">Sécurité Vérifiée</strong>
+                            <strong class="feature-list-title d-block text-white fw-bold mb-1">Sécurité Vérifiée</strong>
                             <p class="text-white-50 small mb-0">Chauffeurs professionnels et certifiés.</p>
                         </div>
                     </li>
@@ -188,13 +166,13 @@
     </div>
 </section>
 
-{# ── IMPACT BENTO ─────────────────────────────────────────────────── #}
-<section class="py-4 py-md-5" id="feature-impact" style="background-color: #0b0e14;">
-    <div class="container-fluid py-3 py-md-5 px-3 px-md-4 px-lg-5" style="max-width: 1600px;">
 
-        <div class="text-center mx-auto mb-4 mb-md-5 px-2" style="max-width: 700px;">
-            <h2 class="fw-bold text-white mb-3" style="font-size: clamp(1.5rem, 4vw, 2.4rem); letter-spacing: -0.02em;">L'impact de notre communauté</h2>
-            <p class="text-white-50 lh-lg mb-0" style="font-size: clamp(0.95rem, 2vw, 1.1rem);">
+<section class="home-section home-section--impact py-4 py-md-5" id="feature-impact">
+    <div class="home-section-container container-fluid py-3 py-md-5 px-3 px-md-4 px-lg-5">
+
+        <div class="impact-header text-center mx-auto mb-4 mb-md-5 px-2">
+            <h2 class="home-section-title fw-bold text-white mb-3">L'impact de notre communauté</h2>
+            <p class="home-section-copy text-white-50 lh-lg mb-0">
                 Chaque trajet partagé contribue directement à la préservation de nos
                 écosystèmes. Voici ce que nous avons accompli ensemble cette année.
             </p>
@@ -202,102 +180,54 @@
 
         <div class="row g-3 g-md-4">
 
-            {# CO₂ — large card #}
             <div class="col-12 col-md-8">
                 <div class="bento-card-bg bento-glow rounded-4 rounded-md-5 p-4 p-lg-5 position-relative overflow-hidden d-flex flex-column h-100">
-                    <div class="bento-icon rounded-3 d-flex align-items-center justify-content-center mb-3 flex-shrink-0" style="width: 48px; height: 48px;">
+                    <div class="bento-icon bento-icon-box rounded-3 d-flex align-items-center justify-content-center mb-3 flex-shrink-0">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 16.5C17 19 14.76 21 12 21S7 19 7 16.5c0-2 2-4.5 5-8 3 3.5 5 6 5 8z"/><path d="M12 13V3"/><path d="M9 6l3-3 3 3"/></svg>
                     </div>
-                    <div class="fw-bold text-white lh-1 mb-1" style="font-size: clamp(2.5rem, 7vw, 3.5rem); letter-spacing: -0.04em;">2.4<span style="font-size: 1.6rem; color: #7cdb82;">M</span></div>
-                    <strong class="text-white fw-bold mt-1" style="font-size: 0.95rem;">Tonnes de CO₂ évitées</strong>
+                    <div class="impact-stat fw-bold text-white lh-1 mb-1">2.4<span class="impact-stat-suffix">M</span></div>
+                    <strong class="impact-stat-label text-white fw-bold mt-1">Tonnes de CO₂ évitées</strong>
                     <p class="text-white-50 small mt-2 mb-0 lh-lg">Équivalent à la plantation de 100 000 arbres dans des zones déforestées.</p>
                 </div>
             </div>
 
-            {# Membres #}
             <div class="col-12 col-sm-6 col-md-4">
                 <div class="bento-card-bg rounded-4 rounded-md-5 p-4 p-lg-5 d-flex flex-column h-100">
-                    <div class="bento-icon orange rounded-3 d-flex align-items-center justify-content-center mb-3 flex-shrink-0" style="width: 48px; height: 48px;">
+                    <div class="bento-icon bento-icon-box orange rounded-3 d-flex align-items-center justify-content-center mb-3 flex-shrink-0">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
                     </div>
-                    <div class="fw-bold text-white lh-1 mb-1" style="font-size: clamp(2.5rem, 7vw, 3.5rem); letter-spacing: -0.04em;">50k+</div>
-                    <strong class="text-white fw-bold mt-1" style="font-size: 0.95rem;">Membres Actifs</strong>
+                    <div class="impact-stat fw-bold text-white lh-1 mb-1">50k+</div>
+                    <strong class="impact-stat-label text-white fw-bold mt-1">Membres Actifs</strong>
                     <p class="text-white-50 small mt-2 mb-0 lh-lg">Une communauté engagée pour une mobilité responsable.</p>
                 </div>
             </div>
 
-            {# Kilomètres #}
             <div class="col-12 col-sm-6 col-md-4">
                 <div class="bento-card-bg rounded-4 rounded-md-5 p-4 p-lg-5 d-flex flex-column h-100">
-                    <div class="bento-icon rounded-3 d-flex align-items-center justify-content-center mb-3 flex-shrink-0" style="width: 48px; height: 48px;">
+                    <div class="bento-icon bento-icon-box rounded-3 d-flex align-items-center justify-content-center mb-3 flex-shrink-0">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 17 9 11 13 15 21 7"/><polyline points="14 7 21 7 21 14"/></svg>
                     </div>
-                    <div class="fw-bold text-white lh-1 mb-1" style="font-size: clamp(2.5rem, 7vw, 3.5rem); letter-spacing: -0.04em;">12M</div>
-                    <strong class="text-white fw-bold mt-1" style="font-size: 0.95rem;">Kilomètres partagés</strong>
+                    <div class="impact-stat fw-bold text-white lh-1 mb-1">12M</div>
+                    <strong class="impact-stat-label text-white fw-bold mt-1">Kilomètres partagés</strong>
                     <p class="text-white-50 small mt-2 mb-0 lh-lg">Chaque kilomètre partagé est un geste pour la planète.</p>
                 </div>
             </div>
 
-            {# Forêt initiative card #}
             <div class="col-12 col-md-8">
-                <div class="rounded-4 rounded-md-5 overflow-hidden position-relative d-flex flex-column justify-content-center p-4 p-lg-5" style="min-height: clamp(200px, 40vw, 300px); border: 1px solid #32353b;">
-                    <img src="{{ asset('images/van-hero.png') }}" alt="Forêt EcoRide" class="position-absolute top-0 start-0 w-100 h-100 object-fit-cover z-0" />
-                    <div class="position-absolute top-0 start-0 w-100 h-100 z-0" style="background: linear-gradient(to right, rgba(11,14,20,0.92) 0%, rgba(11,14,20,0.4) 100%);"></div>
+                <div class="forest-card rounded-4 rounded-md-5 overflow-hidden position-relative d-flex flex-column justify-content-center p-4 p-lg-5">
+                    <img src="{{ asset('images/street_green.png') }}" alt="Forêt EcoRide" class="position-absolute top-0 start-0 w-100 h-100 object-fit-cover z-0" />
+                    <div class="forest-card-overlay position-absolute top-0 start-0 w-100 h-100 z-0"></div>
 
-                    <div class="position-relative z-1 d-flex flex-column justify-content-center h-100" style="max-width: 420px; gap: 0.75rem;">
-                        <h3 class="text-white fw-bold mb-0" style="font-size: clamp(1rem, 3vw, 1.4rem);">Initiative Forêt EcoRide</h3>
-                        <p class="text-white-75 mb-2 lh-lg" style="font-size: clamp(0.82rem, 2vw, 0.9rem);">Pour chaque 100 km parcourus, nous reversons 1 % à des projets de reforestation locaux certifiés.</p>
+                    <div class="forest-card-content position-relative z-1 d-flex flex-column justify-content-center h-100">
+                        <h3 class="forest-card-title text-white fw-bold mb-0">Initiative Forêt EcoRide</h3>
+                        <p class="forest-card-copy text-white-75 mb-2 lh-lg">Pour chaque 100 km parcourus, nous reversons 1 % à des projets de reforestation locaux certifiés.</p>
                         <div>
-                            <button type="button" class="btn rounded-pill px-4 py-2 text-white fw-medium border" style="background: transparent; border-color: rgba(255,255,255,0.2); font-size: 0.875rem;">Découvrir le projet</button>
+                            <button type="button" class="forest-card-button btn rounded-pill px-4 py-2 text-white fw-medium border">Découvrir le projet</button>
                         </div>
                     </div>
                 </div>
             </div>
 
-        </div>
-    </div>
-</section>
-
-{# ── CONTACT ──────────────────────────────────────────────────────── #}
-<section class="py-4 py-md-5" id="contact-section" style="background-color: #181c21;">
-    <div class="container-fluid py-3 py-md-5 px-3 px-md-4" style="max-width: 1600px;">
-        <div class="card bg-transparent border-0 rounded-4 rounded-md-5 shadow-lg mx-auto" style="max-width: 820px; background: #1c2025 !important; border: 1px solid #32353b !important;">
-            <div class="card-body p-3 p-sm-4 p-lg-5">
-
-                <div class="text-center mb-4 mb-md-5">
-                    <div class="mx-auto rounded-4 d-flex align-items-center justify-content-center mb-4" style="width: 56px; height: 56px; background: rgba(124,219,130,0.1); border: 1px solid rgba(124,219,130,0.2); color: #7cdb82;">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-                    </div>
-                    <h2 class="fw-bold text-white mb-2" style="font-size: clamp(1.5rem, 4vw, 2.4rem); letter-spacing: -0.02em;">Restons en contact</h2>
-                    <p class="text-white-50 mb-0" style="font-size: clamp(0.9rem, 2vw, 1.1rem);">Une question sur nos services entreprises ou notre charte écologique ?</p>
-                </div>
-
-                <form action="{{ path('app_contact') }}" method="post" class="d-flex flex-column gap-3 gap-md-4">
-                    <div class="row g-3 g-md-4">
-                        <div class="col-12 col-sm-6 d-flex flex-column gap-2">
-                            <label class="form-label text-uppercase fw-bold mb-0 ps-1" for="contact-name" style="font-size: 0.68rem; color: #9aa49a; letter-spacing: 0.08em;">Nom complet</label>
-                            <input type="text" id="contact-name" name="name" class="form-control custom-input px-3 py-2 rounded-3 shadow-none" placeholder="Jean Dupont" />
-                        </div>
-                        <div class="col-12 col-sm-6 d-flex flex-column gap-2">
-                            <label class="form-label text-uppercase fw-bold mb-0 ps-1" for="contact-email" style="font-size: 0.68rem; color: #9aa49a; letter-spacing: 0.08em;">Email professionnel</label>
-                            <input type="email" id="contact-email" name="email" class="form-control custom-input px-3 py-2 rounded-3 shadow-none" placeholder="jean@entreprise.com" />
-                        </div>
-                    </div>
-
-                    <div class="d-flex flex-column gap-2">
-                        <label class="form-label text-uppercase fw-bold mb-0 ps-1" for="contact-message" style="font-size: 0.68rem; color: #9aa49a; letter-spacing: 0.08em;">Message</label>
-                        <textarea id="contact-message" name="message" class="form-control custom-input px-3 py-2 rounded-3 shadow-none" rows="5" placeholder="Comment pouvons-nous collaborer ?" style="resize: vertical;"></textarea>
-                    </div>
-
-                    <div class="d-flex justify-content-stretch justify-content-sm-end mt-1 mt-md-2">
-                        <button type="submit" class="btn btn-search-custom rounded-pill fw-bold w-100 w-sm-auto px-4 py-3 d-flex align-items-center justify-content-center gap-2 border-0" style="font-size: clamp(0.9rem, 2vw, 1rem);">
-                            Envoyer le message
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-                        </button>
-                    </div>
-                </form>
-
-            </div>
         </div>
     </div>
 </section>

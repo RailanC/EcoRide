@@ -23,7 +23,7 @@ use Symfony\Component\Routing\Attribute\Route;
 
 final class TripController extends AbstractController
 {
-    #[Route('/covoiturages', name: 'app_covoiturage', methods: ['GET'])]
+    #[Route('/covoiturages', name: 'app_trip', methods: ['GET'])]
     public function index(Request $request, TripRepository $tripRepository): Response
     {
         $departure = $request->query->get('departure');
@@ -81,7 +81,7 @@ final class TripController extends AbstractController
         ]);
     }
 
-    #[Route('/covoiturages/new', name: 'app_covoiturage_new', methods: ['GET', 'POST'])]
+    #[Route('/covoiturages/new', name: 'app_trip_new', methods: ['GET', 'POST'])]
     public function new(
         Request $request,
         EntityManagerInterface $entityManager,
@@ -152,7 +152,7 @@ final class TripController extends AbstractController
 
             $this->addFlash('success', 'Votre covoiturage a ete publie.');
 
-            return $this->redirectToRoute('app_covoiturage', [
+            return $this->redirectToRoute('app_trip', [
                 'departure' => $trip->getDepartureLocation(),
                 'arrival' => $trip->getArrivalLocation(),
                 'date' => $trip->getDepartureDate()?->format('Y-m-d'),
@@ -166,7 +166,7 @@ final class TripController extends AbstractController
         ]);
     }
 
-    #[Route('/covoiturages/route-preview', name: 'app_covoiturage_route_preview', methods: ['GET'])]
+    #[Route('/covoiturages/route-preview', name: 'app_trip_route_preview', methods: ['GET'])]
     public function routePreview(Request $request, TripRouteEstimator $tripRouteEstimator): JsonResponse
     {
         $departure = trim((string) $request->query->get('departure', ''));
@@ -199,7 +199,7 @@ final class TripController extends AbstractController
         ]);
     }
 
-    #[Route('/covoiturages/{id}', name: 'app_covoiturage_show', methods: ['GET'])]
+    #[Route('/covoiturages/{id}', name: 'app_trip_show', methods: ['GET'])]
     public function show(
         Trip $trip,
         BookingRepository $bookingRepository,
@@ -231,7 +231,7 @@ final class TripController extends AbstractController
         ]);
     }
 
-    #[Route('/covoiturages/{id}/route-preview', name: 'app_covoiturage_show_route_preview', methods: ['GET'])]
+    #[Route('/covoiturages/{id}/route-preview', name: 'app_trip_show_route_preview', methods: ['GET'])]
     public function showRoutePreview(Trip $trip, TripRouteEstimator $tripRouteEstimator): JsonResponse
     {
         $departureDateTime = $this->buildTripDateTime($trip->getDepartureDate(), $trip->getDepartureTime());
@@ -263,7 +263,7 @@ final class TripController extends AbstractController
         ]);
     }
 
-    #[Route('/covoiturages/{id}/delete', name: 'app_covoiturage_delete', methods: ['POST'])]
+    #[Route('/covoiturages/{id}/delete', name: 'app_trip_delete', methods: ['POST'])]
     public function delete(
         Request $request,
         Trip $trip,
@@ -289,21 +289,21 @@ final class TripController extends AbstractController
         } catch (TripParticipationException $exception) {
             $this->addFlash('error', $exception->getMessage());
 
-            return $this->redirectToRoute('app_covoiturage_show', ['id' => $trip->getId()]);
+            return $this->redirectToRoute('app_trip_show', ['id' => $trip->getId()]);
         }
 
         if (!$wasCanceled) {
             $this->addFlash('info', 'Ce covoiturage etait deja annule.');
 
-            return $this->redirectToRoute('app_covoiturage_show', ['id' => $trip->getId()]);
+            return $this->redirectToRoute('app_trip_show', ['id' => $trip->getId()]);
         }
 
         $this->addFlash('success', 'Votre covoiturage a ete annule et les participants ont ete rembourses.');
 
-        return $this->redirectToRoute('app_covoiturage');
+        return $this->redirectToRoute('app_trip');
     }
 
-    #[Route('/covoiturage/{id}/participer', name: 'app_covoiturage_participer', methods: ['GET'])]
+    #[Route('/covoiturage/{id}/participer', name: 'app_trip_participer', methods: ['GET'])]
     public function participate(
         Trip $trip,
         BookingRepository $bookingRepository,
@@ -318,25 +318,25 @@ final class TripController extends AbstractController
         if ($trip->getDriver()?->getId() === $currentUser->getId()) {
             $this->addFlash('error', 'Vous ne pouvez pas participer a votre propre trajet.');
 
-            return $this->redirectToRoute('app_covoiturage_show', ['id' => $trip->getId()]);
+            return $this->redirectToRoute('app_trip_show', ['id' => $trip->getId()]);
         }
 
         if ($trip->getStatus() !== Trip::STATUS_PLANNED) {
             $this->addFlash('error', 'Ce trajet n accepte plus de nouvelles participations.');
 
-            return $this->redirectToRoute('app_covoiturage_show', ['id' => $trip->getId()]);
+            return $this->redirectToRoute('app_trip_show', ['id' => $trip->getId()]);
         }
 
         if ($trip->getStatus() === Trip::STATUS_CANCELED) {
             $this->addFlash('error', 'Ce trajet est deja annule.');
 
-            return $this->redirectToRoute('app_covoiturage_show', ['id' => $trip->getId()]);
+            return $this->redirectToRoute('app_trip_show', ['id' => $trip->getId()]);
         }
 
         if (($trip->getAvailableSeats() ?? 0) <= 0) {
             $this->addFlash('error', 'Il n y a plus de places disponibles.');
 
-            return $this->redirectToRoute('app_covoiturage_show', ['id' => $trip->getId()]);
+            return $this->redirectToRoute('app_trip_show', ['id' => $trip->getId()]);
         }
 
         $existingBooking = $bookingRepository->findOneBy([
@@ -348,7 +348,7 @@ final class TripController extends AbstractController
         if ($existingBooking instanceof Booking) {
             $this->addFlash('error', 'Vous participez deja a ce trajet.');
 
-            return $this->redirectToRoute('app_covoiturage_show', ['id' => $trip->getId()]);
+            return $this->redirectToRoute('app_trip_show', ['id' => $trip->getId()]);
         }
 
         $priceInCredits = (string) $trip->getPricePerPerson();
@@ -356,7 +356,7 @@ final class TripController extends AbstractController
         if ((float) $currentUser->getCreditBalance() < (float) $priceInCredits) {
             $this->addFlash('error', 'Vous n avez pas assez de credits.');
 
-            return $this->redirectToRoute('app_covoiturage_show', ['id' => $trip->getId()]);
+            return $this->redirectToRoute('app_trip_show', ['id' => $trip->getId()]);
         }
 
         return $this->render('trip/confirm_booking.html.twig', [
@@ -367,7 +367,7 @@ final class TripController extends AbstractController
         ]);
     }
 
-    #[Route('/covoiturage/{id}/participer/confirm', name: 'app_covoiturage_participer_confirm', methods: ['POST'])]
+    #[Route('/covoiturage/{id}/participer/confirm', name: 'app_trip_participer_confirm', methods: ['POST'])]
     public function confirmParticipation(
         Request $request,
         Trip $trip,
@@ -388,15 +388,15 @@ final class TripController extends AbstractController
         } catch (TripParticipationException $exception) {
             $this->addFlash('error', $exception->getMessage());
 
-            return $this->redirectToRoute('app_covoiturage_show', ['id' => $trip->getId()]);
+            return $this->redirectToRoute('app_trip_show', ['id' => $trip->getId()]);
         }
 
         $this->addFlash('success', 'Votre participation a ete confirmee.');
 
-        return $this->redirectToRoute('app_covoiturage_show', ['id' => $trip->getId()]);
+        return $this->redirectToRoute('app_trip_show', ['id' => $trip->getId()]);
     }
 
-    #[Route('/covoiturages/{id}/start', name: 'app_covoiturage_start', methods: ['POST'])]
+    #[Route('/covoiturages/{id}/start', name: 'app_trip_start', methods: ['POST'])]
     public function startTrip(
         Request $request,
         Trip $trip,
@@ -422,7 +422,7 @@ final class TripController extends AbstractController
         return $this->redirectToRoute('app_profile_trips');
     }
 
-    #[Route('/covoiturages/{id}/arrive', name: 'app_covoiturage_arrive', methods: ['POST'])]
+    #[Route('/covoiturages/{id}/arrive', name: 'app_trip_arrive', methods: ['POST'])]
     public function markArrived(
         Request $request,
         Trip $trip,
@@ -448,7 +448,7 @@ final class TripController extends AbstractController
         return $this->redirectToRoute('app_profile_trips');
     }
 
-    #[Route('/covoiturages/{id}/validate', name: 'app_covoiturage_validate', methods: ['GET', 'POST'])]
+    #[Route('/covoiturages/{id}/validate', name: 'app_trip_validate', methods: ['GET', 'POST'])]
     public function validateTrip(
         Request $request,
         Trip $trip,
@@ -498,7 +498,7 @@ final class TripController extends AbstractController
         ]);
     }
 
-    #[Route('/covoiturages/{id}/review', name: 'app_covoiturage_review', methods: ['GET', 'POST'])]
+    #[Route('/covoiturages/{id}/review', name: 'app_trip_review', methods: ['GET', 'POST'])]
     public function reviewTrip(
         Trip $trip,
         BookingRepository $bookingRepository,
@@ -517,7 +517,7 @@ final class TripController extends AbstractController
 
         $this->addFlash('info', 'Votre avis est desormais collecte lors de la validation du trajet.');
 
-        return $this->redirectToRoute('app_covoiturage_validate', ['id' => $trip->getId()]);
+        return $this->redirectToRoute('app_trip_validate', ['id' => $trip->getId()]);
     }
 
     private function buildTripDateTime(

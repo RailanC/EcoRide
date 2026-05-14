@@ -196,7 +196,7 @@ final class TripNotificationService
 
     private function generateTripUrl(Trip $trip): string
     {
-        return $this->urlGenerator->generate('app_covoiturage_show', [
+        return $this->urlGenerator->generate('app_trip_show', [
             'id' => $trip->getId(),
         ], UrlGeneratorInterface::ABSOLUTE_URL);
     }

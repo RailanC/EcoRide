@@ -1,3 +1,5 @@
+{% set currentRoute = app.request.attributes.get('_route') %}
+
 <nav class="navbar navbar-expand-lg bg-primary" data-bs-theme="dark">
     <div class="container-fluid gap-2 px-5">
         <a class="navbar-brand fw-bold" href="{{ path('app_home') }}">
@@ -7,27 +9,33 @@
         <div class="collapse navbar-collapse justify-content-end" id="mainNavbar">
             <ul class="navbar-nav mb-2 mb-lg-0 text-center">
                 <li class="nav-item">
-                    <a href="{{ path('app_home') ~ '#hero-section' }}" class="nav-link">Solutions</a>
+                    <a
+                        href="{{ path('app_home') ~ '#hero-section' }}"
+                        class="nav-link {{ currentRoute == 'app_home' ? 'active' : '' }}"
+                        data-nav-section="hero-section"
+                    >Eco-Impact</a>
                 </li>
                 <li class="nav-item">
-                    <a href="{{ path('app_home') ~ '#feature-impact' }}" class="nav-link">Eco-Impact</a>
+                    <a
+                        href="{{ path('app_home') ~ '#feature-impact' }}"
+                        class="nav-link"
+                        data-nav-section="feature-impact"
+                    >Nouvelles</a>
                 </li>
                 <li class="nav-item">
-                    <a href="{{ path('app_home') ~ '#feature-fleet' }}" class="nav-link">Flotte</a>
-                </li>
-                <li class="nav-item">
-                    <a href="{{ path('app_contact') }}" class="nav-link">Contact</a>
+                    <a href="{{ path('app_contact') }}" class="nav-link {{ currentRoute == 'app_contact' ? 'active' : '' }}">Contact</a>
                 </li>
             </ul>
         </div>
         
         <div class="d-flex align-items-center gap-3">
-            <a href="{{ path('app_covoiturage_new') }}" class="btn btn-outline-light btn-sm rounded-pill px-3">
-                Proposer
-            </a>
+            
             
             <div class="d-flex align-items-center gap-2">
                 {% if app.user %}
+                    <a href="{{ path('app_trip_new') }}" class="btn btn-outline-light btn-sm rounded-pill px-3 primary">
+                        Proposer
+                    </a>
                     <span class="text-light d-none d-md-inline-flex align-items-center small fw-medium">
                         <i class="bi bi-lightning-charge-fill text-warning me-1"></i>
                         {{ app.user.creditBalance }} credits
@@ -48,10 +56,14 @@
                         </ul>
                     </div>
                 {% else %}
-                    <a href="{{ path('app_register') }}" class="text-light text-decoration-none fw-medium d-none d-md-inline small">Join Elite</a>
-                    <a href="{{ path('app_login') }}" class="text-light fs-4 d-flex align-items-center text-decoration-none" aria-label="Connexion">
-                        <i class="bi bi-person-circle"></i>
-                    </a>
+                    <ul class="navbar-nav mb-2 mb-lg-0 text-center">
+                        <li class="nav-item">
+                            <a href="{{ path('app_login') }}" class="nav-link {{ currentRoute == 'app_login' ? 'active' : '' }}">Connexion</a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{{ path('app_register') }}" class="nav-link {{ currentRoute == 'app_register' ? 'active' : '' }}">Inscription</a>
+                        </li>
+                    </ul>
                 {% endif %}
             </div>
 

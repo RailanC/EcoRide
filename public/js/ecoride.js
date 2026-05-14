@@ -50,8 +50,10 @@
             const buttons = group.querySelectorAll('[data-trip-toggle-option]');
             buttons.forEach((button) => {
                 const isActive = button === btn;
-                button.classList.toggle('btn-success', isActive);
-                button.classList.toggle('btn-dark', !isActive);
+                button.classList.toggle('btn-search-custom', isActive);
+                button.classList.toggle('text-white', isActive);
+                button.classList.toggle('text-white-50', !isActive);
+                button.classList.toggle('home-trip-toggle-btn--inactive', !isActive);
                 button.setAttribute('aria-pressed', String(isActive));
             });
         }
@@ -137,6 +139,28 @@
         });
     }
 
+    function initDiscoverScroll () {
+        document.querySelectorAll('[data-discover-scroll]').forEach(button => {
+            if (button.dataset.discoverScrollReady === 'true') return;
+
+            button.dataset.discoverScrollReady = 'true';
+            button.addEventListener('click', () => {
+                const targetId = button.dataset.discoverTarget;
+                const target = targetId ? document.getElementById(targetId) : null;
+                if (!target) return;
+
+                target.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+
+                if (history.replaceState) {
+                    history.replaceState(null, '', `#${target.id}`);
+                }
+            });
+        });
+    }
+
     /* ── NAV: active link highlighting ──────────────────── */
     function highlightActiveLink () {
         const current = window.location.pathname;
@@ -150,11 +174,91 @@
         });
     }
 
+    function initBootstrapNavSectionState () {
+        const sectionLinks = Array.from(document.querySelectorAll('.navbar .nav-link[data-nav-section]'));
+        if (!sectionLinks.length) return;
+
+        const sections = sectionLinks
+            .map(link => ({
+                link,
+                section: document.getElementById(link.dataset.navSection)
+            }))
+            .filter(item => item.section);
+
+        if (!sections.length) return;
+
+        const setActive = (activeLink) => {
+            sectionLinks.forEach(link => {
+                const isActive = link === activeLink;
+                link.classList.toggle('active', isActive);
+                if (isActive) {
+                    link.setAttribute('aria-current', 'page');
+                } else {
+                    link.removeAttribute('aria-current');
+                }
+            });
+        };
+
+        const updateActiveSection = () => {
+            const marker = window.innerHeight * 0.4;
+            const current = sections.reduce((active, item) => {
+                const rect = item.section.getBoundingClientRect();
+                if (rect.top <= marker && rect.bottom > marker) {
+                    return item;
+                }
+
+                if (!active && rect.top > marker) {
+                    return item;
+                }
+
+                return active;
+            }, null) || sections[sections.length - 1];
+
+            setActive(current.link);
+        };
+
+        sectionLinks.forEach(link => {
+            link.addEventListener('click', () => setActive(link));
+        });
+
+        const hashLink = sectionLinks.find(link => {
+            const url = new URL(link.href, window.location.origin);
+            return url.hash && url.hash === window.location.hash;
+        });
+        if (hashLink) {
+            setActive(hashLink);
+        } else {
+            updateActiveSection();
+        }
+
+        const observer = new IntersectionObserver((entries) => {
+            const visible = entries
+                .filter(entry => entry.isIntersecting)
+                .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+
+            if (!visible) return;
+
+            const active = sections.find(item => item.section === visible.target);
+            if (active) setActive(active.link);
+        }, {
+            rootMargin: '-35% 0px -50% 0px',
+            threshold: [0.1, 0.25, 0.5, 0.75]
+        });
+
+        sections.forEach(item => observer.observe(item.section));
+        window.addEventListener('scroll', updateActiveSection, { passive: true });
+        window.addEventListener('resize', updateActiveSection);
+    }
+
     /* ── INIT ────────────────────────────────────────────── */
     document.addEventListener('DOMContentLoaded', () => {
         initReveal();
         initContactForm();
+        initDiscoverScroll();
         highlightActiveLink();
+        initBootstrapNavSectionState();
     });
+
+    document.addEventListener('turbo:load', initDiscoverScroll);
 
 })();

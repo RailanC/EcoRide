@@ -76,7 +76,7 @@
     </div>
   {% endfor %}
 
-  <form method="get" action="{{ path('app_covoiturage') }}" class="mb-4">
+  <form method="get" action="{{ path('app_trip') }}" class="mb-4">
     <div class="rounded-4 overflow-hidden mb-3 shadow-sm" style="background: #1c2025; border: 1px solid #32353b;">
       <div class="row g-0 align-items-stretch w-100">
         <div class="col-6 col-lg p-3 search-field-border search-field-border-mobile d-flex flex-column justify-content-center">
@@ -144,7 +144,7 @@
         </div>
         <hr class="my-4" style="border-color: #32353b;">
         <div class="d-flex flex-wrap gap-2 justify-content-between align-items-center">
-          <a href="{{ path('app_covoiturage') }}" class="btn btn-outline-secondary rounded-pill px-4 text-white-50 border-0" style="background: rgba(255,255,255,0.05);">Réinitialiser</a>
+          <a href="{{ path('app_trip') }}" class="btn btn-outline-secondary rounded-pill px-4 text-white-50 border-0" style="background: rgba(255,255,255,0.05);">Réinitialiser</a>
           <button type="submit" class="btn btn-primary-custom rounded-pill fw-bold px-4 py-2 border-0">Appliquer les filtres</button>
         </div>
       </div>
@@ -195,7 +195,7 @@
     </div>
   {% else %}
     {% for trip in trips %}
-      <a href="{{ path('app_covoiturage_show', {id: trip.id}) }}" id="{{ createdTripId is defined and createdTripId == trip.id ? 'created-trip-card' : '' }}" class="card text-decoration-none trip-card-custom rounded-4 mb-3 p-3 p-md-4 {{ createdTripId is defined and createdTripId == trip.id ? 'trip-card-custom--highlighted' : '' }}" >
+      <a href="{{ path('app_trip_show', {id: trip.id}) }}" id="{{ createdTripId is defined and createdTripId == trip.id ? 'created-trip-card' : '' }}" class="card text-decoration-none trip-card-custom rounded-4 mb-3 p-3 p-md-4 {{ createdTripId is defined and createdTripId == trip.id ? 'trip-card-custom--highlighted' : '' }}" >
         <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
           
           <div class="d-flex align-items-center gap-3 gap-md-4">
