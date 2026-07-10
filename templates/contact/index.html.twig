@@ -15,30 +15,44 @@
         </div>
 
         <div class="er-public-card">
-            <form class="er-contact-form" method="post">
-                <div class="er-contact-form__row">
-                    <div class="er-form-group">
-                        <label class="er-form-group__label" for="contact-name">Nom complet</label>
-                        <input type="text" id="contact-name" class="er-form-group__input" placeholder="Jean Dupont" />
-                    </div>
-                    <div class="er-form-group">
-                        <label class="er-form-group__label" for="contact-email">Email</label>
-                        <input type="email" id="contact-email" class="er-form-group__input" placeholder="jean@entreprise.com" />
-                    </div>
+            {% for label, messages in app.flashes %}
+                <div class="alert alert-{{ label == 'danger' ? 'danger' : 'success' }} alert-dismissible fade show" role="alert">
+                    {% for message in messages %}
+                        {{ message }}<br />
+                    {% endfor %}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
+            {% endfor %}
 
+            {{ form_start(contactForm, { 'attr': { 'class': 'er-contact-form' } }) }}
+
+            <div class="er-contact-form__row">
                 <div class="er-form-group">
-                    <label class="er-form-group__label" for="contact-message">Message</label>
-                    <textarea id="contact-message" class="er-form-group__input er-form-group__textarea" rows="5" placeholder="Comment pouvons-nous collaborer ?"></textarea>
+                    {{ form_label(contactForm.name, null, { label_attr: { class: 'er-form-group__label' } }) }}
+                    {{ form_widget(contactForm.name, { attr: { class: 'er-form-group__input', placeholder: 'Jean Dupont' } }) }}
+                    {{ form_errors(contactForm.name) }}
                 </div>
+                <div class="er-form-group">
+                    {{ form_label(contactForm.email, null, { label_attr: { class: 'er-form-group__label' } }) }}
+                    {{ form_widget(contactForm.email, { attr: { class: 'er-form-group__input', placeholder: 'jean@entreprise.com' } }) }}
+                    {{ form_errors(contactForm.email) }}
+                </div>
+            </div>
 
-                <div class="er-contact-form__footer">
-                    <button type="submit" class="er-btn er-btn--primary">
-                        Envoyer le message
-                        <i class="bi bi-send ms-2"></i>
-                    </button>
-                </div>
-            </form>
+            <div class="er-form-group">
+                {{ form_label(contactForm.message, null, { label_attr: { class: 'er-form-group__label' } }) }}
+                {{ form_widget(contactForm.message, { attr: { class: 'er-form-group__input er-form-group__textarea', placeholder: 'Comment pouvons-nous collaborer ?' } }) }}
+                {{ form_errors(contactForm.message) }}
+            </div>
+
+            <div class="er-contact-form__footer">
+                <button type="submit" class="er-btn er-btn--primary">
+                    Envoyer le message
+                    <i class="bi bi-send ms-2"></i>
+                </button>
+            </div>
+
+            {{ form_end(contactForm) }}
         </div>
     </div>
 </section>

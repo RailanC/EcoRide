@@ -1,0 +1,27 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Plateformes de covoiturage électrique - EcoRide{% endblock %}
+
+{% block body %}
+<div class="news-article-page container py-5">
+    <div class="news-article-hero mb-5">
+        <span class="news-article-eyebrow">Innovation</span>
+        <h1 class="news-article-title">Les nouvelles plateformes facilitant le covoiturage électrique</h1>
+        <p class="news-article-intro">La technologie transforme la mobilité partagée. De nouvelles plateformes rendent le covoiturage électrique plus simple, plus sûr et plus attractif pour tous.</p>
+    </div>
+
+    <article class="news-article-content">
+        <p>Les plateformes actuelles mettent en relation conducteurs et passagers en quelques clics. Elles intègrent désormais des outils d'évaluation d'impact carbone et encouragent le choix de véhicules électriques ou hybrides.</p>
+
+        <h2>Des fonctionnalités clés pour une mobilité propre</h2>
+        <p>Parmi les innovations récentes : l'estimation des émissions évitées, la notation des conducteurs sur leur profil écologique, et la préférence donnée aux trajets utilisant des véhicules à faibles émissions.</p>
+
+        <p>Ces services simplifient la recherche de covoiturages adaptés à des déplacements à zéro émission, et ils créent une dynamique vertueuse entre utilisateurs engagés.</p>
+
+        <h2>Le rôle d'EcoRide</h2>
+        <p>EcoRide vise à intégrer ces bonnes pratiques en offrant une plateforme claire et intuitive. Notre objectif est de rendre la mobilité électrique partagée accessible au plus grand nombre, tout en renforçant l'impact positif sur le climat.</p>
+
+        <a href="{{ path('app_news') }}" class="btn btn-primary-custom news-article-back">Retour aux nouvelles</a>
+    </article>
+</div>
+{% endblock %}

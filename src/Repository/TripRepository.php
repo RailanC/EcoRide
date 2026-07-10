@@ -27,10 +27,11 @@ class TripRepository extends ServiceEntityRepository
         ?string $arrival,
         ?string $date,
         ?int $passengers = null,
-        bool $eco = false,
+        ?string $energyType = null,
         ?float $maxPrice = null,
         ?int $maxDuration = null,
-        ?float $minRating = null
+        ?float $minRating = null,
+        ?string $departureTime = null
     ): array {
         $now = new \DateTimeImmutable();
         $today = $now->setTime(0, 0);
@@ -66,9 +67,9 @@ class TripRepository extends ServiceEntityRepository
                 ->setParameter('endOfDay', $endOfDay);
         }
 
-        if ($eco) {
+        if (!empty($energyType)) {
             $queryBuilder->andWhere('vehicle.energyType = :energyType')
-                ->setParameter('energyType', 'Electrique');
+                ->setParameter('energyType', $energyType);
         }
 
         if ($maxPrice !== null) {
@@ -103,6 +104,22 @@ class TripRepository extends ServiceEntityRepository
                     $duration = $trip->getDurationInMinutes();
 
                     return $duration !== null && $duration <= $maxDuration;
+                }
+            ));
+        }
+
+        if ($departureTime !== null) {
+            $results = array_values(array_filter(
+                $results,
+                static function (Trip $trip) use ($departureTime): bool {
+                    $departureHour = (int) $trip->getDepartureTime()->format('H');
+
+                    return match ($departureTime) {
+                        'morning' => $departureHour >= 6 && $departureHour < 12,
+                        'afternoon' => $departureHour >= 12 && $departureHour < 18,
+                        'evening' => $departureHour >= 18 && $departureHour < 23,
+                        default => true,
+                    };
                 }
             ));
         }

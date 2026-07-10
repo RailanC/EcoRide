@@ -1,131 +1,237 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Creer un covoiturage{% endblock %}
+{% macro input_field(field_or_id, label='', type='text', placeholder='', value='', icon='') %}
+	<div class="form-field">
+		{% if field_or_id is not empty and field_or_id.vars is defined %}
+			{{ form_label(field_or_id, label, { label_attr: { class: 'form-field__label' } }) }}
+			<div class="form-field__input-wrapper{% if icon is not empty %} form-field__input-wrapper--icon{% endif %} {% if type in ['date','time'] %}form-field__input-wrapper--date{% endif %} form-field__input-wrapper--suffixed">
+				{% if icon is not empty %}
+					<i class="bi bi-{{ icon }} form-field__icon" aria-hidden="true"></i>
+				{% endif %}
+				{{ form_widget(field_or_id, { attr: { class: 'form-field__input', placeholder: placeholder } }) }}
+			</div>
+			{{ form_errors(field_or_id) }}
+		{% else %}
+			<label class="form-field__label" for="{{ field_or_id }}">{{ label }}</label>
+			<div class="form-field__input-wrapper{% if icon is not empty %} form-field__input-wrapper--icon{% endif %}">
+				{% if icon is not empty %}
+					<i class="bi bi-{{ icon }} form-field__icon" aria-hidden="true"></i>
+				{% endif %}
+				<input class="form-field__input" type="{{ type }}" id="{{ field_or_id }}" name="{{ field_or_id }}" {% if placeholder %} placeholder="{{ placeholder }}" {% endif %} value="{{ value }}">
+			</div>
+		{% endif %}
+	</div>
+{% endmacro %}
 
-{% block stylesheets %}
-    {{ parent() }}
-    <link rel="stylesheet" href="{{ asset('css/trip-seat-selector.css') }}">
-{% endblock %}
-
-{% block javascript %}
-    {{ parent() }}
-    <script type="module" src="{{ asset('js/trip-seat-selector.js') }}"></script>
+{% block title %}EcoRide — Proposer un trajet
 {% endblock %}
 
 {% block body %}
-<div class="container py-5" style="max-width: 880px;">
-    {% if app.user %}
-        {% if vehicles|length > 0 %}
-            <div class="section-header">
-                <span class="section-title">Informations du trajet</span>
-            </div>
+	<div class="page page--propose-trajet">
+		<nav class="topbar-nav" aria-label="Navigation secondaire">
+			<a href="{{ path('app_home') }}" class="topbar-nav__back-link">
+				<i class="bi bi-arrow-left topbar-nav__back-icon" aria-hidden="true"></i>
+				<span>Retour au tableau de bord</span>
+			</a>
+		</nav>
 
-            <div class="contact-card">
-                {% for message in app.flashes('success') %}
-                    <div class="alert alert-success" role="alert">{{ message }}</div>
-                {% endfor %}
-                {% for message in app.flashes('error') %}
-                    <div class="alert alert-danger" role="alert">{{ message }}</div>
-                {% endfor %}
+		<header class="page-header">
+			<h1 class="page-header__title">
+				{{ page_title|default('EcoRide - Proposer un trajet') }}
+			</h1>
+			<p class="page-header__subtitle">
+				{{ page_subtitle|default('Partagez votre route, réduisez votre empreinte carbone et rejoignez l\'élite de la mobilité durable.') }}
+    </p>
+  </header>
 
-                {{ form_start(form, { attr: { novalidate: 'novalidate' } }) }}
-                    {{ form_errors(form) }}
+  {{ form_start(form, { attr: { id: 'propose-trajet-form', class: 'propose-grid', method: 'post', action: path('app_trip_new') } }) }}
+    <section class="card propose-grid__itinerary" aria-labelledby="card-title-itinerary">
+      <header class="card__header">
+        <i class="bi bi-signpost card__header-icon" aria-hidden="true"></i>
+        <h2 class="card__header-title" id="card-title-itinerary">Itinéraire</h2>
+      </header>
 
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            {{ form_label(form.departure_city) }}
-                            {{ form_widget(form.departure_city) }}
-                            {{ form_errors(form.departure_city) }}
-                        </div>
-                        <div class="col-md-6">
-                            {{ form_label(form.arrival_city) }}
-                            {{ form_widget(form.arrival_city) }}
-                            {{ form_errors(form.arrival_city) }}
-                        </div>
-                        <div class="col-md-6">
-                            {{ form_label(form.departure_date) }}
-                            {{ form_widget(form.departure_date) }}
-                            {{ form_errors(form.departure_date) }}
-                        </div>
-                        <div class="col-md-6">
-                            {{ form_label(form.departure_time) }}
-                            {{ form_widget(form.departure_time) }}
-                            {{ form_errors(form.departure_time) }}
-                        </div>
-                        <div class="col-12">
-                            <div class="trip-helper-note" role="note">
-                                Arrivee estimee automatiquement. Depart au moins 24h a l'avance.
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            {{ form_label(form.price) }}
-                            {{ form_widget(form.price) }}
-                            {{ form_errors(form.price) }}
-                        </div>
-                        <div class="col-md-6">
-                            {{ form_label(form.car) }}
-                            {{ form_widget(form.car) }}
-                            {{ form_errors(form.car) }}
-                        </div>
-                        <div class="col-md-6">
-                            <div class="trip-helper-note" role="note">
-                                Chaque trajet inclut 2 credits de frais fixes deduits du gain du conducteur.
-                            </div>
-                        </div>
-                        <div class="col-md-12">
-                            <label class="contact-label" for="seat-adjustment">Places disponibles</label>
-                            <div
-                                class="trip-seat-control"
-                                data-trip-seat-control
-                                data-vehicle-select-id="{{ form.car.vars.id }}"
-                                data-seat-input-id="{{ form.seats.vars.id }}"
-                            >
-                                {{ form_widget(form.seats) }}
-                                <div class="trip-seat-summary">
-                                    <span class="trip-seat-summary__value" data-seat-display>Selectionnez une voiture</span>
-                                    <span class="trip-seat-summary__hint" data-seat-hint>
-                                        Par defaut, toutes les places passagers sont disponibles.
-                                    </span>
-                                </div>
-                                <div class="trip-seat-actions">
-                                    <button type="button" class="btn-details trip-seat-toggle" data-seat-toggle>
-                                        Vous voyagez avec des proches ?
-                                    </button>
-                                    <button type="button" class="btn-details trip-seat-reset" data-seat-reset>
-                                        Utiliser toutes les places disponibles
-                                    </button>
-                                </div>
-                                <div class="trip-seat-dropdown d-none" data-seat-dropdown>
-                                    <label class="contact-label mb-2" for="seat-adjustment">Vous voyagez avec des proches ? Reduisez les places disponibles.</label>
-                                    <select id="seat-adjustment" class="form-select contact-input" data-seat-select>
-                                        <option value="">Utiliser toutes les places disponibles</option>
-                                    </select>
-                                    <div class="trip-seat-dropdown__help" data-seat-help>
-                                        Choisissez une voiture pour voir les reductions possibles.
-                                    </div>
-                                </div>
-                            </div>
-                            {{ form_errors(form.seats) }}
-                        </div>
-                        
-                    </div>
-
-                    <hr class="trips-divider">
-
-                    <div class="d-flex flex-wrap gap-2 justify-content-between align-items-center">
-                        <button type="submit" class="btn-search" style="width:auto; border-radius: 12px; padding: 0.85rem 1.4rem;">Publier le covoiturage</button>
-                    </div>
-                {{ form_end(form) }}
-            </div>
-        {% else %}
-            <div class="alert alert-info" role="alert">
-                Vous devez avoir au moins une voiture enregistree pour proposer un covoiturage. <a href="{{ path('app_profile') }}" class="alert-link" >Ajoutez une voiture ici</a>.
-            </div>
-        {% endif %}
-    {% else %}
-        <div class="alert alert-warning" role="alert">
-            Vous devez etre connecte pour proposer un covoiturage. <a href="{{ path('app_login') }}" class="alert-link">Connectez-vous ici</a>.
+      <div class="card__body card__body--map">
+        {{ form_row(form.departure_city) }}
+        {{ form_row(form.arrival_city) }}
+        <div class="map-preview">
+          {% if map_image_url ?? false %}
+            <img class="map-preview__image" src="{{ asset(map_image_url) }}" alt="Aperçu de l'itinéraire" loading="lazy">
+          {% else %}
+            <div class="map-preview__placeholder" role="img" aria-label="Aperçu carte indisponible"></div>
+          {% endif %}
+          <span class="map-preview__badge" aria-label="Optimisé pour l'impact CO2">OPTIMISÉ POUR L'IMPACT CO2</span>
         </div>
-    {% endif %}
+      </div>
+    </section>
+
+    <section class="card propose-grid__when" aria-labelledby="card-title-when">
+      <header class="card__header">
+        <i class="bi bi-calendar card__header-icon" aria-hidden="true"></i>
+        <h2 class="card__header-title" id="card-title-when">Quand ?</h2>
+      </header>
+
+      <div class="card__body card__body--when">
+        {{ form_row(form.departure_date) }}
+				{{ form_row(form.departure_time) }}
+
+				<aside class="info-block info-block--eco" aria-label="Conseil écologique">
+					<span class="info-block__label">Conseil Eco</span>
+					<p class="info-block__body">
+						{{ eco_tip|default('Partir avant 8h permet d\'éviter les pics de congestion et réduit la consommation de 12%.') }}
+          </p>
+        </aside>
+      </div>
+    </section>
+
+    <section class="card propose-grid__vehicle" aria-labelledby="card-title-vehicle">
+      <header class="card__header">
+        <i class="bi bi-car-front card__header-icon" aria-hidden="true"></i>
+        <h2 class="card__header-title" id="card-title-vehicle">Véhicule & Places</h2>
+      </header>
+
+      <div class="card__body">
+        <div class="vehicle-selector" role="radiogroup" aria-label="Sélectionner un véhicule">
+        {% if vehicles is defined and vehicles|length > 0 %}
+          {% for vehicle in vehicles|default([]) %}
+          {% set child = form.car[vehicle.id] ?? null %}
+          <label class="vehicle-card{% if child is not null and child.vars.checked %} vehicle-card--selected{% endif %}">
+            {% if child is not null %}
+              {{ form_widget(child, { attr: { class: 'sr-only', 'data-capacity': vehicle.places|default(0) } }) }}
+            {% endif %}
+            <i class="bi bi-{{ vehicle.icon|default('car-front') }} vehicle-card__icon" aria-hidden="true"></i>
+            <span class="vehicle-card__name">{{ (vehicle.brand.label|default('') ~ ' ' ~ vehicle.model)|trim }}</span>
+            {% if vehicle.tags|default([]) is not empty %}
+            <ul class="vehicle-card__tags" aria-label="Caractéristiques">
+              {% for tag in vehicle.tags %}
+              <li class="vehicle-card__tag">{{ tag }}</li>
+              {% endfor %}
+            </ul>
+            {% endif %}
+          </label>
+          {% endfor %}
+        {% endif %}
+
+          <button type="button" class="vehicle-card vehicle-card--add" aria-label="Ajouter un véhicule">
+            <i class="bi bi-plus-circle vehicle-card__icon" aria-hidden="true"></i>
+            <span class="vehicle-card__name">Ajouter un véhicule</span>
+            {% if add_vehicle_sublabel is defined %}
+            <span class="vehicle-card__sublabel">{{ add_vehicle_sublabel }}</span>
+            {% endif %}
+          </button>
+        </div>
+        {% set seats_val = form.seats.value|default(3) %}
+        <div class="seats-stepper">
+          <span class="seats-stepper__label" id="seats-label">NOMBRE DE PLACES DISPONIBLES</span>
+          <div class="seats-stepper__controls" aria-labelledby="seats-label">
+            <button type="button" class="seats-stepper__btn" aria-label="Diminuer le nombre de places">—</button>
+            <div class="seats-stepper__value-wrapper">
+              <output class="seats-stepper__value" id="seats_count" for="seats">{{ seats_val }}</output>
+              <span class="seats-stepper__unit" aria-hidden="true">PASSAGERS</span>
+            </div>
+            <button type="button" class="seats-stepper__btn" aria-label="Augmenter le nombre de places">+</button>
+          </div>
+          {{ form_row(form.seats) }}
+        </div>
+        <div
+          class="seats-progress"
+          role="progressbar"
+          aria-valuenow="{{ seats_val }}"
+          aria-valuemin="0"
+          aria-valuemax="{{ seats_max|default(7) }}"
+          aria-labelledby="seats-label"
+          style="--seats-value: {{ seats_val }}; --seats-max: {{ seats_max|default(7) }};"
+        >
+          <div class="seats-progress__track">
+            <div class="seats-progress__fill"></div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <section class="card propose-grid__pricing" aria-labelledby="card-title-pricing">
+      <header class="card__header">
+        <i class="bi bi-wallet2 card__header-icon" aria-hidden="true"></i>
+        <h2 class="card__header-title" id="card-title-pricing">Tarification</h2>
+      </header>
+
+      <div class="card__body">
+
+        <div class="form-field">
+          {{ form_label(form.price_per_passenger) }}
+          <div class="form-field__input-wrapper form-field__input-wrapper--suffixed">
+            {{ form_widget(form.price_per_passenger, { attr: { class: 'form-field__input' } }) }}
+          </div>
+          {{ form_errors(form.price_per_passenger) }}
+        </div>
+        <dl class="price-breakdown">
+          <div class="price-breakdown__row">
+            <dt class="price-breakdown__label">Contribution voyageur</dt>
+            <dd class="price-breakdown__value">{{ pricing.passenger_contribution|default('45,00 €') }}</dd>
+          </div>
+
+          <div class="price-breakdown__row">
+            <dt class="price-breakdown__label">
+              Frais de service
+              <button
+                type="button"
+                class="tooltip-trigger"
+                aria-label="En savoir plus sur les frais de service"
+              >
+                <i class="bi bi-info-circle tooltip-trigger__icon" aria-hidden="true"></i>
+              </button>
+            </dt>
+            <dd class="price-breakdown__value">{{ pricing.service_fee|default('+2,00 €') }}</dd>
+          </div>
+
+          <div class="price-breakdown__row price-breakdown__row--total">
+            <dt class="price-breakdown__label">TOTAL PASSAGER</dt>
+            <dd class="price-breakdown__value">{{ pricing.total|default('47,00 €') }}</dd>
+          </div>
+        </dl>
+
+        <aside class="info-block" aria-label="Information sur les frais">
+          <i class="bi bi-shield-check info-block__icon" aria-hidden="true"></i>
+          <p class="info-block__body">
+            {{ pricing_note|default('Les frais de service EcoRide permettent de garantir l\'assurance executive et le support 24/7 sur tous vos trajets premium.') }}
+					</p>
+				</aside>
+			</p>
+		</div>
+	</div>
+
+</section>
+<div class="footer-cta">
+	<div class="social-proof">
+		<div class="social-proof__avatars" aria-hidden="true">
+			{% for avatar in social_proof_avatars|default([]) %}
+				<img class="social-proof__avatar" src="{{ avatar.src }}" alt="">
+			{% endfor %}
+			<span class="social-proof__overflow">+12k</span>
+		</div>
+		<p class="social-proof__label">Rejoignez 12 400+ conducteurs certifiés EcoRide.</p>
+	</div>
+
+	<button type="submit" class="btn btn--primary" form="propose-trajet-form">
+		Publier le covoiturage
+	</button>
 </div>
-{% endblock %}
+{{ form_end(form) }}</div>{% block javascript %}
+{{ parent() }}
+<script type="module" src="{{ asset('js/tripScript.js') }}"></script>{% endblock %}{% endblock %}{# ============================================================
+														   Component stubs (copy to their own files)
+														   ============================================================
+														
+														── components/card_header.html.twig ──────────────────────────
+														<header class="card__header">
+														  {% include 'components/icon.html.twig' with { name: icon, class: 'card__header-icon' } %}
+														  <h2 class="card__header-title" {% if id is defined %}id="{{ id }}"{% endif %}>{{ title }}</h2>
+														</header>
+														
+														── components/icon.html.twig ─────────────────────────────────
+														<svg class="icon icon--{{ name }}{% if class is defined %} {{ class }}{% endif %}"
+														     aria-hidden="true" focusable="false">
+														  <use href="{{ asset('icons/sprite.svg') }}#{{ name }}"></use>
+														</svg>
+														#}

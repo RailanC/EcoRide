@@ -10,16 +10,14 @@
             <ul class="navbar-nav mb-2 mb-lg-0 text-center">
                 <li class="nav-item">
                     <a
-                        href="{{ path('app_home') ~ '#hero-section' }}"
-                        class="nav-link {{ currentRoute == 'app_home' ? 'active' : '' }}"
-                        data-nav-section="hero-section"
+                        href="{{ path('app_eco_impact') }}"
+                        class="nav-link {{ currentRoute == 'app_eco_impact' ? 'active' : '' }}"
                     >Eco-Impact</a>
                 </li>
                 <li class="nav-item">
                     <a
-                        href="{{ path('app_home') ~ '#feature-impact' }}"
-                        class="nav-link"
-                        data-nav-section="feature-impact"
+                        href="{{ path('app_news') }}"
+                        class="nav-link {{ currentRoute == 'app_news' ? 'active' : '' }}"
                     >Nouvelles</a>
                 </li>
                 <li class="nav-item">
@@ -33,9 +31,11 @@
             
             <div class="d-flex align-items-center gap-2">
                 {% if app.user %}
-                    <a href="{{ path('app_trip_new') }}" class="btn btn-outline-light btn-sm rounded-pill px-3 primary">
+                    {% if app.user.type != 'passenger' %}
+                        <a href="{{ path('app_trip_new') }}" class="btn btn-outline-light btn-sm rounded-pill px-3 primary">
                         Proposer
-                    </a>
+                        </a>
+                    {% endif %}
                     <span class="text-light d-none d-md-inline-flex align-items-center small fw-medium">
                         <i class="bi bi-lightning-charge-fill text-warning me-1"></i>
                         {{ app.user.creditBalance }} credits

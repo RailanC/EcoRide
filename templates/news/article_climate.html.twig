@@ -1,0 +1,29 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Le covoiturage comme levier d'impact climat - EcoRide{% endblock %}
+
+{% block body %}
+<div class="news-article-page container py-5">
+    <div class="news-article-hero mb-5">
+        <span class="news-article-eyebrow">Monde</span>
+        <h1 class="news-article-title">Le covoiturage se renforce comme levier d'impact climat</h1>
+        <p class="news-article-intro">Dans un contexte où les objectifs de neutralité carbone deviennent indispensables, le covoiturage apparaît comme une solution concrète pour réduire les émissions de gaz à effet de serre à l'échelle mondiale.</p>
+    </div>
+
+    <article class="news-article-content">
+        <p>Le transport routier est responsable d'une part significative des émissions mondiales de CO₂. En Europe, près d'un quart des émissions totales proviennent encore des véhicules particuliers. Réduire ce poids est aujourd'hui un impératif climatique.</p>
+
+        <p>Le covoiturage permet d'optimiser l'utilisation des véhicules déjà sur la route. En partageant un trajet, plusieurs personnes utilisent la même voiture, ce qui divise l'empreinte carbone par passager et limite le nombre total de véhicules en circulation.</p>
+
+        <h2>Un impact immédiat et mesurable</h2>
+        <p>Chaque trajet partagé permet de retirer des tonnes de CO₂ de l'atmosphère sur le long terme. Les études montrent que remplacer un trajet individuel par un trajet partagé peut réduire les émissions de 30 à 60 % par personne, en fonction du type de véhicule et du taux de remplissage.</p>
+
+        <h2>La contribution d'EcoRide</h2>
+        <p>EcoRide valorise le covoiturage durable en facilitant la mise en relation entre conducteurs et passagers. En mettant en avant les véhicules électriques et hybrides, le projet aide à réduire le nombre de trajets à combustion fossile tout en rendant les déplacements plus accessibles.</p>
+
+        <p>Notre ambition est de faire du covoiturage un levier systémique : moins de voitures, moins d'émissions, et une transition plus rapide vers des modes de transport plus propres.</p>
+
+        <a href="{{ path('app_news') }}" class="btn btn-primary-custom news-article-back">Retour aux nouvelles</a>
+    </article>
+</div>
+{% endblock %}
