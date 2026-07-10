@@ -8,6 +8,7 @@ use App\Entity\User;
 use App\Exception\RouteEstimationException;
 use App\Exception\TripParticipationException;
 use App\Form\NewTripFormType;
+use App\Form\TripFormType;
 use App\Form\TripOutcomeFormType;
 use App\Repository\BookingRepository;
 use App\Repository\TripRepository;
@@ -26,21 +27,39 @@ final class TripController extends AbstractController
     #[Route('/covoiturages', name: 'app_trip', methods: ['GET'])]
     public function index(Request $request, TripRepository $tripRepository): Response
     {
-        $departure = $request->query->get('departure');
-        $arrival = $request->query->get('arrival');
-        $date = $request->query->get('date');
         $createdTripId = $request->query->getInt('created');
-        $passengers = $request->query->get('passengers');
+
+        $form = $this->createForm(TripFormType::class, [
+            'departure' => $request->query->get('departure'),
+            'arrival' => $request->query->get('arrival'),
+            'date' => $request->query->get('date'),
+            'return_date' => $request->query->get('return_date'),
+            'trip_type' => $request->query->get('trip_type'),
+            'energyType' => $request->query->get('energyType', ''),
+            'max_price' => $request->query->get('max_price', 100),
+            'min_rating' => $request->query->get('min_rating', 1),
+            'departure_time' => $request->query->get('departure_time'),
+            'seats_available' => $request->query->get('seats_available', $request->query->get('passengers')),
+        ]);
+        $form->handleRequest($request);
+
+        $filters = $form->getData();
+
+        $departure = $this->normalizeStringFilter($filters['departure'] ?? null);
+        $arrival = $this->normalizeStringFilter($filters['arrival'] ?? null);
+        $date = $this->normalizeStringFilter($filters['date'] ?? null);
+        $passengers = $filters['seats_available'] ?? $request->query->get('passengers');
         $passengers = ($passengers !== null && $passengers !== '') ? (int) $passengers : null;
-        $eco = $request->query->getBoolean('eco');
+        $energyType = $this->normalizeStringFilter($filters['energyType'] ?? null);
         $maxPrice = $request->query->get('max_price');
         $maxPrice = ($maxPrice !== null && $maxPrice !== '') ? (float) $maxPrice : null;
         $maxDuration = $request->query->get('max_duration');
         $maxDuration = ($maxDuration !== null && $maxDuration !== '') ? (int) $maxDuration : null;
         $minRating = $request->query->get('min_rating');
         $minRating = ($minRating !== null && $minRating !== '') ? (float) $minRating : null;
+        $departureTime = $this->normalizeStringFilter($filters['departure_time'] ?? null);
 
-        $hasFilters = $departure || $arrival || $date || $passengers || $eco || $maxPrice || $maxDuration || $minRating;
+        $hasFilters = $departure || $arrival || $date || $passengers || $energyType || $maxPrice || $maxDuration || $minRating || $departureTime;
 
         $trips = $hasFilters
             ? $tripRepository->searchAvailableTrips(
@@ -48,10 +67,11 @@ final class TripController extends AbstractController
                 $arrival,
                 $date,
                 $passengers,
-                $eco,
+                $energyType,
                 $maxPrice,
                 $maxDuration,
-                $minRating
+                $minRating,
+                $departureTime
             )
             : $tripRepository->findAvailableTrips();
 
@@ -73,6 +93,7 @@ final class TripController extends AbstractController
         }
 
         return $this->render('trip/index.html.twig', [
+            'form' => $form->createView(),
             'trips' => $trips,
             'departure' => $departure,
             'arrival' => $arrival,
@@ -93,6 +114,7 @@ final class TripController extends AbstractController
             return $this->render('trip/new.html.twig', [
                 'vehicles' => [],
                 'form' => null,
+                'map_image_url' => "images/new_trip_map_placeholder.png",
             ]);
         }
 
@@ -102,6 +124,7 @@ final class TripController extends AbstractController
             return $this->render('trip/new.html.twig', [
                 'vehicles' => $vehicles,
                 'form' => null,
+                'map_image_url' => "images/new_trip_map_placeholder.png",
             ]);
         }
 
@@ -156,13 +179,14 @@ final class TripController extends AbstractController
                 'departure' => $trip->getDepartureLocation(),
                 'arrival' => $trip->getArrivalLocation(),
                 'date' => $trip->getDepartureDate()?->format('Y-m-d'),
-                'created' => $trip->getId(),
+                'created' => $trip->getId()
             ]);
         }
 
         return $this->render('trip/new.html.twig', [
             'vehicles' => $vehicles,
             'form' => $form->createView(),
+            'map_image_url' => "images/new_trip_map_placeholder.png",
         ]);
     }
 
@@ -533,6 +557,13 @@ final class TripController extends AbstractController
             $date->format('Y-m-d'),
             $time->format('H:i:s')
         ));
+    }
+
+    private function normalizeStringFilter(mixed $value): ?string
+    {
+        $value = trim((string) $value);
+
+        return $value === '' ? null : $value;
     }
 
     private function toFrenchRouteMessage(string $message): string

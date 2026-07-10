@@ -99,7 +99,6 @@ class VehicleFormType extends AbstractType
                     'Diesel' => 'Diesel',
                     'Électrique' => 'Électrique',
                     'Hybride' => 'Hybride',
-                    'Hybride rechargeable' => 'Hybride rechargeable',
                     'GNV' => 'GNV',
                 ],
                 'attr' => [

@@ -1,246 +1,246 @@
 {% extends 'base.html.twig' %}
 
-{% block stylesheets %}
-    {{ parent() }}
-    <style>
-        .custom-input {
-            background: #181c21 !important;
-            border: 1px solid #32353b !important;
-            color: #e0e2ea !important;
-            transition: all 0.18s ease;
-        }
-        .custom-input:focus {
-            border-color: rgba(124,219,130,0.5) !important;
-            box-shadow: 0 0 0 3px rgba(124, 219, 130, 0.1) !important;
-        }
-        .btn-primary-custom {
-            background: linear-gradient(135deg, #7adf7e, #86e683);
-            color: #00390f !important;
-            box-shadow: 0 10px 28px rgba(124, 219, 130, 0.25);
-            transition: all 0.2s ease;
-        }
-        .btn-primary-custom:hover {
-            background: linear-gradient(135deg, #86e683, #97f08f);
-            transform: translateY(-1px);
-        }
-        .swap-btn-custom {
-            width: 36px; height: 36px;
-            background: rgba(30, 34, 40, 0.98); border: 1px solid rgba(255,255,255,0.08); color: #9aa49a;
-            box-shadow: 0 6px 16px rgba(0,0,0,0.22); transition: all 0.18s ease; cursor: pointer;
-        }
-        .swap-btn-custom:hover { color: #7cdb82; border-color: rgba(124, 219, 130, 0.45); }
-        .search-field-border {
-            border-right: 1px solid #32353b;
-        }
-        @media (max-width: 991.98px) {
-            .search-field-border { border-right: none; border-bottom: 1px solid #32353b; }
-            .search-field-border-mobile { border-right: 1px solid #32353b; }
-        }
-        .trip-card-custom {
-            background: #1c2025;
-            border: 1px solid #32353b;
-            transition: all 0.2s ease;
-            color: inherit;
-        }
-        .trip-card-custom:hover {
-            border-color: rgba(124, 219, 130, 0.4);
-            transform: translateY(-2px);
-            box-shadow: 0 12px 24px rgba(0,0,0,0.2);
-        }
-        .trip-card-custom--highlighted {
-            border-color: #7cdb82 !important;
-            box-shadow: 0 0 0 1px #7cdb82;
-        }
-        .driver-avatar-custom {
-            width: 48px; height: 48px;
-            background: #272a30; border: 1px solid #32353b;
-            color: #7cdb82; font-weight: bold; text-transform: uppercase;
-        }
-        .custom-badge-lime {
-            background-color: rgba(124, 219, 130, 0.1) !important;
-            color: #7cdb82 !important;
-            border: 1px solid rgba(124, 219, 130, 0.2) !important;
-        }
-        .meta-dot-custom {
-            display: inline-block; width: 4px; height: 4px; border-radius: 50%; background: #5a6458; margin: 0 8px;
-        }
-    </style>
+{% block title %}EcoRide - Recherche de trajets
 {% endblock %}
 
 {% block body %}
-<div class="container py-5" style="max-width: 1300px;" data-bs-theme="dark">
-  {% for message in app.flashes('success') %}
-    <div class="alert alert-success d-flex align-items-center gap-3 rounded-4 border border-success border-opacity-25 mb-4" style="background: rgba(25, 135, 84, 0.1); color: #7cdb82;">
-      <i class="bi bi-check-circle fs-5"></i>
-      <div>{{ message }}</div>
-    </div>
-  {% endfor %}
+	<div class="trip-search-page container-fluid px-4 px-lg-5 py-5" data-bs-theme="dark">
 
-  <form method="get" action="{{ path('app_trip') }}" class="mb-4">
-    <div class="rounded-4 overflow-hidden mb-3 shadow-sm" style="background: #1c2025; border: 1px solid #32353b;">
-      <div class="row g-0 align-items-stretch w-100">
-        <div class="col-6 col-lg p-3 search-field-border search-field-border-mobile d-flex flex-column justify-content-center">
-          <span class="text-uppercase fw-bold mb-1" style="font-size: 0.68rem; color: #9aa49a; letter-spacing: 0.08em;">Départ</span>
-          <input type="text" name="departure" id="from" placeholder="Ville de départ" autocomplete="off" class="form-control bg-transparent border-0 shadow-none p-0 text-white fw-medium" value="{{ app.request.query.get('departure') }}" />
-        </div>
-        <div class="d-none d-lg-flex align-items-center justify-content-center position-relative z-2 mx-n3" style="width: 0;">
-          <button type="button" class="swap-btn-custom rounded-circle d-flex align-items-center justify-content-center position-absolute" onclick="swapCities(event)" title="Inverser" style="z-index: 10;">
-            <i class="bi bi-arrow-left-right"></i>
-          </button>
-        </div>
-        <div class="col-6 col-lg p-3 search-field-border ps-lg-4 d-flex flex-column justify-content-center">
-          <span class="text-uppercase fw-bold mb-1" style="font-size: 0.68rem; color: #9aa49a; letter-spacing: 0.08em;">Destination</span>
-          <input type="text" name="arrival" id="to" placeholder="Ville d'arrivée" autocomplete="off" class="form-control bg-transparent border-0 shadow-none p-0 text-white fw-medium" value="{{ app.request.query.get('arrival') }}" />
-        </div>
-        <div class="col-6 col-lg p-3 search-field-border search-field-border-mobile d-flex flex-column justify-content-center">
-          <span class="text-uppercase fw-bold mb-1" style="font-size: 0.68rem; color: #9aa49a; letter-spacing: 0.08em;">Date de départ</span>
-          <input type="date" name="date" id="departure-date" class="form-control bg-transparent border-0 shadow-none p-0 text-white fw-medium" value="{{ app.request.query.get('date') }}" />
-        </div>
-        <div class="col-12 col-lg p-3 d-flex flex-column justify-content-center">
-          <span class="text-uppercase fw-bold mb-1" style="font-size: 0.68rem; color: #9aa49a; letter-spacing: 0.08em;">Voyageurs</span>
-          <select name="passengers" class="form-select bg-transparent border-0 shadow-none p-0 text-white fw-medium" style="appearance: none; -webkit-appearance: none;">
-            <option value="1" class="text-dark" {{ app.request.query.get('passengers') == '1' ? 'selected' : '' }}>1 passager</option>
-            <option value="2" class="text-dark" {{ app.request.query.get('passengers') == '2' ? 'selected' : '' }}>2 passagers</option>
-            <option value="3" class="text-dark" {{ app.request.query.get('passengers') == '3' ? 'selected' : '' }}>3 passagers</option>
-            <option value="4" class="text-dark" {{ app.request.query.get('passengers') == '4' ? 'selected' : '' }}>4 passagers</option>
-            <option value="5" class="text-dark" {{ app.request.query.get('passengers') == '5' ? 'selected' : '' }}>5+ passagers</option>
-          </select>
-        </div>
-      </div>
-    </div>
+		{% for message in app.flashes('success') %}
+			<div class="alert alert-success d-flex align-items-center gap-2 mb-4" role="alert">
+				<i class="bi bi-check-circle-fill fs-5"></i>
+				<div>{{ message }}</div>
+			</div>
+		{% endfor %}
 
-    <div class="card bg-transparent border-0 rounded-4 shadow-sm mb-4" style="background: #1c2025 !important; border: 1px solid #32353b !important;">
-      <div class="card-body p-4 p-md-5">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-          <span class="fw-bold text-white" style="font-size: 1.1rem;">Filtres avancés</span>
-          <span class="text-white-50 small">Affinez votre recherche</span>
-        </div>
-        <div class="row g-3">
-          <div class="col-md-6">
-            <label class="form-label text-uppercase fw-bold mb-1 ps-1" for="max_price" style="font-size: 0.7rem; color: #9aa49a; letter-spacing: 0.08em;">Prix maximum (EUR)</label>
-            <input type="number" id="max_price" name="max_price" class="form-control custom-input px-3 py-2 rounded-3 shadow-none" min="0" step="1" placeholder="Ex. 25" value="{{ app.request.query.get('max_price') }}">
-          </div>
-          <div class="col-md-6">
-            <label class="form-label text-uppercase fw-bold mb-1 ps-1" for="max_duration" style="font-size: 0.7rem; color: #9aa49a; letter-spacing: 0.08em;">Durée maximale (min)</label>
-            <input type="number" id="max_duration" name="max_duration" class="form-control custom-input px-3 py-2 rounded-3 shadow-none" min="1" step="1" placeholder="Ex. 120" value="{{ app.request.query.get('max_duration') }}">
-          </div>
-          <div class="col-md-6">
-            <label class="form-label text-uppercase fw-bold mb-1 ps-1" for="min_rating" style="font-size: 0.7rem; color: #9aa49a; letter-spacing: 0.08em;">Note minimale</label>
-            <select id="min_rating" name="min_rating" class="form-select custom-input px-3 py-2 rounded-3 shadow-none">
-              <option value="">Toutes</option>
-              <option value="1" {{ app.request.query.get('min_rating') == '1' ? 'selected' : '' }}>1+ / 5</option>
-              <option value="2" {{ app.request.query.get('min_rating') == '2' ? 'selected' : '' }}>2+ / 5</option>
-              <option value="3" {{ app.request.query.get('min_rating') == '3' ? 'selected' : '' }}>3+ / 5</option>
-              <option value="4" {{ app.request.query.get('min_rating') == '4' ? 'selected' : '' }}>4+ / 5</option>
-              <option value="4.5" {{ app.request.query.get('min_rating') == '4.5' ? 'selected' : '' }}>4.5+ / 5</option>
-            </select>
-          </div>
-          <div class="col-md-6 d-flex align-items-end pb-2">
-            <div class="form-check d-flex align-items-center gap-2 mb-0">
-              <input class="form-check-input shadow-none mt-0" type="checkbox" id="eco" name="eco" value="1" {{ app.request.query.get('eco') ? 'checked' : '' }} style="cursor: pointer;">
-              <label class="form-check-label text-white-50 small mt-1" for="eco" style="cursor: pointer;">Uniquement les trajets en voiture électrique</label>
-            </div>
-          </div>
-        </div>
-        <hr class="my-4" style="border-color: #32353b;">
-        <div class="d-flex flex-wrap gap-2 justify-content-between align-items-center">
-          <a href="{{ path('app_trip') }}" class="btn btn-outline-secondary rounded-pill px-4 text-white-50 border-0" style="background: rgba(255,255,255,0.05);">Réinitialiser</a>
-          <button type="submit" class="btn btn-primary-custom rounded-pill fw-bold px-4 py-2 border-0">Appliquer les filtres</button>
-        </div>
-      </div>
-    </div>
-  </form>
+		<div class="trip-search-hero mb-4">
+			<h1 class="trip-search-title">EcoRide - Recherche de trajets</h1>
+			<p class="trip-search-copy">Trouvez votre trajet durable parmi nos véhicules électriques et hybrides.</p>
+		</div>
 
-  <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center p-4 rounded-4 mb-4 shadow-sm" style="background: linear-gradient(135deg, rgba(124, 219, 130, 0.1) 0%, #1c2025 100%); border: 1px solid rgba(124, 219, 130, 0.2);">
-    <div>
-      <h2 class="text-white fw-bold mb-1 d-flex align-items-center gap-2" style="font-size: 1.5rem;">
-      {% if departure %}
-        {{ departure }} <i class="bi bi-arrow-right text-white-50"></i> {{ arrival }}
-      {% else %}
-        Tous les trajets
-      {% endif %}
-      </h2>
-      <div class="text-white-50 small">Trajets disponibles au départ de {{ departure ?: 'partout' }}</div>
-    </div>
-    {% if date %}
-    <div class="mt-3 mt-md-0">
-      <span class="badge custom-badge-lime rounded-pill px-3 py-2 fw-medium fs-6"><i class="bi bi-calendar-event me-2"></i>Le {{ date|date('d M Y') }}</span>
-    </div>
-    {% endif %}
-  </div>
+		{{ form_start(form, { attr: { class: 'row g-4' }, action: path('app_trip'), method: 'get' }) }}
 
-  <div class="d-flex justify-content-between align-items-center mb-3">
-    <span class="fw-bold text-white" style="font-size: 1.25rem;">Trajets disponibles</span>
-    {% if trips is not empty %}
-      <span class="text-white-50 small fw-medium">{{ trips|length }} resultat{{ trips|length > 1 ? 's' }}</span>
-    {% endif %}
-  </div>
+		<aside class="col-12 col-xl-3">
+			<div class="trip-search-sidebar">
+				<div class="trip-search-panel">
 
-  {% if createdTripId %}
-    <div class="alert alert-success d-flex align-items-center gap-3 rounded-4 border border-success border-opacity-25 mb-4" style="background: rgba(25, 135, 84, 0.1); color: #7cdb82;">
-      <i class="bi bi-info-circle fs-5"></i>
-      <div>Votre nouveau trajet est mis en avant ci-dessous.</div>
-    </div>
-  {% endif %}
+					<div class="trip-search-panel__header mb-3">
+						<h2 class="trip-search-panel__title d-flex align-items-center gap-2">
+							<i class="bi bi-sliders trip-search-panel__icon"></i>
+							Filtres
+						</h2>
+					</div>
 
-  {% if trips is empty %}
-    <div class="card bg-transparent border-0 rounded-4 text-center py-5 shadow-sm" style="background: #1c2025 !important; border: 1px solid #32353b !important;">
-      <div class="card-body">
-        <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-3" style="width: 64px; height: 64px; background: rgba(255,255,255,0.05); color: #5a6458;">
-          <i class="bi bi-search fs-3"></i>
-        </div>
-        <h4 class="text-white fw-bold mb-2">Aucun trajet trouvé</h4>
-        <p class="text-white-50 mb-0 small">Aucun covoiturage disponible pour denne recherche.</p>
-      </div>
-    </div>
-  {% else %}
-    {% for trip in trips %}
-      <a href="{{ path('app_trip_show', {id: trip.id}) }}" id="{{ createdTripId is defined and createdTripId == trip.id ? 'created-trip-card' : '' }}" class="card text-decoration-none trip-card-custom rounded-4 mb-3 p-3 p-md-4 {{ createdTripId is defined and createdTripId == trip.id ? 'trip-card-custom--highlighted' : '' }}" >
-        <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
-          
-          <div class="d-flex align-items-center gap-3 gap-md-4">
-            <div class="driver-avatar-custom rounded-circle d-flex align-items-center justify-content-center flex-shrink-0">
-              {{ trip.driver.username|slice(0, 2) }}
-            </div>
-            
-            <div>
-              <div class="text-white fw-bold d-flex align-items-center gap-2 mb-2" style="font-size: 1.1rem;">
-                {{ trip.departureLocation }} <i class="bi bi-arrow-right text-white-50 small"></i> {{ trip.arrivalLocation }}
-                {% if createdTripId is defined and createdTripId == trip.id %}
-                  <span class="badge bg-success rounded-pill px-2 py-1 ms-2" style="font-size: 0.65rem;">Nouveau</span>
-                {% endif %}
-              </div>
-              <div class="text-white-50 small d-flex flex-wrap align-items-center gap-1">
-                <span class="fw-medium text-white">{{ trip.departureTime|date('H:i') }} &rarr; {{ trip.arrivalTime|date('H:i') }}</span>
-                <span class="meta-dot-custom"></span>
-                <span>{{ trip.departureDate|date('d M Y') }}</span>
-                <span class="meta-dot-custom"></span>
-                <span>Durée: {{ trip.durationInMinutes }} min</span>
-                <span class="meta-dot-custom"></span>
-                <span class="badge rounded-pill bg-dark border text-light px-2 py-1" style="border-color: #32353b !important;">{{ trip.availableSeats }} place{{ trip.availableSeats > 1 ? 's' }}</span>
-                <span class="meta-dot-custom"></span>
-                <span class="text-white">{{ trip.driver.username }}</span>
-                {% if trip.vehicle and trip.vehicle.energyType in ['Electrique', 'Électrique'] %}
-                  <span class="meta-dot-custom"></span>
-                  <span class="badge custom-badge-lime rounded-pill px-2 py-1">Éco</span>
-                {% endif %}
-              </div>
-            </div>
-          </div>
 
-          <div class="d-flex flex-row flex-md-column justify-content-between align-items-center align-items-md-end w-100 w-md-auto mt-2 mt-md-0 border-top border-md-0 pt-3 pt-md-0" style="border-color: #32353b !important;">
-            <div class="text-end">
-              <div class="fw-bold text-white" style="font-size: 1.3rem;">{{ trip.pricePerPerson }} EUR</div>
-              <div class="text-white-50" style="font-size: 0.75rem;">par personne</div>
-            </div>
-            <div class="mt-md-2">
-              <span class="btn btn-outline-light rounded-pill btn-sm px-4 fw-medium border-0" style="background: rgba(255,255,255,0.05);">Détails</span>
-            </div>
-          </div>
+					<div class="trip-filter-group">
+						<span class="trip-filter-group__label">Énergie</span>
+						{% for energyTypeField in form.energyType %}
+							{% set isChecked = energyTypeField.vars.checked %}
+							{% set labelClass = 'radio-pill' ~ (isChecked ? '' : ' radio-pill--inactive') %}
+							<label class="{{ labelClass }}">
+								{{ form_widget(energyTypeField) }}
+								{{ energyTypeField.vars.label }}
+							</label>
+						{% endfor %}
+					</div>
+					<div class="trip-filter-group">
+						<label for="max_price" class="trip-filter-label">Prix max (EUR)</label>
+						<div class="trip-filter-range">
+							{{ form_widget(form.max_price, { id: 'max_price' }) }}
+							<div class="trip-filter-range__labels">
+								<span>10€</span>
+								<output for="max_price" class="trip-filter-value">{{ app.request.query.get('max_price') ?: 100 }}€</output>
+								<span>100€</span>
+							</div>
+						</div>
+					</div>
+					<div class="trip-filter-group">
+						<label for="min_rating" class="trip-filter-label">Note minimale de Covoitureur</label>
+						<div class="trip-filter-range">
+							{{ form_widget(form.min_rating, { id: 'min_rating' }) }}
+							<div class="trip-filter-range__labels">
+								<span>1 ★</span>
+								<output for="min_rating" class="trip-filter-value">{{ app.request.query.get('min_rating') ?: 1 }}
+									★</output>
+								<span>5 ★</span>
+							</div>
+						</div>
+					</div>
+					<div class="trip-filter-group">
+						<label for="departure_time" class="trip-filter-label">Heure de départ</label>
+						<div class="trip-search-query-field">
+							{{ form_widget(form.departure_time, { id: 'departure_time' }) }}
+						</div>
+					</div>
+					<div class="trip-filter-group">
+						<label for="seats_available" class="trip-filter-label">Places disponibles</label>
+						<div class="trip-search-query-field">
+							{{ form_widget(form.seats_available, { id: 'seats_available' }) }}
+						</div>
+					</div>
+				</div>
+			</aside>
+			<main class="col-12 col-xl-9">
+				<div class="trip-search-card mb-4">
+					{{ form_widget(form.trip_type, { id: 'trip_type' }) }}
+					<div class="trip-search-query-bar">
+						<div class="trip-search-query-group flex-grow-1">
+							<span class="trip-search-query-label">Départ</span>
+							<label class="trip-search-query-field">
+								<span class="trip-search-query-icon">
+									<i class="bi bi-geo-alt-fill"></i>
+								</span>
+								{{ form_widget(form.departure, { id: 'from' }) }}
+							</label>
+						</div>
 
-        </div>
-      </a>
-    {% endfor %}
-  {% endif %}
-</div>
-{% endblock %}
+						<div class="trip-search-bar-divider"></div>
+						<div class="trip-search-query-group flex-grow-1">
+							<span class="trip-search-query-label">Destination</span>
+							<label class="trip-search-query-field">
+								<span class="trip-search-query-icon">
+									<i class="bi bi-send"></i>
+								</span>
+								{{ form_widget(form.arrival, { id: 'to' }) }}
+							</label>
+						</div>
+
+						<div class="trip-search-bar-divider"></div>
+						<div class="trip-search-date-group">
+							<span class="trip-search-date-label">Aller</span>
+							<label class="trip-search-query-field trip-search-query-field--date">
+								<span class="trip-search-query-icon date-picker-trigger" role="button" tabindex="0">
+									<i class="bi bi-calendar-event"></i>
+								</span>
+								{{ form_widget(form.date, { id: 'departure-date' }) }}
+							</label>
+						</div>
+
+						<div id="return-date-section" class="d-flex align-items-center{{ app.request.query.get('trip_type') == 'return' ? '' : ' d-none' }}">
+							<div class="trip-search-bar-divider"></div>
+							<div class="trip-search-date-group">
+								<span class="trip-search-date-label">Retour</span>
+								<label id="return-date-field" class="trip-search-query-field trip-search-query-field--date">
+									<span class="trip-search-query-icon date-picker-trigger" role="button" tabindex="0">
+										<i class="bi bi-calendar-event"></i>
+									</span>
+									{{ form_widget(form.return_date, { id: 'return-date' }) }}
+								</label>
+							</div>
+						</div>
+
+
+						<button type="submit" class="btn btn-search-main d-flex align-items-center gap-2">
+							<i class="bi bi-search"></i>
+							Rechercher
+						</button>
+					</div>
+				</div>
+				{% if createdTripId %}
+					<div class="trip-search-alert mb-4">
+						<i class="bi bi-info-circle fs-5"></i>
+						<div>Votre nouveau trajet est mis en avant ci-dessous.</div>
+					</div>
+				{% endif %}
+				{% if trips is empty %}
+					<div class="trip-empty-state">
+						<div class="trip-empty-state__icon">
+							<i class="bi bi-search fs-3"></i>
+						</div>
+						<h4>Aucun trajet trouvé</h4>
+						<p>Aucun covoiturage disponible pour cette recherche.</p>
+					</div>
+				{% else %}
+					<div class="trip-search-results">
+						{% for trip in trips %}
+							<div class="trip-card-h {{ loop.index > 5 ? 'trip-card--hidden' : '' }}" data-trip-id="{{ trip.id }}">
+								{% set isEco     = trip.vehicle and trip.vehicle.energyType in ['electric', 'electric'] %}
+								{% set isHybrid = trip.vehicle and trip.vehicle.energyType in ['hybrid', 'hybride'] %}
+
+								<a href="{{ path('app_trip_show', {id: trip.id}) }}" id="{{ createdTripId is defined and createdTripId == trip.id ? 'created-trip-card' : '' }}" class="trip-card{{ createdTripId is defined and createdTripId == trip.id ? ' trip-card--highlighted' : '' }}">
+									<div class="trip-card__avatar-wrap">
+										<div class="trip-card__avatar">
+											{{ trip.driver.username|slice(0, 2)|upper }}
+										</div>
+										{% if trip.driver.averageRating is defined and trip.driver.averageRating %}
+											<span class="trip-card__rating">{{ trip.driver.averageRating|number_format(1) }}</span>
+										{% endif %}
+									</div>
+									<div class="trip-card__driver">
+										<div class="trip-card__driver-name">{{ trip.driver.username|length > 12
+                                                      ? trip.driver.username|slice(0, 12) ~ '...'
+                                                      : trip.driver.username }}</div>
+										<div class="trip-card__vehicle">
+											{{ trip.vehicle ? trip.vehicle.model : 'Véhicule' }}
+											{% if trip.vehicle and trip.vehicle.color is defined and trip.vehicle.color %}
+												&bull;
+												{{ trip.vehicle.color }}
+											{% endif %}
+										</div>
+									</div>
+									<div class="trip-card__timeline">
+										<div class="trip-card__timeline-col">
+											<div class="trip-card__date">{{ trip.departureDate|date('d M Y') }}</div>
+											<div class="trip-card__time">{{ trip.departureTime|date('H:i') }}</div>
+											<div class="trip-card__location">{{ trip.departureLocation|upper }}</div>
+										</div>
+										<div class="trip-card__route-line">
+											<span class="trip-card__route-dot"></span>
+											<div class="trip-card__route-track">
+												<span class="trip-card__duration-label">
+													{{ (trip.durationInMinutes / 60)|round(0, 'floor') }}H
+													{{ '%02d'|format(trip.durationInMinutes % 60) }}M
+												</span>
+												<div class="trip-card__route-arrow"></div>
+											</div>
+											<span class="trip-card__route-arrow-head">
+												<i class="bi bi-arrow-right-short"></i>
+											</span>
+										</div>
+										<div class="trip-card__timeline-col trip-card__timeline-col--right">
+											<div class="trip-card__date">{{ trip.arrivalDate|date('d M Y') }}</div>
+											<div class="trip-card__time">{{ trip.arrivalTime|date('H:i') }}</div>
+											<div class="trip-card__location">{{ trip.arrivalLocation|upper }}</div>
+										</div>
+									</div>
+
+									<div class="trip-card__aside">
+										<div class="trip-card__badge-wrap">
+											{% if isEco %}
+												<span class="trip-card__badge trip-card__badge--eco">
+													<i class="bi bi-lightning-fill"></i>
+													ECO
+												</span>
+											{% elseif isHybrid %}
+												<span class="trip-card__badge trip-card__badge--premium">
+													<i class="bi bi-star-fill"></i>
+													HYBRIDE
+												</span>
+											{% endif %}
+										</div>
+										<div class="trip-card__price">{{ trip.pricePerPerson | number_format(2, ',', ' ') }}€</div>
+										<span class="btn trip-card__cta">Réserver</span>
+									</div>
+
+								</a>
+							</div>
+						{% endfor %}
+					</div>
+
+					<div class="trip-load-more mt-4 text-center">
+						<button type="button" class="btn trip-load-more__btn" id="loadMoreBtn">
+							AFFICHER PLUS DE TRAJETS
+							<i class="bi bi-chevron-double-down ms-1"></i>
+						</button>
+					</div>
+
+				{% endif %}
+			</main>
+			{{ form_end(form, { render_rest: false }) }}
+		</div>
+
+		{% block javascript %}
+			{{ parent() }}
+			<script type="module" src="{{ asset('js/tripScripts.js') }}"></script>
+		{% endblock %}
+	{% endblock %}

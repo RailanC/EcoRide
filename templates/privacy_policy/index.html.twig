@@ -1,0 +1,57 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}EcoRide | Politique de confidentialité{% endblock %}
+
+{% block body %}
+<section class="py-5 bg-dark">
+    <div class="page-wrap mx-auto px-3 px-md-0">
+        <div class="rounded-4 border border-white-10 bg-black bg-opacity-75 p-4 p-lg-5 shadow-lg">
+            <span class="badge custom-pill rounded-pill d-inline-flex text-uppercase px-3 py-2 mb-3">Privacy Policy</span>
+            <h1 class="display-6 fw-bold text-white mb-3">Politique de confidentialité EcoRide</h1>
+            <p class="lead text-white-50 mb-4">
+                Nous vous expliquons ici comment nous collectons, utilisons et protégeons vos informations lorsque vous utilisez EcoRide.
+            </p>
+
+            <div class="d-flex flex-column flex-md-row gap-3 mb-5">
+                <div class="flex-fill rounded-4 border border-white-10 bg-black bg-opacity-50 p-4">
+                    <h2 class="h5 text-white fw-bold mb-2">Données que nous collectons</h2>
+                    <p class="text-white-50 small mb-0">Adresse e-mail, nom, informations de trajet, preuves de paiement et préférences de compte afin de vous offrir un service sûr et personnalisé.</p>
+                </div>
+                <div class="flex-fill rounded-4 border border-white-10 bg-black bg-opacity-50 p-4">
+                    <h2 class="h5 text-white fw-bold mb-2">Pourquoi nous les utilisons</h2>
+                    <p class="text-white-50 small mb-0">Pour gérer vos trajets, améliorer l’expérience utilisateur, communiquer des notifications importantes et protéger la sécurité de notre communauté.</p>
+                </div>
+            </div>
+
+            <div class="row g-4">
+                <div class="col-12 col-lg-6">
+                    <section class="rounded-4 border border-white-10 bg-black bg-opacity-50 p-4 h-100">
+                        <h3 class="h6 text-white fw-bold mb-3">Sécurité des données</h3>
+                        <p class="text-white-50 mb-0">Nous maintenons des mesures techniques et organisationnelles pour protéger vos données contre tout accès non autorisé.</p>
+                    </section>
+                </div>
+                <div class="col-12 col-lg-6">
+                    <section class="rounded-4 border border-white-10 bg-black bg-opacity-50 p-4 h-100">
+                        <h3 class="h6 text-white fw-bold mb-3">Partage avec des tiers</h3>
+                        <p class="text-white-50 mb-0">EcoRide ne partage vos informations qu’avec des prestataires nécessaires à l’exécution du service et selon les règles de confidentialité applicables.</p>
+                    </section>
+                </div>
+            </div>
+
+            <div class="mt-5 rounded-4 border border-white-10 bg-black bg-opacity-50 p-4">
+                <h2 class="h5 text-white fw-bold mb-3">Vos droits</h2>
+                <ul class="list-unstyled d-flex flex-column gap-3 text-white-50 mb-0">
+                    <li><strong>Accès :</strong> vous pouvez demander une copie des données que nous détenons.</li>
+                    <li><strong>Rectification :</strong> vous pouvez corriger ou mettre à jour vos informations.</li>
+                    <li><strong>Suppression :</strong> demandez la suppression de votre compte et de vos données, selon les obligations légales.</li>
+                </ul>
+            </div>
+
+            <div class="mt-5 text-white-50 small">
+                <p class="mb-1"><strong>Dernière mise à jour :</strong> 15 mai 2026</p>
+                <p class="mb-0">Pour toute question, contactez-nous via la page <a href="{{ path('app_contact') }}" class="link-light text-decoration-underline">Contact</a>.</p>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

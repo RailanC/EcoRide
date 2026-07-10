@@ -1,0 +1,51 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}EcoRide | Conditions générales d'utilisation{% endblock %}
+
+{% block body %}
+<section class="py-5 bg-dark">
+    <div class="page-wrap mx-auto px-3 px-md-0">
+        <div class="rounded-4 border border-white-10 bg-black bg-opacity-75 p-4 p-lg-5 shadow-lg">
+            <span class="badge custom-pill rounded-pill d-inline-flex text-uppercase px-3 py-2 mb-3">Terms of Service</span>
+            <h1 class="display-6 fw-bold text-white mb-3">Conditions générales d'utilisation</h1>
+            <p class="lead text-white-50 mb-4">
+                Ces conditions régissent votre utilisation de EcoRide. En accédant à notre service, vous acceptez ces règles et engagements.
+            </p>
+
+            <section class="rounded-4 border border-white-10 bg-black bg-opacity-50 p-4 mb-4">
+                <h2 class="h5 text-white fw-bold mb-3">1. Acceptation des conditions</h2>
+                <p class="text-white-50 mb-0">L’utilisation d’EcoRide implique que vous acceptez ces conditions, ainsi que notre politique de confidentialité.</p>
+            </section>
+
+            <section class="rounded-4 border border-white-10 bg-black bg-opacity-50 p-4 mb-4">
+                <h2 class="h5 text-white fw-bold mb-3">2. Votre compte</h2>
+                <p class="text-white-50 mb-3">Vous êtes responsable des informations fournies et du maintien de la confidentialité de vos identifiants.</p>
+                <ul class="list-unstyled text-white-50 mb-0">
+                    <li>• Ne partagez pas votre mot de passe.</li>
+                    <li>• Signalez immédiatement toute utilisation non autorisée.</li>
+                </ul>
+            </section>
+
+            <section class="rounded-4 border border-white-10 bg-black bg-opacity-50 p-4 mb-4">
+                <h2 class="h5 text-white fw-bold mb-3">3. Utilisation du service</h2>
+                <p class="text-white-50 mb-0">EcoRide doit être utilisé pour des trajets réels et conformes à la loi. Tout abus ou fausse représentation peut entraîner la suspension de l’accès.</p>
+            </section>
+
+            <section class="rounded-4 border border-white-10 bg-black bg-opacity-50 p-4 mb-4">
+                <h2 class="h5 text-white fw-bold mb-3">4. Paiements et frais</h2>
+                <p class="text-white-50 mb-0">Les tarifs, crédits et paiements sont gérés via la plateforme. Les modalités de remboursement et de facturation sont précisées dans votre compte et peuvent évoluer.</p>
+            </section>
+
+            <section class="rounded-4 border border-white-10 bg-black bg-opacity-50 p-4">
+                <h2 class="h5 text-white fw-bold mb-3">5. Limitation de responsabilité</h2>
+                <p class="text-white-50 mb-0">EcoRide s’efforce de garantir la qualité du service, mais ne peut être tenu responsable des événements externes, retards ou incidents indépendants de sa volonté.</p>
+            </section>
+
+            <div class="mt-5 rounded-4 border border-white-10 bg-black bg-opacity-50 p-4 text-white-50 small">
+                <p class="mb-1"><strong>Mise à jour :</strong> 15 mai 2026</p>
+                <p class="mb-0">Pour toute question sur ces conditions, veuillez utiliser notre page <a href="{{ path('app_contact') }}" class="link-light text-decoration-underline">Contact</a>.</p>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
