@@ -42,9 +42,9 @@
 			<p class="page-header__subtitle">
 				{{ page_subtitle|default('Partagez votre route, réduisez votre empreinte carbone et rejoignez l\'élite de la mobilité durable.') }}
     </p>
-  </header>
+    </header>
 
-  {{ form_start(form, { attr: { id: 'propose-trajet-form', class: 'propose-grid', method: 'post', action: path('app_trip_new') } }) }}
+    {{ form_start(form, { attr: { id: 'propose-trajet-form', class: 'propose-grid', method: 'post', action: path('app_trip_new') } }) }}
     <section class="card propose-grid__itinerary" aria-labelledby="card-title-itinerary">
       <header class="card__header">
         <i class="bi bi-signpost card__header-icon" aria-hidden="true"></i>
@@ -111,36 +111,29 @@
           </label>
           {% endfor %}
         {% endif %}
-
-          <button type="button" class="vehicle-card vehicle-card--add" aria-label="Ajouter un véhicule">
-            <i class="bi bi-plus-circle vehicle-card__icon" aria-hidden="true"></i>
-            <span class="vehicle-card__name">Ajouter un véhicule</span>
-            {% if add_vehicle_sublabel is defined %}
-            <span class="vehicle-card__sublabel">{{ add_vehicle_sublabel }}</span>
-            {% endif %}
-          </button>
         </div>
         {% set seats_val = form.seats.value|default(3) %}
         <div class="seats-stepper">
           <span class="seats-stepper__label" id="seats-label">NOMBRE DE PLACES DISPONIBLES</span>
           <div class="seats-stepper__controls" aria-labelledby="seats-label">
-            <button type="button" class="seats-stepper__btn" aria-label="Diminuer le nombre de places">—</button>
+            <button type="button" id="decreaseSeats" class="seats-stepper__btn" aria-label="Diminuer le nombre de places">—</button>
             <div class="seats-stepper__value-wrapper">
-              <output class="seats-stepper__value" id="seats_count" for="seats">{{ seats_val }}</output>
+              <output class="seats-stepper__value" id="seats_count" for="form_seats">{{ seats_val }}</output>
               <span class="seats-stepper__unit" aria-hidden="true">PASSAGERS</span>
             </div>
-            <button type="button" class="seats-stepper__btn" aria-label="Augmenter le nombre de places">+</button>
+            <button type="button" id="increaseSeats" class="seats-stepper__btn" aria-label="Augmenter le nombre de places">+</button>
           </div>
           {{ form_row(form.seats) }}
         </div>
         <div
+          id="seats_progress"
           class="seats-progress"
           role="progressbar"
           aria-valuenow="{{ seats_val }}"
           aria-valuemin="0"
-          aria-valuemax="{{ seats_max|default(7) }}"
+          aria-valuemax="{{ seats_max|default(8) }}"
           aria-labelledby="seats-label"
-          style="--seats-value: {{ seats_val }}; --seats-max: {{ seats_max|default(7) }};"
+          style="--seats-value: {{ seats_val }}; --seats-max: {{ seats_max|default(8) }};"
         >
           <div class="seats-progress__track">
             <div class="seats-progress__fill"></div>
@@ -168,7 +161,7 @@
         <dl class="price-breakdown">
           <div class="price-breakdown__row">
             <dt class="price-breakdown__label">Contribution voyageur</dt>
-            <dd class="price-breakdown__value">{{ pricing.passenger_contribution|default('45,00 €') }}</dd>
+            <dd id="passenger-contribution" class="price-breakdown__value">{{ pricing.passenger_contribution|default('0 C') }}</dd>
           </div>
 
           <div class="price-breakdown__row">
@@ -182,12 +175,12 @@
                 <i class="bi bi-info-circle tooltip-trigger__icon" aria-hidden="true"></i>
               </button>
             </dt>
-            <dd class="price-breakdown__value">{{ pricing.service_fee|default('+2,00 €') }}</dd>
+            <dd class="price-breakdown__value">{{ pricing.service_fee|default('+ 2,00 C') }}</dd>
           </div>
 
           <div class="price-breakdown__row price-breakdown__row--total">
-            <dt class="price-breakdown__label">TOTAL PASSAGER</dt>
-            <dd class="price-breakdown__value">{{ pricing.total|default('47,00 €') }}</dd>
+            <dt class="price-breakdown__label">TOTAL PAR PASSAGER</dt>
+            <dd id="total-price" class="price-breakdown__value">{{ pricing.total|default('2,00 C') }}</dd>
           </div>
         </dl>
 
@@ -199,39 +192,28 @@
 				</aside>
 			</p>
 		</div>
-	</div>
+	</section>
 
-</section>
-<div class="footer-cta">
-	<div class="social-proof">
-		<div class="social-proof__avatars" aria-hidden="true">
-			{% for avatar in social_proof_avatars|default([]) %}
-				<img class="social-proof__avatar" src="{{ avatar.src }}" alt="">
-			{% endfor %}
-			<span class="social-proof__overflow">+12k</span>
+	<div class="footer-cta">
+		<div class="social-proof">
+			<div class="social-proof__avatars" aria-hidden="true">
+				{% for avatar in social_proof_avatars|default([]) %}
+					<img class="social-proof__avatar" src="{{ avatar.src }}" alt="">
+				{% endfor %}
+				<span class="social-proof__overflow">+12k</span>
+			</div>
+			<p class="social-proof__label">Rejoignez 12 400+ conducteurs certifiés EcoRide.</p>
 		</div>
-		<p class="social-proof__label">Rejoignez 12 400+ conducteurs certifiés EcoRide.</p>
 	</div>
-
-	<button type="submit" class="btn btn--primary" form="propose-trajet-form">
-		Publier le covoiturage
-	</button>
-</div>
-{{ form_end(form) }}</div>{% block javascript %}
-{{ parent() }}
-<script type="module" src="{{ asset('js/tripScript.js') }}"></script>{% endblock %}{% endblock %}{# ============================================================
-														   Component stubs (copy to their own files)
-														   ============================================================
-														
-														── components/card_header.html.twig ──────────────────────────
-														<header class="card__header">
-														  {% include 'components/icon.html.twig' with { name: icon, class: 'card__header-icon' } %}
-														  <h2 class="card__header-title" {% if id is defined %}id="{{ id }}"{% endif %}>{{ title }}</h2>
-														</header>
-														
-														── components/icon.html.twig ─────────────────────────────────
-														<svg class="icon icon--{{ name }}{% if class is defined %} {{ class }}{% endif %}"
-														     aria-hidden="true" focusable="false">
-														  <use href="{{ asset('icons/sprite.svg') }}#{{ name }}"></use>
-														</svg>
-														#}
+	<div class="footer-cta">
+		<button type="submit" class="btn btn--primary btn--large">
+			<i class="bi bi-rocket-fill btn__icon" aria-hidden="true"></i>
+			<span>Proposer mon trajet</span>
+		</button>
+	</div>
+	{{ form_end(form) }}
+{% endblock %}
+{% block javascript %}
+	{{ parent() }}
+	<script type="module" src="{{ asset('js/tripScripts.js') }}"></script>
+{% endblock %}
