@@ -327,7 +327,7 @@ input, output { font: inherit; }
 }
 
 .form-field__input-wrapper--suffixed::after {
-  content: '€';
+  content: 'C';
   position: absolute;
   right: var(--sp-4);
   top: 50%;
@@ -539,6 +539,7 @@ input, output { font: inherit; }
   line-height: 1;
   flex-shrink: 0;
   transition: border-color var(--t-fast), background-color var(--t-fast), color var(--t-fast);
+  color:white;
 }
 
 .seats-stepper__btn:hover {
@@ -562,6 +563,7 @@ input, output { font: inherit; }
   font-weight: var(--fw-bold);
   line-height: 1;
   letter-spacing: -0.02em;
+  color: var(--c-accent);
 }
 
 .seats-stepper__unit {
@@ -663,22 +665,28 @@ input, output { font: inherit; }
   flex-direction: column;
   gap: var(--sp-5);
   align-items: flex-start;
+  justify-content: space-between;
   padding-top: var(--sp-4);
+  width: 100%;
 }
 
 @media (min-width: 640px) {
   .footer-cta {
     flex-direction: row;
     align-items: center;
-    justify-content: space-between;
   }
 }
-
 
 .social-proof {
   display: flex;
   align-items: center;
+  justify-content: flex-start;
   gap: var(--sp-3);
+  flex: 1;
+}
+
+.footer-cta .btn--primary {
+  margin-left: auto;
 }
 
 .social-proof__avatars {
@@ -713,6 +721,9 @@ input, output { font: inherit; }
   color: var(--c-text-secondary);
   max-width: 28ch;
   line-height: var(--lh-snug);
+  display: flex;
+  align-items: center;
+  margin: 0;
 }
 
 

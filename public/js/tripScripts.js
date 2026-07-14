@@ -366,145 +366,6 @@ window.swapCities = swapCities;
 
 document.addEventListener("DOMContentLoaded", initNavbarTogglerFallback);
 
-const controls = document.querySelectorAll("[data-trip-seat-control]");
-
-controls.forEach((control) => {
-    const vehicleSelect = document.getElementById(
-        control.dataset.vehicleSelectId,
-    );
-    const seatInput = document.getElementById(control.dataset.seatInputId);
-    const seatDisplay = control.querySelector("[data-seat-display]");
-    const seatHint = control.querySelector("[data-seat-hint]");
-    const toggleButton = control.querySelector("[data-seat-toggle]");
-    const resetButton = control.querySelector("[data-seat-reset]");
-    const dropdown = control.querySelector("[data-seat-dropdown]");
-    const seatSelect = control.querySelector("[data-seat-select]");
-    const seatHelp = control.querySelector("[data-seat-help]");
-
-    if (
-        !vehicleSelect ||
-        !seatInput ||
-        !seatDisplay ||
-        !seatHint ||
-        !toggleButton ||
-        !resetButton ||
-        !dropdown ||
-        !seatSelect ||
-        !seatHelp
-    ) {
-        return;
-    }
-
-    const buildOptions = (maxCustomSeats) => {
-        seatSelect.innerHTML =
-            '<option value="">Utiliser toutes les places disponibles</option>';
-
-        for (let value = 1; value <= maxCustomSeats; value += 1) {
-            const option = document.createElement("option");
-            option.value = String(value);
-            option.textContent = `${value} place${value > 1 ? "s" : ""}`;
-            seatSelect.appendChild(option);
-        }
-    };
-
-    const getSelectedCapacity = () => {
-        const option = vehicleSelect.options[vehicleSelect.selectedIndex];
-
-        if (!option) {
-            return 0;
-        }
-
-        return Number.parseInt(option.dataset.capacity ?? "0", 10) || 0;
-    };
-
-    const renderState = () => {
-        const capacity = getSelectedCapacity();
-
-        if (capacity <= 1) {
-            seatInput.value = "";
-            seatSelect.value = "";
-            seatDisplay.textContent = vehicleSelect.value
-                ? "Vehicule non compatible"
-                : "Selectionnez une voiture";
-            seatHint.textContent = vehicleSelect.value
-                ? "Ce vehicule ne permet pas de proposer des places passagers."
-                : "Par defaut, toutes les places passagers sont disponibles.";
-            seatHelp.textContent =
-                "Aucune reduction n est disponible pour ce vehicule.";
-            toggleButton.disabled = true;
-            resetButton.disabled = true;
-            dropdown.classList.add("d-none");
-            buildOptions(0);
-
-            return;
-        }
-
-        const defaultSeats = capacity - 1;
-        const maxCustomSeats = Math.max(0, capacity - 2);
-        const selectedSeats = Number.parseInt(
-            seatSelect.value || seatInput.value || String(defaultSeats),
-            10,
-        );
-        const currentSeats = Number.isNaN(selectedSeats)
-            ? defaultSeats
-            : selectedSeats;
-
-        buildOptions(maxCustomSeats);
-
-        if (currentSeats !== defaultSeats && currentSeats <= maxCustomSeats) {
-            seatSelect.value = String(currentSeats);
-            seatInput.value = String(currentSeats);
-            seatDisplay.textContent = `${currentSeats} place${currentSeats > 1 ? "s" : ""} disponible${currentSeats > 1 ? "s" : ""}`;
-            seatHint.textContent =
-                "Vous avez reserve quelques places pour vos amis ou votre famille.";
-            resetButton.disabled = false;
-        } else {
-            seatSelect.value = "";
-            seatInput.value = String(defaultSeats);
-            seatDisplay.textContent = `${defaultSeats} place${defaultSeats > 1 ? "s" : ""} disponible${defaultSeats > 1 ? "s" : ""}`;
-            seatHint.textContent =
-                "Par defaut, toutes les places passagers sont disponibles.";
-            resetButton.disabled = true;
-        }
-
-        if (maxCustomSeats >= 1) {
-            seatHelp.textContent = `Vous pouvez reduire les places de ${maxCustomSeats === 1 ? "1 place" : `1 a ${maxCustomSeats} places`}.`;
-            toggleButton.disabled = false;
-        } else {
-            seatHelp.textContent =
-                "Aucune reduction n est disponible pour ce vehicule.";
-            toggleButton.disabled = true;
-            resetButton.disabled = true;
-            dropdown.classList.add("d-none");
-        }
-    };
-
-    vehicleSelect.addEventListener("change", () => {
-        seatSelect.value = "";
-        seatInput.value = "";
-        renderState();
-    });
-
-    seatSelect.addEventListener("change", renderState);
-
-    toggleButton.addEventListener("click", () => {
-        if (toggleButton.disabled) {
-            return;
-        }
-
-        dropdown.classList.toggle("d-none");
-    });
-
-    resetButton.addEventListener("click", () => {
-        seatSelect.value = "";
-        seatInput.value = "";
-        dropdown.classList.add("d-none");
-        renderState();
-    });
-
-    renderState();
-});
-
 const radioPills = document.querySelectorAll(".radio-pill");
 
 function updateRadioPills() {
@@ -525,39 +386,6 @@ radioPills.forEach((pill) => {
     radio.addEventListener("change", updateRadioPills);
 });
 
-updateRadioPills();
-
-function updateReturnFieldVisibility(show) {
-    const returnSection = document.getElementById("return-date-section");
-    if (!returnSection) {
-        return;
-    }
-    returnSection.classList.toggle("d-none", !show);
-}
-
-function setTripType(btn, isReturn) {
-    const tripTypeField = document.getElementById("trip_type");
-    if (tripTypeField) {
-        tripTypeField.value = isReturn ? "return" : "";
-    }
-
-    // Find all toggle buttons in the same group
-    const group = btn.closest(".trip-search-type-group");
-    const toggles = group
-        ? group.querySelectorAll("[data-trip-toggle-option]")
-        : document.querySelectorAll("[data-trip-toggle-option]");
-
-    toggles.forEach(function (toggle) {
-        const isActive = toggle === btn;
-        toggle.classList.toggle("active", isActive);
-    });
-
-    updateReturnFieldVisibility(isReturn);
-}
-
-// Expose to global scope for inline onclick handlers
-window.setTripType = setTripType;
-
 function rangeSliderUpdate(rangeId, symbol) {
     const range = document.getElementById(rangeId);
     if (range) {
@@ -572,15 +400,9 @@ function rangeSliderUpdate(rangeId, symbol) {
     }
 }
 
-// Range slider live update
 document.addEventListener("DOMContentLoaded", function () {
     rangeSliderUpdate("min_rating", " ★");
     rangeSliderUpdate("max_price", " €");
-
-    const tripTypeField = document.getElementById("trip_type");
-    if (tripTypeField) {
-        updateReturnFieldVisibility(tripTypeField.value === "return");
-    }
 
     document
         .querySelectorAll(".date-picker-trigger")
@@ -631,3 +453,94 @@ if (loadMoreBtnElement) {
         }
     });
 }
+
+const seatsOutput = document.getElementById("seats_count");
+const seatsInput = document.getElementById("new_trip_form_seats");
+
+const increaseBtn = document.getElementById("increaseSeats");
+const decreaseBtn = document.getElementById("decreaseSeats");
+
+const seatsProgressBar = document.getElementById("seats_progress");
+
+const minSeats = 1;
+const maxSeats = 8;
+
+function updateSeats(value) {
+    value = Math.max(minSeats, Math.min(maxSeats, value));
+    seatsOutput.textContent = value;
+    seatsInput.value = value;
+    seatsProgressBar.style.setProperty("--seats-value", value);
+}
+
+increaseBtn.addEventListener("click", () => {
+    const currentValue = parseInt(seatsOutput.value) || minSeats;
+    updateSeats(currentValue + 1);
+});
+
+decreaseBtn.addEventListener("click", () => {
+    const currentValue = parseInt(seatsOutput.value) || minSeats;
+    updateSeats(currentValue - 1);
+});
+
+const priceInput = document.getElementById("new_trip_form_price_per_passenger");
+const totalPrice = document.getElementById("total-price");
+const passengerContribution = document.getElementById("passenger-contribution");
+
+function updateTotalPrice() {
+    const price = parseFloat(priceInput.value) || 0;
+    const total = price + 2;
+    passengerContribution.textContent = `${price.toFixed(2)} C`;
+    totalPrice.textContent = `${total.toFixed(2)} C`;
+}
+
+priceInput.addEventListener("input", updateTotalPrice);
+
+const radioCarCard = document.querySelectorAll(".vehicle-card");
+
+function syncSeatCapacity() {
+    const progressBar = document.getElementById("seats_progress");
+    const seatsOutput = document.getElementById("seats_count");
+    const seatsInput = document.getElementById("new_trip_form_seats");
+
+    if (!progressBar || !seatsOutput || !seatsInput) {
+        return;
+    }
+
+    const selectedCar = document.querySelector(
+        ".vehicle-selector input[type='radio']:checked",
+    );
+
+    const maxSeats = Number(selectedCar?.dataset.capacity || 8);
+    const currentSeats = Number(seatsInput.value || 3);
+
+    const clampedSeats = Math.min(Math.max(currentSeats, 1), maxSeats);
+
+    progressBar.setAttribute("aria-valuemax", maxSeats);
+    progressBar.setAttribute("aria-valuenow", clampedSeats);
+    progressBar.style.setProperty("--seats-max", maxSeats);
+    progressBar.style.setProperty("--seats-value", clampedSeats);
+
+    seatsOutput.textContent = clampedSeats;
+    seatsInput.value = clampedSeats;
+}
+
+document.addEventListener("DOMContentLoaded", syncSeatCapacity);
+
+function updateRadioCarCard() {
+    radioCarCard.forEach((card) => {
+        const radio = card.querySelector('input[type="radio"]');
+
+        if (radio.checked) {
+            card.classList.add("vehicle-card--selected");
+        } else {
+            card.classList.remove("vehicle-card--selected");
+        }
+    });
+}
+
+radioCarCard.forEach((card) => {
+    const radio = card.querySelector('input[type="radio"]');
+
+    radio.addEventListener("change", syncSeatCapacity);
+    radio.addEventListener("change", updateRadioCarCard);
+});

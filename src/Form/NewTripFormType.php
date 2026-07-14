@@ -58,7 +58,7 @@ class NewTripFormType extends AbstractType
             ->add('seats', HiddenType::class, [
                 'property_path' => 'availableSeats',
                 'attr' => [
-                    'id' => 'seats',
+                    'id' => 'form_seats',
                     'data-seat-source' => 'hidden',
                 ],
                 'required' => false,
