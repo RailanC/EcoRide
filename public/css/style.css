@@ -219,7 +219,7 @@ body {
 main,
 .container,
 .container-fluid {
-    background: var(--transparent);
+    background: var(--er-bg-dark);
 }
 
 .page-wrap {

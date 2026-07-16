@@ -7,6 +7,7 @@ use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\RangeType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -36,6 +37,16 @@ final class TripFormType extends AbstractType
                     'min' => 10,
                     'max' => 100,
                     'step' => 5,
+                ],
+            ])
+            ->add('checkRating', CheckboxType::class, [
+                'label' => 'Filtrer par note minimale de Covoitureur ?',
+                'required' => false,
+                'attr' => [
+                    'id' => 'check_rating',
+                ],
+                'label_attr' => [
+                    'class' => 'trip-search-input',
                 ],
             ])
             ->add('min_rating', RangeType::class, [

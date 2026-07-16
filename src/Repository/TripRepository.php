@@ -31,7 +31,8 @@ class TripRepository extends ServiceEntityRepository
         ?float $maxPrice = null,
         ?int $maxDuration = null,
         ?float $minRating = null,
-        ?string $departureTime = null
+        ?string $departureTime = null,
+        ?bool $checkRating = false
     ): array {
         $now = new \DateTimeImmutable();
         $today = $now->setTime(0, 0);
@@ -79,7 +80,7 @@ class TripRepository extends ServiceEntityRepository
 
         $results = $queryBuilder->getQuery()->getResult();
 
-        if ($minRating !== null) {
+        if ($minRating !== null && $checkRating) {
             $results = array_values(array_filter(
                 $results,
                 static function (Trip $trip) use ($minRating): bool {
