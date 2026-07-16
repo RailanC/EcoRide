@@ -1,3 +1,23 @@
+let distanceInMeters = 0;
+
+function recomendationPrice() {
+    if (!priceInput || !seatsInput) {
+        return;
+    }
+
+    const distanceInKm = distanceInMeters / 1000;
+    const consumptionPerKm = 0.06;
+    const priceEnergy = 2;
+    const pricePerKm = consumptionPerKm * priceEnergy;
+    const totalCost = distanceInKm * pricePerKm;
+    const seatCount = Number(seatsInput.value || seatsOutput?.textContent || 1);
+    const estimationPricePerPassenger = totalCost / seatCount;
+
+    priceInput.value = estimationPricePerPassenger.toFixed(2);
+    updateTotalPrice();
+}
+
+document.addEventListener("DOMContentLoaded", recomendationPrice);
 document.querySelectorAll("[data-trip-rating]").forEach((ratingRoot) => {
     const container =
         ratingRoot.closest(".trip-rating-card") ?? ratingRoot.parentElement;
@@ -200,6 +220,8 @@ function initTripMap(root) {
         setSummary(
             `${payload.departureLabel} -> ${payload.destinationLabel} • ${formatDistance(payload.distanceMeters)} • ${formatDuration(payload.durationSeconds)}`,
         );
+        distanceInMeters = payload.distanceMeters;
+        recomendationPrice();
         setStatus("Itineraire charge.");
     };
 
@@ -273,13 +295,13 @@ function initTripMap(root) {
         const url = new URL(root.dataset.endpoint, window.location.origin);
         url.searchParams.set("departure", departure);
         url.searchParams.set("destination", destination);
-
         loadRoute(url.toString());
     }, 450);
 
     departureInput.addEventListener("input", refreshPreview);
     destinationInput.addEventListener("input", refreshPreview);
 
+    
     refreshPreview();
 }
 
@@ -463,24 +485,42 @@ const decreaseBtn = document.getElementById("decreaseSeats");
 const seatsProgressBar = document.getElementById("seats_progress");
 
 const minSeats = 1;
-const maxSeats = 8;
 
-function updateSeats(value) {
-    value = Math.max(minSeats, Math.min(maxSeats, value));
-    seatsOutput.textContent = value;
-    seatsInput.value = value;
-    seatsProgressBar.style.setProperty("--seats-value", value);
+function getSelectedCar() {
+    return (
+        document.querySelector(".vehicle-selector input[type='radio']:checked") ??
+        document.querySelector(".vehicle-selector input[type='radio']")
+    );
 }
 
-increaseBtn.addEventListener("click", () => {
-    const currentValue = parseInt(seatsOutput.value) || minSeats;
-    updateSeats(currentValue + 1);
-});
+function updateSeats(value) {
+    if (!seatsOutput || !seatsInput || !seatsProgressBar) {
+        return;
+    }
 
-decreaseBtn.addEventListener("click", () => {
-    const currentValue = parseInt(seatsOutput.value) || minSeats;
-    updateSeats(currentValue - 1);
-});
+    const selectedCar = getSelectedCar();
+    const maxSeats = Number(selectedCar?.dataset.capacity || 8);
+    const nextValue = Math.max(minSeats, Math.min(maxSeats, value));
+
+    seatsOutput.textContent = nextValue;
+    seatsInput.value = nextValue;
+    seatsProgressBar.style.setProperty("--seats-value", nextValue);
+    recomendationPrice();
+}
+
+if (increaseBtn) {
+    increaseBtn.addEventListener("click", () => {
+        const currentValue = parseInt(seatsOutput?.textContent || seatsInput?.value || minSeats, 10) || minSeats;
+        updateSeats(currentValue + 1);
+    });
+}
+
+if (decreaseBtn) {
+    decreaseBtn.addEventListener("click", () => {
+        const currentValue = parseInt(seatsOutput?.textContent || seatsInput?.value || minSeats, 10) || minSeats;
+        updateSeats(currentValue - 1);
+    });
+}
 
 const priceInput = document.getElementById("new_trip_form_price_per_passenger");
 const totalPrice = document.getElementById("total-price");
@@ -493,38 +533,30 @@ function updateTotalPrice() {
     totalPrice.textContent = `${total.toFixed(2)} C`;
 }
 
-priceInput.addEventListener("input", updateTotalPrice);
+if (priceInput) {
+    priceInput.addEventListener("input", updateTotalPrice);
+}
 
 const radioCarCard = document.querySelectorAll(".vehicle-card");
 
 function syncSeatCapacity() {
-    const progressBar = document.getElementById("seats_progress");
-    const seatsOutput = document.getElementById("seats_count");
-    const seatsInput = document.getElementById("new_trip_form_seats");
-
-    if (!progressBar || !seatsOutput || !seatsInput) {
+    if (!seatsProgressBar || !seatsOutput || !seatsInput) {
         return;
     }
 
-    const selectedCar = document.querySelector(
-        ".vehicle-selector input[type='radio']:checked",
-    );
-
-    const maxSeats = Number(selectedCar?.dataset.capacity || 8);
     const currentSeats = Number(seatsInput.value || 3);
-
+    const selectedCar = getSelectedCar();
+    const maxSeats = Number(selectedCar?.dataset.capacity || 8);
     const clampedSeats = Math.min(Math.max(currentSeats, 1), maxSeats);
 
-    progressBar.setAttribute("aria-valuemax", maxSeats);
-    progressBar.setAttribute("aria-valuenow", clampedSeats);
-    progressBar.style.setProperty("--seats-max", maxSeats);
-    progressBar.style.setProperty("--seats-value", clampedSeats);
+    seatsProgressBar.setAttribute("aria-valuemax", maxSeats);
+    seatsProgressBar.setAttribute("aria-valuenow", clampedSeats);
+    seatsProgressBar.style.setProperty("--seats-max", maxSeats);
+    seatsProgressBar.style.setProperty("--seats-value", clampedSeats);
 
     seatsOutput.textContent = clampedSeats;
     seatsInput.value = clampedSeats;
 }
-
-document.addEventListener("DOMContentLoaded", syncSeatCapacity);
 
 function updateRadioCarCard() {
     radioCarCard.forEach((card) => {
@@ -538,9 +570,46 @@ function updateRadioCarCard() {
     });
 }
 
+function initializeVehicleSelection() {
+    const firstRadio = document.querySelector(".vehicle-selector input[type='radio']");
+    const checkedRadio = document.querySelector(
+        ".vehicle-selector input[type='radio']:checked",
+    );
+
+    if (!checkedRadio && firstRadio) {
+        firstRadio.checked = true;
+    }
+
+    updateRadioCarCard();
+    syncSeatCapacity();
+}
+
+document.addEventListener("DOMContentLoaded", initializeVehicleSelection);
+
 radioCarCard.forEach((card) => {
     const radio = card.querySelector('input[type="radio"]');
 
-    radio.addEventListener("change", syncSeatCapacity);
-    radio.addEventListener("change", updateRadioCarCard);
+    if (!radio) {
+        return;
+    }
+
+    radio.addEventListener("change", () => {
+        updateRadioCarCard();
+        syncSeatCapacity();
+    });
 });
+
+
+const checkRatingCheckbox = document.getElementById("check_rating");
+function toggleMinRatingContainer() {
+    const minRatingContainer = document.getElementById("min_rating_container");
+    if (minRatingContainer) {
+        minRatingContainer.hidden = !checkRatingCheckbox.checked;
+    }
+}
+
+checkRatingCheckbox.addEventListener("change", toggleMinRatingContainer); 
+
+
+
+document.addEventListener("DOMContentLoaded", toggleMinRatingContainer);

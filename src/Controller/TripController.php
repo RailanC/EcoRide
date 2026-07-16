@@ -40,11 +40,11 @@ final class TripController extends AbstractController
             'min_rating' => $request->query->get('min_rating', 1),
             'departure_time' => $request->query->get('departure_time'),
             'seats_available' => $request->query->get('seats_available', $request->query->get('passengers')),
+            'checkRating' => $request->query->get('checkRating') === '1' || $request->query->get('checkRating') === 'true',
         ]);
         $form->handleRequest($request);
 
         $filters = $form->getData();
-
         $departure = $this->normalizeStringFilter($filters['departure'] ?? null);
         $arrival = $this->normalizeStringFilter($filters['arrival'] ?? null);
         $date = $this->normalizeStringFilter($filters['date'] ?? null);
@@ -58,6 +58,7 @@ final class TripController extends AbstractController
         $minRating = $request->query->get('min_rating');
         $minRating = ($minRating !== null && $minRating !== '') ? (float) $minRating : null;
         $departureTime = $this->normalizeStringFilter($filters['departure_time'] ?? null);
+        $checkRating = $request->query->get('checkRating') === '1' || $request->query->get('checkRating') === 'true';
 
         $hasFilters = $departure || $arrival || $date || $passengers || $energyType || $maxPrice || $maxDuration || $minRating || $departureTime;
 
@@ -71,7 +72,8 @@ final class TripController extends AbstractController
                 $maxPrice,
                 $maxDuration,
                 $minRating,
-                $departureTime
+                $departureTime,
+                $checkRating
             )
             : $tripRepository->findAvailableTrips();
 

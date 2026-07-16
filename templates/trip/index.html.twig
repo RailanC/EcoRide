@@ -4,7 +4,7 @@
 {% endblock %}
 
 {% block body %}
-	<div class="trip-search-page container-fluid px-4 px-lg-5 py-5" data-bs-theme="dark">
+	<div class="trip-search-page container-fluid px-4 px-lg-5 py-5" style="max-width: 1600px;">
 
 		{% for message in app.flashes('success') %}
 			<div class="alert alert-success d-flex align-items-center gap-2 mb-4" role="alert">
@@ -18,7 +18,7 @@
 			<p class="trip-search-copy">Trouvez votre trajet durable parmi nos véhicules électriques et hybrides.</p>
 		</div>
 
-		{{ form_start(form, { attr: { class: 'row g-4' }, action: path('app_trip'), method: 'get' }) }}
+		{{ form_start(form, { attr: { class: 'row g-4' }, action: path('app_trip'), method: 'get', }) }}
 
 		<aside class="col-12 col-xl-3">
 			<div class="trip-search-sidebar">
@@ -56,7 +56,10 @@
 					</div>
 					<div class="trip-filter-group">
 						<label for="min_rating" class="trip-filter-label">Note minimale de Covoitureur</label>
-						<div class="trip-filter-range">
+						<div>
+							{{ form_row(form.checkRating, { id: 'check_rating' }) }}
+						</div>
+						<div class="trip-filter-range" id="min_rating_container">
 							{{ form_widget(form.min_rating, { id: 'min_rating' }) }}
 							<div class="trip-filter-range__labels">
 								<span>1 ★</span>

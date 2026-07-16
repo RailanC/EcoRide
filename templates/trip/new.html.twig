@@ -26,21 +26,26 @@
 {% block title %}EcoRide — Proposer un trajet
 {% endblock %}
 
-{% block body %}
-	<div class="page page--propose-trajet">
-		<nav class="topbar-nav" aria-label="Navigation secondaire">
-			<a href="{{ path('app_home') }}" class="topbar-nav__back-link">
-				<i class="bi bi-arrow-left topbar-nav__back-icon" aria-hidden="true"></i>
-				<span>Retour au tableau de bord</span>
-			</a>
-		</nav>
+{% block stylesheets %}
+	{{ parent() }}
+	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+{% endblock %}
 
-		<header class="page-header">
-			<h1 class="page-header__title">
-				{{ page_title|default('EcoRide - Proposer un trajet') }}
-			</h1>
-			<p class="page-header__subtitle">
-				{{ page_subtitle|default('Partagez votre route, réduisez votre empreinte carbone et rejoignez l\'élite de la mobilité durable.') }}
+{% block body %}
+<div class="page page--propose-trajet">
+	<nav class="topbar-nav" aria-label="Navigation secondaire">
+		<a href="{{ path('app_home') }}" class="topbar-nav__back-link">
+			<i class="bi bi-arrow-left topbar-nav__back-icon" aria-hidden="true"></i>
+			<span>Retour au tableau de bord</span>
+		</a>
+	</nav>
+
+	<header class="page-header">
+		<h1 class="page-header__title">
+			{{ page_title|default('EcoRide - Proposer un trajet') }}
+		</h1>
+		<p class="page-header__subtitle">
+			{{ page_subtitle|default('Partagez votre route, réduisez votre empreinte carbone et rejoignez l\'élite de la mobilité durable.') }}
     </p>
     </header>
 
@@ -54,14 +59,22 @@
       <div class="card__body card__body--map">
         {{ form_row(form.departure_city) }}
         {{ form_row(form.arrival_city) }}
-        <div class="map-preview">
-          {% if map_image_url ?? false %}
-            <img class="map-preview__image" src="{{ asset(map_image_url) }}" alt="Aperçu de l'itinéraire" loading="lazy">
-          {% else %}
-            <div class="map-preview__placeholder" role="img" aria-label="Aperçu carte indisponible"></div>
-          {% endif %}
-          <span class="map-preview__badge" aria-label="Optimisé pour l'impact CO2">OPTIMISÉ POUR L'IMPACT CO2</span>
+        <div
+          class="trip-map-card"
+          data-trip-map-root
+          data-map-mode="preview"
+          data-endpoint="{{ path('app_trip_route_preview') }}"
+          data-departure-input="#{{ form.departure_city.vars.id }}"
+          data-destination-input="#{{ form.arrival_city.vars.id }}"
+        >
+          <div class="trip-map-header">
+            <span class="contact-label" style="margin-bottom:0;">Carte du trajet</span>
+            <div class="trip-map-summary" data-trip-map-summary>Renseignez les villes pour afficher le trajet.</div>
+          </div>
+          <div class="trip-map-status" data-trip-map-status>La carte se mettra à jour automatiquement.</div>
+          <div class="trip-map-canvas" data-trip-map></div>
         </div>
+        
       </div>
     </section>
 
@@ -73,147 +86,134 @@
 
       <div class="card__body card__body--when">
         {{ form_row(form.departure_date) }}
-				{{ form_row(form.departure_time) }}
+        {{ form_row(form.departure_time) }}
 
-				<aside class="info-block info-block--eco" aria-label="Conseil écologique">
-					<span class="info-block__label">Conseil Eco</span>
-					<p class="info-block__body">
-						{{ eco_tip|default('Partir avant 8h permet d\'éviter les pics de congestion et réduit la consommation de 12%.') }}
+        <aside class="info-block info-block--eco" aria-label="Conseil écologique">
+          <span class="info-block__label">Conseil Eco</span>
+          <p class="info-block__body">
+            {{ eco_tip|default('Partir avant 8h permet d\'éviter les pics de congestion et réduit la consommation de 12%.') }}
+		</p>
+	</aside>
+</div></section><section class="card propose-grid__vehicle" aria-labelledby="card-title-vehicle">
+<header class="card__header">
+	<i class="bi bi-car-front card__header-icon" aria-hidden="true"></i>
+	<h2 class="card__header-title" id="card-title-vehicle">Véhicule & Places</h2>
+</header>
+
+<div class="card__body">
+	<div class="vehicle-selector" role="radiogroup" aria-label="Sélectionner un véhicule">
+		{% if vehicles is defined and vehicles|length > 0 %}
+			{% for vehicle in vehicles|default([]) %}
+				{% set child = form.car[vehicle.id] ?? null %}
+				{% set is_first_vehicle = loop.first %}
+				<label class="vehicle-card{% if (child is not null and child.vars.checked) or is_first_vehicle %} vehicle-card--selected{% endif %}">
+					{% if child is not null %}
+						{{ form_widget(child, { attr: { class: 'sr-only', 'data-capacity': vehicle.places|default(0) } }) }}
+					{% endif %}
+					<i class="bi bi-{{ vehicle.icon|default('car-front') }} vehicle-card__icon" aria-hidden="true"></i>
+					<span class="vehicle-card__name">{{ (vehicle.brand.label|default('') ~ ' ' ~ vehicle.model)|trim }}</span>
+					{% if vehicle.tags|default([]) is not empty %}
+						<ul class="vehicle-card__tags" aria-label="Caractéristiques">
+							{% for tag in vehicle.tags %}
+								<li class="vehicle-card__tag">{{ tag }}</li>
+							{% endfor %}
+						</ul>
+					{% endif %}
+				</label>
+			{% endfor %}
+		{% endif %}
+	</div>
+
+	{% set seats_val = form.seats.value|default(3) %}
+	<div class="seats-stepper">
+		<span class="seats-stepper__label" id="seats-label">NOMBRE DE PLACES DISPONIBLES</span>
+		<div class="seats-stepper__controls" aria-labelledby="seats-label">
+			<button type="button" id="decreaseSeats" class="seats-stepper__btn" aria-label="Diminuer le nombre de places">—</button>
+			<div class="seats-stepper__value-wrapper">
+				<output class="seats-stepper__value" id="seats_count" for="form_seats">{{ seats_val }}</output>
+				<span class="seats-stepper__unit" aria-hidden="true">PASSAGERS</span>
+			</div>
+			<button type="button" id="increaseSeats" class="seats-stepper__btn" aria-label="Augmenter le nombre de places">+</button>
+		</div>
+		{{ form_row(form.seats) }}
+	</div>
+
+	<div id="seats_progress" class="seats-progress" role="progressbar" aria-valuenow="{{ seats_val }}" aria-valuemin="0" aria-valuemax="{{ seats_max|default(8) }}" aria-labelledby="seats-label" style="--seats-value: {{ seats_val }}; --seats-max: {{ seats_max|default(8) }};">
+		<div class="seats-progress__track">
+			<div class="seats-progress__fill"></div>
+		</div>
+	</div>
+</div></section><section class="card propose-grid__pricing" aria-labelledby="card-title-pricing">
+<header class="card__header">
+	<i class="bi bi-wallet2 card__header-icon" aria-hidden="true"></i>
+	<h2 class="card__header-title" id="card-title-pricing">Tarification</h2>
+</header>
+
+<div class="card__body">
+	<div class="form-field">
+		{{ form_label(form.price_per_passenger) }}
+		<div class="form-field__input-wrapper form-field__input-wrapper--suffixed">
+			{{ form_widget(form.price_per_passenger, { attr: { class: 'form-field__input' } }) }}
+		</div>
+		{{ form_errors(form.price_per_passenger) }}
+	</div>
+
+	<dl class="price-breakdown">
+		<div class="price-breakdown__row">
+			<dt class="price-breakdown__label">Contribution voyageur</dt>
+			<dd id="passenger-contribution" class="price-breakdown__value">{{ pricing.passenger_contribution|default('0 C') }}</dd>
+		</div>
+
+		<div class="price-breakdown__row">
+			<dt class="price-breakdown__label">
+				Frais de service
+				<button type="button" class="tooltip-trigger" aria-label="En savoir plus sur les frais de service">
+					<i class="bi bi-info-circle tooltip-trigger__icon" aria-hidden="true"></i>
+				</button>
+			</dt>
+			<dd class="price-breakdown__value">{{ pricing.service_fee|default('+ 2,00 C') }}</dd>
+		</div>
+
+		<div class="price-breakdown__row price-breakdown__row--total">
+			<dt class="price-breakdown__label">TOTAL PAR PASSAGER</dt>
+			<dd id="total-price" class="price-breakdown__value">{{ pricing.total|default('2,00 C') }}</dd>
+		</div>
+	</dl>
+
+	<aside class="info-block" aria-label="Information sur les frais">
+		<i class="bi bi-shield-check info-block__icon" aria-hidden="true"></i>
+		<p class="info-block__body">
+			{{ pricing_note|default('Les frais de service EcoRide permettent de garantir l\'assurance executive et le support 24/7 sur tous vos trajets premium.') }}
           </p>
         </aside>
       </div>
     </section>
 
-    <section class="card propose-grid__vehicle" aria-labelledby="card-title-vehicle">
-      <header class="card__header">
-        <i class="bi bi-car-front card__header-icon" aria-hidden="true"></i>
-        <h2 class="card__header-title" id="card-title-vehicle">Véhicule & Places</h2>
-      </header>
-
-      <div class="card__body">
-        <div class="vehicle-selector" role="radiogroup" aria-label="Sélectionner un véhicule">
-        {% if vehicles is defined and vehicles|length > 0 %}
-          {% for vehicle in vehicles|default([]) %}
-          {% set child = form.car[vehicle.id] ?? null %}
-          <label class="vehicle-card{% if child is not null and child.vars.checked %} vehicle-card--selected{% endif %}">
-            {% if child is not null %}
-              {{ form_widget(child, { attr: { class: 'sr-only', 'data-capacity': vehicle.places|default(0) } }) }}
-            {% endif %}
-            <i class="bi bi-{{ vehicle.icon|default('car-front') }} vehicle-card__icon" aria-hidden="true"></i>
-            <span class="vehicle-card__name">{{ (vehicle.brand.label|default('') ~ ' ' ~ vehicle.model)|trim }}</span>
-            {% if vehicle.tags|default([]) is not empty %}
-            <ul class="vehicle-card__tags" aria-label="Caractéristiques">
-              {% for tag in vehicle.tags %}
-              <li class="vehicle-card__tag">{{ tag }}</li>
-              {% endfor %}
-            </ul>
-            {% endif %}
-          </label>
+    <div class="footer-cta">
+      <div class="social-proof">
+        <div class="social-proof__avatars" aria-hidden="true">
+          {% for avatar in social_proof_avatars|default([]) %}
+            <img class="social-proof__avatar" src="{{ avatar.src }}" alt="">
           {% endfor %}
-        {% endif %}
+          <span class="social-proof__overflow">+12k</span>
         </div>
-        {% set seats_val = form.seats.value|default(3) %}
-        <div class="seats-stepper">
-          <span class="seats-stepper__label" id="seats-label">NOMBRE DE PLACES DISPONIBLES</span>
-          <div class="seats-stepper__controls" aria-labelledby="seats-label">
-            <button type="button" id="decreaseSeats" class="seats-stepper__btn" aria-label="Diminuer le nombre de places">—</button>
-            <div class="seats-stepper__value-wrapper">
-              <output class="seats-stepper__value" id="seats_count" for="form_seats">{{ seats_val }}</output>
-              <span class="seats-stepper__unit" aria-hidden="true">PASSAGERS</span>
-            </div>
-            <button type="button" id="increaseSeats" class="seats-stepper__btn" aria-label="Augmenter le nombre de places">+</button>
-          </div>
-          {{ form_row(form.seats) }}
-        </div>
-        <div
-          id="seats_progress"
-          class="seats-progress"
-          role="progressbar"
-          aria-valuenow="{{ seats_val }}"
-          aria-valuemin="0"
-          aria-valuemax="{{ seats_max|default(8) }}"
-          aria-labelledby="seats-label"
-          style="--seats-value: {{ seats_val }}; --seats-max: {{ seats_max|default(8) }};"
-        >
-          <div class="seats-progress__track">
-            <div class="seats-progress__fill"></div>
-          </div>
-        </div>
-
+        <p class="social-proof__label">Rejoignez 12 400+ conducteurs certifiés EcoRide.</p>
       </div>
-    </section>
+    </div>
 
-    <section class="card propose-grid__pricing" aria-labelledby="card-title-pricing">
-      <header class="card__header">
-        <i class="bi bi-wallet2 card__header-icon" aria-hidden="true"></i>
-        <h2 class="card__header-title" id="card-title-pricing">Tarification</h2>
-      </header>
+    <div class="footer-cta">
+      <button type="submit" class="btn btn--primary btn--large">
+        <i class="bi bi-rocket-fill btn__icon" aria-hidden="true"></i>
+        <span>Proposer mon trajet</span>
+      </button>
+    </div>
 
-      <div class="card__body">
-
-        <div class="form-field">
-          {{ form_label(form.price_per_passenger) }}
-          <div class="form-field__input-wrapper form-field__input-wrapper--suffixed">
-            {{ form_widget(form.price_per_passenger, { attr: { class: 'form-field__input' } }) }}
-          </div>
-          {{ form_errors(form.price_per_passenger) }}
-        </div>
-        <dl class="price-breakdown">
-          <div class="price-breakdown__row">
-            <dt class="price-breakdown__label">Contribution voyageur</dt>
-            <dd id="passenger-contribution" class="price-breakdown__value">{{ pricing.passenger_contribution|default('0 C') }}</dd>
-          </div>
-
-          <div class="price-breakdown__row">
-            <dt class="price-breakdown__label">
-              Frais de service
-              <button
-                type="button"
-                class="tooltip-trigger"
-                aria-label="En savoir plus sur les frais de service"
-              >
-                <i class="bi bi-info-circle tooltip-trigger__icon" aria-hidden="true"></i>
-              </button>
-            </dt>
-            <dd class="price-breakdown__value">{{ pricing.service_fee|default('+ 2,00 C') }}</dd>
-          </div>
-
-          <div class="price-breakdown__row price-breakdown__row--total">
-            <dt class="price-breakdown__label">TOTAL PAR PASSAGER</dt>
-            <dd id="total-price" class="price-breakdown__value">{{ pricing.total|default('2,00 C') }}</dd>
-          </div>
-        </dl>
-
-        <aside class="info-block" aria-label="Information sur les frais">
-          <i class="bi bi-shield-check info-block__icon" aria-hidden="true"></i>
-          <p class="info-block__body">
-            {{ pricing_note|default('Les frais de service EcoRide permettent de garantir l\'assurance executive et le support 24/7 sur tous vos trajets premium.') }}
-					</p>
-				</aside>
-			</p>
-		</div>
-	</section>
-
-	<div class="footer-cta">
-		<div class="social-proof">
-			<div class="social-proof__avatars" aria-hidden="true">
-				{% for avatar in social_proof_avatars|default([]) %}
-					<img class="social-proof__avatar" src="{{ avatar.src }}" alt="">
-				{% endfor %}
-				<span class="social-proof__overflow">+12k</span>
-			</div>
-			<p class="social-proof__label">Rejoignez 12 400+ conducteurs certifiés EcoRide.</p>
-		</div>
-	</div>
-	<div class="footer-cta">
-		<button type="submit" class="btn btn--primary btn--large">
-			<i class="bi bi-rocket-fill btn__icon" aria-hidden="true"></i>
-			<span>Proposer mon trajet</span>
-		</button>
-	</div>
-	{{ form_end(form) }}
+    {{ form_end(form) }}
+  </div>
 {% endblock %}
+
 {% block javascript %}
-	{{ parent() }}
-	<script type="module" src="{{ asset('js/tripScripts.js') }}"></script>
+  {{ parent() }}
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script type="module" src="{{ asset('js/tripScripts.js') }}"></script>
 {% endblock %}
