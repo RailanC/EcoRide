@@ -26,7 +26,7 @@ final class BookingCancellationLinkSigner
         }
 
         $expiresAt = $this->resolveExpirationTimestamp($booking);
-        $url = $this->urlGenerator->generate('app_booking_cancel_from_email', [
+        $url = $this->urlGenerator->generate('app_trip_participer_annuler_par_mail', [
             'id' => $bookingId,
             'expires' => $expiresAt,
         ], UrlGeneratorInterface::ABSOLUTE_URL);

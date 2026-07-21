@@ -328,9 +328,10 @@ final class TripController extends AbstractController
 
         return $this->redirectToRoute('app_trip');
     }
-
-    #[Route('/covoiturage/{id}/participer', name: 'app_trip_participer', methods: ['GET'])]
-    public function participate(
+    
+    #[Route('/covoiturages/{id}/participer/confirmer', name: 'app_trip_participer_confirmer', methods: ['POST'])]
+    public function confirmParticipation(
+        Request $request,
         Trip $trip,
         BookingRepository $bookingRepository,
         TripParticipationService $tripParticipationService,
@@ -348,19 +349,13 @@ final class TripController extends AbstractController
         }
 
         if ($trip->getStatus() !== Trip::STATUS_PLANNED) {
-            $this->addFlash('error', 'Ce trajet n accepte plus de nouvelles participations.');
+            $this->addFlash('error', 'Ce trajet n\'accepte plus de nouvelles participations.');
 
             return $this->redirectToRoute('app_trip_show', ['id' => $trip->getId()]);
         }
 
         if ($trip->getStatus() === Trip::STATUS_CANCELED) {
             $this->addFlash('error', 'Ce trajet est deja annule.');
-
-            return $this->redirectToRoute('app_trip_show', ['id' => $trip->getId()]);
-        }
-
-        if (($trip->getAvailableSeats() ?? 0) <= 0) {
-            $this->addFlash('error', 'Il n y a plus de places disponibles.');
 
             return $this->redirectToRoute('app_trip_show', ['id' => $trip->getId()]);
         }
@@ -380,32 +375,20 @@ final class TripController extends AbstractController
         $priceInCredits = (string) $trip->getPricePerPerson();
 
         if ((float) $currentUser->getCreditBalance() < (float) $priceInCredits) {
-            $this->addFlash('error', 'Vous n avez pas assez de credits.');
+            $this->addFlash('error', 'Vous n\'avez pas assez de credits.');
 
             return $this->redirectToRoute('app_trip_show', ['id' => $trip->getId()]);
         }
 
-        return $this->render('trip/confirm_booking.html.twig', [
-            'trip' => $trip,
-            'priceInCredits' => $priceInCredits,
-            'driverReceives' => $tripParticipationService->getDriverEarnings($priceInCredits),
-            'platformFee' => $tripParticipationService->getPlatformFeeCredits(),
-        ]);
-    }
 
-    #[Route('/covoiturage/{id}/participer/confirm', name: 'app_trip_participer_confirm', methods: ['POST'])]
-    public function confirmParticipation(
-        Request $request,
-        Trip $trip,
-        TripParticipationService $tripParticipationService,
-    ): Response {
-        $currentUser = $this->getUser();
+        if (($trip->getAvailableSeats() ?? 0) <= 0) {
+            $this->addFlash('error', 'Il n\'y a plus de places disponibles.');
 
-        if (!$currentUser instanceof User) {
-            return $this->redirectToRoute('app_login');
+            return $this->redirectToRoute('app_trip_show', ['id' => $trip->getId()]);
         }
 
-        if (!$this->isCsrfTokenValid('participer_' . $trip->getId(), (string) $request->request->get('_token'))) {
+
+        if (!$this->isCsrfTokenValid('confirm_trip_' . $trip->getId(), (string) $request->request->get('_token'))) {
             throw $this->createAccessDeniedException('Token CSRF invalide.');
         }
 
@@ -420,6 +403,90 @@ final class TripController extends AbstractController
         $this->addFlash('success', 'Votre participation a ete confirmee.');
 
         return $this->redirectToRoute('app_trip_show', ['id' => $trip->getId()]);
+    }
+    
+    #[Route('/covoiturages/{id}/participer/annuler', name: 'app_trip_participer_annuler', methods: ['POST'])]
+    public function cancelParticipation(
+        Request $request,
+        Trip $trip,
+        BookingRepository $bookingRepository,
+        TripParticipationService $tripParticipationService,
+    ): Response {
+        $currentUser = $this->getUser();
+
+        if (!$currentUser instanceof User) {
+            return $this->redirectToRoute('app_login');
+        }
+
+        if (!$this->isCsrfTokenValid('cancel_participation_' . $trip->getId(), (string) $request->request->get('_token'))) {
+            throw $this->createAccessDeniedException('Token CSRF invalide.');
+        }
+
+        $booking = $bookingRepository->findOneBy([
+            'trip' => $trip,
+            'user' => $currentUser,
+            'confirmation' => true,
+        ]);
+
+        if (!$booking instanceof Booking) {
+            $this->addFlash('info', 'Aucune participation active n a ete trouvee pour ce trajet.');
+
+            return $this->redirectToRoute('app_trip_show', ['id' => $trip->getId()]);
+        }
+
+        try {
+            $wasCanceled = $tripParticipationService->cancelParticipation($booking);
+        } catch (TripParticipationException $exception) {
+            $this->addFlash('error', $exception->getMessage());
+
+            return $this->redirectToRoute('app_trip_show', ['id' => $trip->getId()]);
+        }
+
+        if ($wasCanceled) {
+            $this->addFlash('success', 'Votre participation a bien ete annulee.');
+        } else {
+            $this->addFlash('info', 'Cette participation etait deja annulee ou ne peut plus etre modifiee.');
+        }
+
+        return $this->redirectToRoute('app_trip_show', ['id' => $trip->getId()]);
+    }
+
+    #[Route('/covoiturage/{id}/participer/annuler-par-mail', name: 'app_trip_participer_annuler_par_mail', methods: ['GET'])]
+    public function cancelFromEmail(
+        Request $request,
+        Booking $booking,
+        BookingCancellationLinkSigner $bookingCancellationLinkSigner,
+        TripParticipationService $tripParticipationService,
+    ): Response {
+        $trip = $booking->getTrip();
+
+        if (!$bookingCancellationLinkSigner->validateSignedRequest($request)) {
+            $this->addFlash('error', 'Ce lien de suppression est invalide ou a expire.');
+
+            return $trip !== null
+                ? $this->redirectToRoute('app_trip_show', ['id' => $trip->getId()])
+                : $this->redirectToRoute('app_home');
+        }
+
+        try {
+            $wasCanceled = $tripParticipationService->cancelParticipation($booking);
+        } catch (TripParticipationException $exception) {
+            $this->addFlash('error', $exception->getMessage());
+
+            return $trip !== null
+                ? $this->redirectToRoute('app_trip_show', ['id' => $trip->getId()])
+                : $this->redirectToRoute('app_home');
+        }
+
+        if ($wasCanceled) {
+            $this->addFlash('success', 'Votre participation a bien ete annulee.');
+        } else {
+            $this->addFlash('info', 'Cette participation etait deja annulee ou ne peut plus etre modifiee.');
+        }
+
+        return $trip !== null
+            ? $this->redirectToRoute('app_trip_show', ['id' => $trip->getId()])
+            : $this->redirectToRoute('app_home');
     }
 
     #[Route('/covoiturages/{id}/start', name: 'app_trip_start', methods: ['POST'])]

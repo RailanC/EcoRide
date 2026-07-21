@@ -143,9 +143,12 @@ function initTripMap(root) {
         scrollWheelZoom: false,
     }).setView([46.603354, 1.888334], 6);
 
-    window.L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        attribution: "&copy; OpenStreetMap contributors",
-    }).addTo(map);
+    window.L.tileLayer(
+    "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
+    {
+        attribution: "&copy; OpenStreetMap contributors &copy; CARTO",
+    }
+    ).addTo(map);
 
     let routeLayer = null;
     let startMarker = null;
@@ -162,11 +165,14 @@ function initTripMap(root) {
     };
 
     const setSummary = (message) => {
+        if (root.dataset.disableSummary === "true") {
+            return;
+        }
+
         if (summaryElement) {
             summaryElement.textContent = message;
         }
     };
-
     const clearRoute = () => {
         if (routeLayer) {
             map.removeLayer(routeLayer);
@@ -200,15 +206,25 @@ function initTripMap(root) {
         const end = coordinates[coordinates.length - 1];
 
         if (Array.isArray(start) && start.length >= 2) {
-            startMarker = window.L.marker([start[1], start[0]])
+            startMarker = L.marker([start[1], start[0]])
                 .addTo(map)
-                .bindPopup(payload.departureLabel);
+                .bindPopup(`
+                    <div class="trip-popup">
+                        <strong>Départ</strong><br>
+                        ${payload.departureLabel}
+                    </div>
+                `);
         }
 
         if (Array.isArray(end) && end.length >= 2) {
-            endMarker = window.L.marker([end[1], end[0]])
+            endMarker = L.marker([end[1], end[0]])
                 .addTo(map)
-                .bindPopup(payload.destinationLabel);
+                .bindPopup(`
+                    <div class="trip-popup">
+                        <strong>Destination</strong><br>
+                        ${payload.destinationLabel}
+                    </div>
+                `);
         }
 
         const bounds = routeLayer.getBounds();
@@ -220,9 +236,16 @@ function initTripMap(root) {
         setSummary(
             `${payload.departureLabel} -> ${payload.destinationLabel} • ${formatDistance(payload.distanceMeters)} • ${formatDuration(payload.durationSeconds)}`,
         );
+        const distanceElement = document.querySelector("[data-trip-distance]");
+
+        if (distanceElement) {
+            distanceElement.textContent = `📍 ${formatDistance(payload.distanceMeters)}`;
+        }
+
         distanceInMeters = payload.distanceMeters;
+        
         recomendationPrice();
-        setStatus("Itineraire charge.");
+        setStatus("Itineraire chargé.");
     };
 
     const loadRoute = async (url) => {

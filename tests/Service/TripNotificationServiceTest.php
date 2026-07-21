@@ -30,7 +30,7 @@ class TripNotificationServiceTest extends TestCase
         $urlGenerator
             ->method('generate')
             ->willReturnCallback(static function (string $route, array $parameters = []): string {
-                if ($route === 'app_booking_cancel_from_email') {
+                if ($route === 'app_trip_participer_annuler_par_mail') {
                     return sprintf('https://example.test/booking/%d/cancel-from-email?expires=%d', $parameters['id'], $parameters['expires']);
                 }
 
@@ -85,7 +85,7 @@ class TripNotificationServiceTest extends TestCase
         $urlGenerator
             ->method('generate')
             ->willReturnCallback(static function (string $route, array $parameters = []): string {
-                if ($route === 'app_booking_cancel_from_email') {
+                if ($route === 'app_trip_participer_annuler_par_mail') {
                     return sprintf('https://example.test/booking/%d/cancel-from-email?expires=%d', $parameters['id'], $parameters['expires']);
                 }
 
