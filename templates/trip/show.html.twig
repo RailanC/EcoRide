@@ -1,159 +1,15 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Details du covoiturage
-{% endblock %}
+{% block title %}EcoRide - Détails du trajet{% endblock %}
 
 {% block stylesheets %}
-	{{ parent() }}
-	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    {{ parent() }}
+	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>	
 {% endblock %}
 
 {% block body %}
-	<div class="container py-5" style="max-width: 760px;">
-		<a href="{{ path('app_trip') }}" class="btn-details text-decoration-none">Retour</a>
-		<div class="travel-hero mt-2">
-			<div class="travel-hero-content">
-				<div class="travel-hero-route">
-					{{ trip.departureLocation }}
-					<span class="arrow-icon">&rarr;</span>
-					{{ trip.arrivalLocation }}
-				</div>
-				<div class="travel-hero-sub">Trajet propose par
-					{{ trip.driver.username }}</div>
-			</div>
-			<div class="travel-hero-dates">Depart le
-				{{ trip.departureDate|date('d M Y') }}
-				a
-				{{ trip.departureTime|date('H:i') }}</div>
-		</div>
-
-		{% if trip.status == 'canceled' %}
-			<div class="alert alert-warning mt-3">
-				Ce covoiturage est annule. Les remboursements ont ete appliques lorsque l annulation a ete traitee.
-			</div>
-		{% endif %}
-
-		<hr class="trips-divider">
-
-		<div class="section-header">
-			<span class="section-title">Informations</span>
-		</div>
-
-		<div class="contact-card">
-			<div class="row g-3">
-				<div class="col-12">
-					<div class="trip-schedule-grid">
-						<div class="trip-schedule-card">
-							<div class="trip-schedule-label">Depart</div>
-							<div class="trip-schedule-city">{{ trip.departureLocation }}</div>
-							<div class="trip-schedule-value">{{ trip.departureDate|date('d/m/Y') }}</div>
-							<div class="trip-schedule-time">{{ trip.departureTime|date('H:i') }}</div>
-						</div>
-						<div class="trip-schedule-card trip-schedule-card--arrival">
-							<div class="trip-schedule-label">Arrivee</div>
-							<div class="trip-schedule-city">{{ trip.arrivalLocation }}</div>
-							<div class="trip-schedule-value">{{ trip.arrivalDate|date('d/m/Y') }}</div>
-							<div class="trip-schedule-time">{{ trip.arrivalTime|date('H:i') }}</div>
-						</div>
-					</div>
-				</div>
-
-				<div class="col-12">
-					<div class="trip-map-card" data-trip-map-root data-map-mode="detail" data-endpoint="{{ path('app_trip_show_route_preview', {id: trip.id}) }}">
-						<div class="trip-map-header">
-							<span class="contact-label" style="margin-bottom:0;">Carte du trajet</span>
-							<div class="trip-map-summary" data-trip-map-summary>Chargement de l itineraire...</div>
-						</div>
-						<div class="trip-map-status" data-trip-map-status>La carte affiche le trajet enregistre.</div>
-						<div class="trip-map-canvas" data-trip-map></div>
-					</div>
-				</div>
-
-				<div class="col-md-6">
-					<label class="contact-label">Conducteur</label>
-					<div class="meta-item" style="font-size: 0.95rem;">{{ trip.driver.username }}</div>
-				</div>
-
-				<div class="col-md-6">
-					<label class="contact-label">Note</label>
-					<div class="meta-item" style="font-size: 0.95rem;">
-						{% if trip.driver.averageValidatedRating is not null %}
-							{{ trip.driver.averageValidatedRating }}/5 ({{ trip.driver.validatedReviewCount }})
-						{% else %}
-							Pas encore note
-						{% endif %}
-					</div>
-				</div>
-
-				<div class="col-md-6">
-					<label class="contact-label">Vehicule</label>
-					<div class="meta-item" style="font-size: 0.95rem;">{{ trip.vehicle.brand.label }}
-						{{ trip.vehicle.model }}</div>
-				</div>
-
-				<div class="col-md-6">
-					<label class="contact-label">Energie</label>
-					<div class="meta-item" style="font-size: 0.95rem;">{{ trip.vehicle.energyType }}</div>
-				</div>
-
-				<div class="col-12">
-					<label class="contact-label">Type de trajet</label>
-					{% if trip.vehicle.energyType in ['Electrique', 'Électrique'] %}
-						<span class="badge-eco">Trajet ecologique</span>
-					{% else %}
-						<span class="btn-details">Trajet standard</span>
-					{% endif %}
-				</div>
-
-				<div class="col-12">
-					<label class="contact-label">Participants</label>
-					<div class="participant-list">
-						{% if participants is empty %}
-							<div class="participant-empty">Aucun participant pour le moment.</div>
-						{% else %}
-							{% for participant in participants %}
-								<div class="participant-chip">
-									<span class="participant-avatar">{{ participant.user.username|slice(0, 2)|upper }}</span>
-									<span class="participant-name">{{ participant.user.username }}</span>
-								</div>
-							{% endfor %}
-						{% endif %}
-					</div>
-				</div>
-
-				<div class="col-12">
-					{% if app.user %}
-						{% if trip.status == 'canceled' %}
-							<p>Ce trajet n'accepte plus de participants.</p>
-						{% elseif hasBooking %}
-							<p>Vous participez deja a ce trajet.</p>
-							<form method="post" action="{{ path('app_trip_cancel_participation', {id: trip.id}) }}" data-confirm-message="Voulez-vous vraiment annuler votre participation a ce covoiturage ?" data-confirm-title="Annuler ma participation" data-confirm-button="Oui, annuler">
-								<input type="hidden" name="_token" value="{{ csrf_token('cancel_participation_' ~ trip.id) }}">
-								<button type="submit" class="w-50 btn btn-outline-danger">Annuler ma participation</button>
-							</form>
-						{% elseif trip.driver and app.user.id == trip.driver.id %}
-							<form method="post" action="{{ path('app_trip_delete', {id: trip.id}) }}" data-confirm-message="Voulez-vous vraiment annuler ce covoiturage ? Tous les participants seront rembourses." data-confirm-title="Annuler ce covoiturage" data-confirm-button="Oui, annuler le covoiturage">
-								<input type="hidden" name="_token" value="{{ csrf_token('delete_trip_' ~ trip.id) }}">
-								<button type="submit" class="w-50 btn btn-outline-danger">
-									{{ trip.status == 'canceled' ? 'Covoiturage annule' : 'Annuler ce covoiturage' }}
-								</button>
-							</form>
-						{% elseif trip.availableSeats > 0 %}
-							<p class="mb-2">
-								Vous paierez
-								{{ priceInCredits }}
-								credits. Le conducteur recevra
-								{{ driverReceives }}
-								credits.
-							</p>
-							<a href="{{ path('app_trip_participer', {id: trip.id}) }}" class="w-50 btn btn-vert">Participer</a>
-						{% else %}
-							<p>Plus de places disponibles.</p>
-						{% endif %}
-					{% else %}
-						<a href="{{ path('app_login') }}" class="btn btn-vert w-50">Se connecter pour participer</a>
-					{% endif %}
-					{% for message in app.flashes('error') %}
+<div class="ecoride-page">
+{% for message in app.flashes('error') %}
 						<div class="alert alert-danger">{{ message }}</div>
 					{% endfor %}
 					{% for message in app.flashes('success') %}
@@ -162,14 +18,233 @@
 					{% for message in app.flashes('info') %}
 						<div class="alert alert-info">{{ message }}</div>
 					{% endfor %}
-				</div>
-			</div>
+    <section class="trip-hero">
+		<div class="trip-hero__overlay">
+			<img class="trip-hero__image" src="{{ asset('images/car.jpg') }}" alt="Carte du trajet" class="trip-hero__image">
 		</div>
-	</div>
+        <div class="trip-hero__content">
+			
+            <div class="trip-hero__info">
+                <span class="badge badge--eco" hidden>🌿 ECO-PREMIUM</span>
+
+                <h1 class="trip-hero__title">EcoRide - Détails du trajet</h1>
+
+                <div class="trip-route">
+                    <div class="trip-route__point">
+                        <span class="trip-route__label">DÉPART</span>
+                        <span class="trip-route__city">{{ trip.departureLocation }}</span>
+                        <span class="trip-route__time">{{ trip.departureDate|date('d M Y') }}, {{ trip.departureTime|date('H:i') }}</span>
+                    </div>
+
+                    <span class="trip-route__arrow" aria-hidden="true">➜</span>
+
+                    <div class="trip-route__point">
+                        <span class="trip-route__label">ARRIVÉE</span>
+                        <span class="trip-route__city">{{ trip.arrivalLocation }}</span>
+                        <span class="trip-route__time">{{ trip.arrivalDate|date('d M Y') }}, {{ trip.arrivalTime|date('H:i') }}</span>
+                    </div>
+                </div>
+            </div>
+			
+            <div class="trip-map-card"
+				data-trip-map-root 
+				data-map-mode="detail"
+				data-endpoint="{{ path('app_trip_show_route_preview', {id: trip.id}) }}">
+				<div class="trip-map-header">
+					<span class="contact-label" style="margin-bottom:0;">Carte du trajet</span>
+					<div class="trip-map-summary" data-trip-map-summary>Renseignez les villes pour afficher le trajet.</div>
+				</div>
+				<div class="trip-map-status" data-trip-map-status>La carte se mettra à jour automatiquement.</div>
+				<div class="trip-map-canvas" data-trip-map></div>
+			</div>
+			
+		</div>
+    </section>
+
+    <div class="trip-content">
+
+        <div class="trip-content__left">
+
+            <div class="trip-content__row">
+                <section class="card card--vehicle">
+                    <div class="card__header">
+                        <h2 class="card__title">Véhicule</h2>
+                        <span class="badge badge--luxe" hidden>LUXE EV</span>
+                    </div>
+
+                    <div class="vehicle-info">
+                        <div class="vehicle-info__icon">🚗</div>
+                        <div class="vehicle-info__details">
+                            <span class="vehicle-info__name">{{ trip.vehicle.model }} - {{ trip.vehicle.brand.label }}</span>
+                            <span class="vehicle-info__meta">ÉNERGIE : {{ trip.vehicle.energyType }}</span>
+                        </div>
+                    </div>
+
+                    <div class="vehicle-features">
+                        <span class="vehicle-features__item">🧍 {{ trip.vehicle.places }} places dispo.</span>
+                    </div>
+                </section>
+
+                <section class="card card--driver">
+                    <div class="driver-header">
+                        <div class="driver-header__avatar">{{ trip.driver.username|slice(0, 2)|upper }}</div>
+                        <div class="driver-header__info">
+                            <span class="driver-header__name">{{ trip.driver.username }}</span>
+                            <span class="driver-header__rating">★★★★★ 4.9 (124 trajets)</span>
+                        </div>
+                    </div>
+
+                    <p class="driver-message">
+                        "Bonjour ! Je propose ce trajet {{ trip.departureLocation }}-{{ trip.arrivalLocation }} en {{ trip.vehicle.model }}. Espace calme, idéal pour travailler ou se reposer. Bagages acceptés. À bientôt !"
+                    </p>
+
+                    <div class="driver-tags">
+						{% if trip.vehicle.preferences.smoking == 1 %}
+							<span class="tag">fumeur</span>
+						{% else %}
+							<span class="tag">Non-fumeur</span>
+						{% endif %}
+						{% if trip.vehicle.preferences.animals == 1 %}
+							<span class="tag">Animaux acceptés</span>
+							{% else %}
+							<span class="tag">Animaux non acceptés</span>
+						{% endif %}
+
+                    </div>
+                </section>
+            </div>
+
+            <section class="card card--participants">
+                <div class="card__header">
+                    <h2 class="card__title">Participants</h2>
+                </div>
+					{% if participants is empty %}
+						<div class="participant-empty">Aucun participant pour le moment.</div>
+					{% else %}
+						<ul class="participant-list">
+							{% for participant in participants %}
+							<li class="participant">
+								<span class="participant__avatar participant__avatar--green">{{ participant.user.username|slice(0, 2)|upper }}</span>
+								<div class="participant__info">
+									<span class="participant__name">{{ participant.user.username }}</span>
+									<span class="participant__role">PASSAGER</span>
+								</div>
+								<span class="status status--confirmed">CONFIRMÉ</span>
+								<button type="button" class="icon-btn" aria-label="Envoyer un message à Marc L.">💬</button>
+							</li>
+							{% endfor %}
+						</ul>
+					{% endif %}
+
+                    <li class="participant participant--empty">
+                        <span class="participant__avatar participant__avatar--empty">👤</span>
+                        <div class="participant__info">
+                            <span class="participant__name participant__name--muted">Siège libre</span>
+                        </div>
+                        <span class="status status--available">Disponible</span>
+                    </li>
+                
+            </section>
+        </div>
+
+        <aside class="trip-content__right">
+            <section class="card card--price">
+
+                <div class="price-header">
+                    <span class="price-header__label">TARIF TRAJET</span>
+                    <span class="price-header__amount">{{ trip.priceperperson|number_format(2, ',', ' ') }} €</span>
+                </div>
+                <p class="price-header__note">Taxes et frais inclus</p>
+
+                <div class="info-line" hidden>
+                    <span class="info-line__icon">🛡️</span>
+                    <div>
+                        <span class="info-line__title">Assurance Premium Incluse</span>
+                        <span class="info-line__subtitle">Partenaire EcoShield Global</span>
+                    </div>
+                </div>
+
+                <div class="info-line" hidden>
+                    <span class="info-line__icon">🍃</span>
+                    <div>
+                        <span class="info-line__title">Économie de CO2 : 84kg</span>
+                        <span class="info-line__subtitle">Comparé au transport individuel</span>
+                    </div>
+                </div>
+				<div class="col-12">
+					{% if app.user %}
+						{% if trip.status == 'canceled' %}
+							<p>Ce trajet n'accepte plus de participants.</p>
+						{% elseif hasBooking %}
+							<p>Vous participez deja a ce trajet.</p>
+							<form method="post" action="{{ path('app_trip_participer_annuler', {id: trip.id}) }}" data-confirm-message="Voulez-vous vraiment annuler votre participation a ce covoiturage ?" data-confirm-title="Annuler ma participation" data-confirm-button="Oui, annuler">
+								<input type="hidden" name="_token" value="{{ csrf_token('cancel_participation_' ~ trip.id) }}">
+								<button type="submit" class="w-100 btn btn-outline-danger">Annuler ma participation</button>
+							</form>
+						{% elseif trip.driver and app.user.id == trip.driver.id %}
+							<form method="post" action="{{ path('app_trip_delete', {id: trip.id}) }}" data-confirm-message="Voulez-vous vraiment annuler ce covoiturage ? Tous les participants seront rembourses." data-confirm-title="Annuler ce covoiturage" data-confirm-button="Oui, annuler le covoiturage">
+								<input type="hidden" name="_token" value="{{ csrf_token('delete_trip_' ~ trip.id) }}">
+								<button type="submit" class="w-100 btn btn-outline-danger">
+									{{ trip.status == 'canceled' ? 'Covoiturage annule' : 'Annuler ce covoiturage' }}
+								</button>
+							</form>
+						{% elseif trip.availableSeats > 0 %}
+                            <form method="post" action="{{ path('app_trip_participer_confirmer', {id: trip.id}) }}" data-confirm-message="Voulez-vous vraiment confirmer ce covoiturage ? Prix de la covoiturage: {{ trip.priceperperson|number_format(2, ',', ' ') }} €" data-confirm-title="Confirmer ce covoiturage" data-confirm-button="Oui, confirmer le covoiturage">
+								<input type="hidden" name="_token" value="{{ csrf_token('confirm_trip_' ~ trip.id) }}">
+								<button type="submit" class="w-100 btn btn-vert"> Participer au trajet</button>
+							</form>
+						{% else %}
+							<p>Plus de places disponibles.</p>
+						{% endif %}
+					{% else %}
+						<a href="{{ path('app_login') }}" class="btn btn-vert w-50">Se connecter pour participer</a>
+					{% endif %}
+				</div>
+                <div class="travel-info">
+                    <h3 class="travel-info__title">Informations de voyage</h3>
+                    <ul class="travel-info__list">
+                        <li>✅ Ponctualité exigée (RDV 10min avant)</li>
+                        <li>🧳 Bagage cabine standard (12kg max)</li>
+                        <li>❌ Annulation gratuite jusqu'à 24h</li>
+                    </ul>
+                </div>
+            </section>
+        </aside>
+    </div>
+
+    <section class="movement">
+        <div class="movement__text">
+            <h2 class="movement__title">Rejoignez le mouvement</h2>
+            <p class="movement__desc">
+                Ce trajet fait partie de notre initiative "Green Corridor". En choisissant
+                EcoRide, vous contribuez directement à la reforestation des Alpes Françaises.
+            </p>
+
+            <div class="movement__travelers">
+                <div class="movement__avatars">
+                    <span class="movement__avatar"></span>
+                    <span class="movement__avatar"></span>
+                    <span class="movement__avatar"></span>
+                </div>
+                <span class="movement__count">+1,240 voyageurs ce mois-ci</span>
+            </div>
+        </div>
+
+        <div class="movement__progress" data-progress="75">
+            <span class="movement__percent">75%</span>
+            <span class="movement__percent-label">OBJECTIF REMPLISSAGE</span>
+            <div class="progress-bar">
+                <div class="progress-bar__fill" style="width: 75%;"></div>
+            </div>
+            <span class="movement__hint">Encore 1 passager pour optimiser l'impact carbone.</span>
+        </div>
+    </section>
+	
+</div>
 {% endblock %}
 
-{% block javascript %}
-	{{ parent() }}
+{% block javascripts %}
+    {{ parent() }}
 	<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 	<script type="module" src="{{ asset('js/tripScripts.js') }}"></script>
 {% endblock %}
