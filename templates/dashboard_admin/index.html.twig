@@ -5,7 +5,6 @@
 {% block body %}
 <div class="container py-5 admin-dashboard-shell">
 
-    {# ── PAGE HEADER ── #}
     <div class="d-flex flex-wrap justify-content-between align-items-end gap-3 mb-4">
         <div>
             <p class="search-eyebrow mb-1">Espace d'administration</p>
@@ -21,7 +20,6 @@
         </a>
     </div>
 
-    {# ── FLASH MESSAGES ── #}
     {% for type, messages in app.flashes %}
         {% for message in messages %}
             <div class="admin-flash admin-flash--{{ type }} mb-3">
@@ -31,7 +29,6 @@
         {% endfor %}
     {% endfor %}
 
-    {# ── PLATFORM STATISTICS ── #}
     <div class="contact-card admin-platform-stats mb-4">
         <div class="section-header mb-3">
             <span class="section-title">Platform statistics</span>
@@ -103,7 +100,6 @@
         </div>
     </div>
 
-    {# ── STATS BAR ── #}
     <div class="admin-stats-bar d-flex align-items-center flex-wrap mb-4">
         <div class="admin-stat d-flex flex-column align-items-center">
             <span class="admin-stat__value">{{ users|length }}</span>
@@ -126,7 +122,6 @@
         </div>
     </div>
 
-    {# ── SEARCH / FILTER BAR ── #}
     <div class="contact-card mb-4 py-3 px-4">
         <div class="d-flex flex-wrap gap-3 align-items-center">
             <div class="admin-search-wrap flex-grow-1">
@@ -148,7 +143,6 @@
         </div>
     </div>
 
-    {# ── USERS TABLE ── #}
     <div class="contact-card p-0 overflow-hidden">
         <div class="section-header px-4 pt-4 pb-3">
             <span class="section-title">Liste des comptes</span>
@@ -162,7 +156,6 @@
             </div>
         {% else %}
 
-            {# ─ Desktop table ─ #}
             <div class="admin-table-wrap">
                 <table class="admin-table table mb-0" id="adminUsersTable">
                     <thead>
@@ -183,7 +176,6 @@
 
                             <td class="admin-td-id">{{ user.id }}</td>
 
-                            {# Avatar + username #}
                             <td>
                                 <div class="d-flex align-items-center gap-3">
                                     <div class="admin-avatar">
@@ -195,7 +187,6 @@
 
                             <td class="admin-user-email">{{ user.email }}</td>
 
-                            {# Role badge #}
                             <td>
                                 {% if 'ROLE_ADMIN' in user.roles %}
                                     <span class="admin-role-badge admin-role-badge--admin">Admin</span>
@@ -206,7 +197,6 @@
                                 {% endif %}
                             </td>
 
-                            {# Action buttons #}
                             <td>
                                 <div class="d-flex gap-2 flex-wrap">
                                     <button
@@ -232,7 +222,6 @@
                 </table>
             </div>
 
-            {# ─ Mobile cards (hidden on desktop) ─ #}
             <div class="admin-mobile-list d-flex flex-column gap-3 px-3 pb-3">
                 {% for user in users %}
                 <div class="admin-mobile-card admin-user-row"
@@ -274,13 +263,10 @@
             </div>
 
         {% endif %}
-    </div>{# /contact-card #}
-</div>{# /container #}
+    </div>
+</div>
 
 
-{# ══════════════════════════════════════════════
-   EDIT MODAL
-══════════════════════════════════════════════ #}
 <div class="modal fade" id="editUserModal" tabindex="-1" aria-labelledby="editUserModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content site-confirm-modal">
@@ -359,9 +345,6 @@
 </div>
 
 
-{# ══════════════════════════════════════════════
-   DELETE CONFIRM MODAL
-══════════════════════════════════════════════ #}
 <div class="modal fade" id="deleteUserModal" tabindex="-1" aria-labelledby="deleteUserModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-sm">
         <div class="modal-content site-confirm-modal">
@@ -388,12 +371,7 @@
     </div>
 </div>
 
-
-{# ══════════════════════════════════════════════
-   JAVASCRIPT
-══════════════════════════════════════════════ #}
 <script>
-/* ── Open edit modal ── */
 function openEditModal(id, username, email, roles, csrfToken) {
     const modal = new bootstrap.Modal(document.getElementById('editUserModal'));
 
@@ -402,7 +380,6 @@ function openEditModal(id, username, email, roles, csrfToken) {
     document.getElementById('editUsername').value   = username;
     document.getElementById('editEmail').value      = email;
 
-    // Determine current role (highest privilege wins)
     let currentRole = 'ROLE_USER';
     if (roles.includes('ROLE_ADMIN'))     currentRole = 'ROLE_ADMIN';
     else if (roles.includes('ROLE_EMPLOYEUR')) currentRole = 'ROLE_EMPLOYEUR';
@@ -414,7 +391,6 @@ function openEditModal(id, username, email, roles, csrfToken) {
     modal.show();
 }
 
-/* ── Open delete modal ── */
 function openDeleteModal(id, username, csrfToken) {
     const modal = new bootstrap.Modal(document.getElementById('deleteUserModal'));
 
@@ -425,7 +401,6 @@ function openDeleteModal(id, username, csrfToken) {
     modal.show();
 }
 
-/* ── Live search + role filter ── */
 function filterUsers() {
     const q    = document.getElementById('adminUserSearch').value.toLowerCase().trim();
     const role = document.getElementById('adminRoleFilter').value;
@@ -442,8 +417,7 @@ function filterUsers() {
         if (show) visible++;
     });
 
-    // Update count (only unique users, not duplicate mobile/desktop rows)
-    const unique = visible / 2; // one table row + one mobile card per user
+    const unique = visible / 2; 
     document.getElementById('adminUserCount').textContent =
         unique + ' utilisateur' + (unique > 1 ? 's' : '');
 }

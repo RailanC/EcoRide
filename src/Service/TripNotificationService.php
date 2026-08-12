@@ -48,7 +48,7 @@ final class TripNotificationService
             (new TemplatedEmail())
                 ->from(new Address($this->mailerFromAddress, $this->mailerFromName))
                 ->to(new Address((string) $driver->getEmail(), (string) $driver->getUsername()))
-                ->subject('Nouvelle participation a votre covoiturage')
+                ->subject('Nouvelle participation à votre covoiturage')
                 ->htmlTemplate('emails/trip_participation_driver.html.twig')
                 ->context([
                     'trip' => $trip,
@@ -63,7 +63,7 @@ final class TripNotificationService
             (new TemplatedEmail())
                 ->from(new Address($this->mailerFromAddress, $this->mailerFromName))
                 ->to(new Address((string) $participant->getEmail(), (string) $participant->getUsername()))
-                ->subject('Votre participation au covoiturage est confirmee')
+                ->subject('Votre participation au covoiturage est confirmée')
                 ->htmlTemplate('emails/trip_participation_participant.html.twig')
                 ->context([
                     'trip' => $trip,
@@ -92,7 +92,7 @@ final class TripNotificationService
             (new TemplatedEmail())
                 ->from(new Address($this->mailerFromAddress, $this->mailerFromName))
                 ->to(new Address((string) $driver->getEmail(), (string) $driver->getUsername()))
-                ->subject('Un participant a annule sa participation')
+                ->subject('Un participant a annulé sa participation')
                 ->htmlTemplate('emails/trip_participation_canceled_driver.html.twig')
                 ->context([
                     'trip' => $trip,
@@ -107,7 +107,7 @@ final class TripNotificationService
             (new TemplatedEmail())
                 ->from(new Address($this->mailerFromAddress, $this->mailerFromName))
                 ->to(new Address((string) $participant->getEmail(), (string) $participant->getUsername()))
-                ->subject('Votre participation a ete annulee')
+                ->subject('Votre participation a été annulée')
                 ->htmlTemplate('emails/trip_participation_canceled_participant.html.twig')
                 ->context([
                     'trip' => $trip,
@@ -143,7 +143,7 @@ final class TripNotificationService
                 (new TemplatedEmail())
                     ->from(new Address($this->mailerFromAddress, $this->mailerFromName))
                     ->to(new Address((string) $participant->getEmail(), (string) $participant->getUsername()))
-                    ->subject('Votre covoiturage a ete annule')
+                    ->subject('Votre covoiturage a été annulé')
                     ->htmlTemplate('emails/trip_canceled_participant.html.twig')
                     ->context([
                         'trip' => $trip,
@@ -181,7 +181,7 @@ final class TripNotificationService
                 (new TemplatedEmail())
                     ->from(new Address($this->mailerFromAddress, $this->mailerFromName))
                     ->to(new Address((string) $participant->getEmail(), (string) $participant->getUsername()))
-                    ->subject('Confirmez le deroulement de votre trajet EcoRide')
+                    ->subject('Confirmez le déroulement de votre trajet EcoRide')
                     ->htmlTemplate('emails/trip_arrived_participant.html.twig')
                     ->context([
                         'trip' => $trip,

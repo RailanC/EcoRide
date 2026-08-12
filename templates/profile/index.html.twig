@@ -224,7 +224,7 @@
 					<div class="card-body p-4 p-md-5">
 						<h2 class="fw-bold mb-3" style="font-size: 1.1rem; color: #ea868f;">Zone sensible</h2>
 						<p class="text-white-50 mb-4" style="font-size: 0.9rem;">
-							Supprimer votre compte effacera votre profil et vos vehicules. Cette action est irreversible.
+							Supprimer votre compte effacera votre profil et vos véhicules. Cette action est irréversible.
 						</p>
 						<button type="submit" form="delete-profile-form" class="btn btn-outline-danger rounded-pill fw-medium px-4">
 							Supprimer mon compte
@@ -412,9 +412,9 @@
 										{% do vehicleForm.preferences.setRendered() %}
 										{# Delete button #}
 										{% if vehicleForm.vars.data.id %}
-											<button type="button" class="btn btn-sm btn-outline-danger rounded-pill fw-medium mt-3" data-confirm-message="Voulez-vous vraiment supprimer ce vehicule de votre profil ?" data-confirm-title="Supprimer ce vehicule" data-confirm-button="Oui, supprimer" data-confirm-action="submit-post" data-confirm-url="{{ path('app_profile_vehicle_delete', {id: vehicleForm.vars.data.id}) }}" data-confirm-token="{{ csrf_token('delete_vehicle_' ~ vehicleForm.vars.data.id) }}">
+											<button type="button" class="btn btn-sm btn-outline-danger rounded-pill fw-medium mt-3" data-confirm-message="Voulez-vous vraiment supprimer ce véhicule de votre profil ?" data-confirm-title="Supprimer ce véhicule" data-confirm-button="Oui, supprimer" data-confirm-action="submit-post" data-confirm-url="{{ path('app_profile_vehicle_delete', {id: vehicleForm.vars.data.id}) }}" data-confirm-token="{{ csrf_token('delete_vehicle_' ~ vehicleForm.vars.data.id) }}">
 											{% else %}
-												<button type="button" class="btn btn-sm btn-outline-danger rounded-pill fw-medium mt-3 remove-vehicle-btn" data-confirm-message="Voulez-vous vraiment supprimer ce vehicule de votre profil ?" data-confirm-title="Supprimer ce vehicule" data-confirm-button="Oui, supprimer" data-confirm-action="remove-closest" data-confirm-target=".vehicle-block">
+												<button type="button" class="btn btn-sm btn-outline-danger rounded-pill fw-medium mt-3 remove-vehicle-btn" data-confirm-message="Voulez-vous vraiment supprimer ce véhicule de votre profil ?" data-confirm-title="Supprimer ce véhicule" data-confirm-button="Oui, supprimer" data-confirm-action="remove-closest" data-confirm-target=".vehicle-block">
 												{% endif %}
 												<svg width="14" height="14" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="me-1">
 													<polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>

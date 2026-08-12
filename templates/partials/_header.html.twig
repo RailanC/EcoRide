@@ -46,7 +46,7 @@
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 mt-2">
                             {% if is_granted('ROLE_EMPLOYEUR') %}
-                                <li><a class="dropdown-item py-2" href="{{ path('app_dashboard') }}">Dashboard</a></li>
+                                <li><a class="dropdown-item py-2" href="{{ path('app_dashboard') }}">Tableau de bord</a></li>
                                 <li><hr class="dropdown-divider"></li>
                             {% endif %}
                             <li><a class="dropdown-item py-2" href="{{ path('app_profile_trips') }}">Mes trajets</a></li>

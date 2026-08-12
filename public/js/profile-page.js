@@ -192,7 +192,7 @@ function buildVehicleBlock(index) {
             </div>
         </div>
         <input type="hidden" name="profile_form[vehicles][${index}][preferences]" value='{"smoking":0,"animals":0,"custom":[]}' data-preferences-hidden>
-        <button type="button" class="btn btn-sm btn-outline-danger mt-3 remove-vehicle-btn" data-confirm-message="Voulez-vous vraiment supprimer ce vehicule de votre profil ?" data-confirm-title="Supprimer ce vehicule" data-confirm-button="Oui, supprimer" data-confirm-action="remove-closest" data-confirm-target=".vehicle-block">Supprimer ce vehicule</button>
+        <button type="button" class="btn btn-sm btn-outline-danger mt-3 remove-vehicle-btn" data-confirm-message="Voulez-vous vraiment supprimer ce véhicule de votre profil ?" data-confirm-title="Supprimer ce véhicule" data-confirm-button="Oui, supprimer" data-confirm-action="remove-closest" data-confirm-target=".vehicle-block">Supprimer ce véhicule</button>
     `;
 
     return block;

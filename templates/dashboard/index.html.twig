@@ -1,16 +1,16 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Dashboard - EcoRide{% endblock %}
+{% block title %}Tableau de bord - EcoRide{% endblock %}
 
 {% block body %}
 <div class="container py-5 mw-1080px" data-bs-theme="dark">
     <div class="mb-4">
         <p class="text-uppercase fw-bold mb-1 dashboard-eyebrow">Espace de supervision</p>
         <h1 class="fw-bold text-white mb-2 dashboard-title">
-            Dashboard
+              Tableau de bord
         </h1>
         <p class="text-white-50 fs-94">
-            Suivez l activite de la plateforme et accedez rapidement aux zones de moderation.
+              Suivez l'activité de la plateforme et accédez rapidement aux zones de modération.
         </p>
     </div>
 
@@ -44,7 +44,7 @@
                 </div>
                 <h2 class="fw-bold text-white mb-2 fs-1-1rem">Regarder tous les avis</h2>
                 <p class="text-white-50 flex-grow-1 dashboard-card-text">
-                    Accedez a la liste complete des avis utilisateurs pour monitorer la satisfaction et identifier les tendances.
+                    Accédez à la liste complète des avis utilisateurs pour monitorer la satisfaction et identifier les tendances.
                 </p>
                 <div class="mt-3">
                     <a href="{{ path('app_reviews') }}" class="btn btn-outline-light rounded-pill px-4 py-2 fw-medium border-0 w-100 text-center btn-subtle-light">Voir les avis en attente</a>
@@ -82,7 +82,7 @@
                 </div>
                 <h2 class="fw-bold text-white mb-2 fs-1-1rem">Administration</h2>
                 <p class="text-white-50 flex-grow-1 dashboard-card-text">
-                    Accedez aux controles avances et aux parametres techniques de la plateforme.
+                    Accédez aux contrôles avancés et aux paramètres techniques de la plateforme.
                 </p>
                 <div class="mt-3">
                     {% if is_granted('ROLE_ADMIN') %}
