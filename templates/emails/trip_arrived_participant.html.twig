@@ -1,0 +1,21 @@
+<h1>Votre trajet est arrive a destination</h1>
+
+<p>Bonjour {{ participant.username }},</p>
+
+<p>
+    Le trajet <strong>{{ trip.departureLocation }} → {{ trip.arrivalLocation }}</strong>
+    du {{ trip.departureDate|date('d/m/Y') }} avec {{ driver.username }} vient d etre marque comme termine.
+</p>
+
+<p>
+    Merci de vous rendre dans votre espace personnel pour confirmer si le trajet s est bien passe.
+</p>
+
+<p>
+    <a href="{{ dashboardUrl }}">Acceder a mon espace trajets</a>
+</p>
+
+<p>
+    Vous pouvez aussi consulter directement le trajet ici :
+    <a href="{{ tripUrl }}">{{ tripUrl }}</a>
+</p>

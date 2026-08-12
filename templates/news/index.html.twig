@@ -1,0 +1,45 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Nouvelles - EcoRide{% endblock %}
+
+{% block body %}
+<div class="news-page container py-5">
+    <section class="news-hero mb-5">
+        <p class="news-eyebrow">Nouvelles</p>
+        <h1 class="news-title">Toute l'actualité du covoiturage et de la mobilité durable</h1>
+        <p class="news-copy">Retrouvez ici les dernières informations sur le covoiturage dans le monde, les innovations, les politiques environnementales et les impacts liés aux trajets partagés.</p>
+    </section>
+
+    <section class="news-article-list">
+        <article class="news-card">
+            <div class="news-card__header">
+                <span class="news-card__tag">Monde</span>
+                <time datetime="2026-05-18" class="news-card__date">18 mai 2026</time>
+            </div>
+            <h2 class="news-card__title">Le covoiturage se renforce comme levier d'impact climat</h2>
+            <p class="news-card__summary">Le covoiturage continue de gagner du terrain en Europe et en Amérique du Nord, en réduisant les émissions de CO₂ par passager et en améliorant l'efficacité des déplacements.</p>
+            <a href="{{ path('app_news_article_climate') }}" class="btn btn-outline-light news-card__button">Lire l'article</a>
+        </article>
+
+        <article class="news-card">
+            <div class="news-card__header">
+                <span class="news-card__tag news-card__tag--eco">Écologie</span>
+                <time datetime="2026-04-28" class="news-card__date">28 avril 2026</time>
+            </div>
+            <h2 class="news-card__title">Comment réduire les émissions liées aux trajets quotidiens</h2>
+            <p class="news-card__summary">Les trajets en voiture individuelle restent un facteur majeur de pollution urbaine. Le partage de véhicules et l'adoption de solutions électriques est une réponse concrète.</p>
+            <a href="{{ path('app_news_article_emissions') }}" class="btn btn-outline-light news-card__button">Lire l'article</a>
+        </article>
+
+        <article class="news-card">
+            <div class="news-card__header">
+                <span class="news-card__tag news-card__tag--tech">Innovation</span>
+                <time datetime="2026-04-08" class="news-card__date">8 avril 2026</time>
+            </div>
+            <h2 class="news-card__title">Les nouvelles plateformes facilitant le covoiturage électrique</h2>
+            <p class="news-card__summary">Le numérique transforme le covoiturage : mise en relation instantanée, simulation d'impact carbone et services axés sur les routes 100 % propres.</p>
+            <a href="{{ path('app_news_article_platforms') }}" class="btn btn-outline-light news-card__button">Lire l'article</a>
+        </article>
+    </section>
+</div>
+{% endblock %}

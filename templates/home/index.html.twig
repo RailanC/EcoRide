@@ -1,0 +1,237 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}EcoRide | Conduire en groupe est bien mieux
+{% endblock %}
+
+{% block body %}
+
+	<section class="home-hero position-relative d-flex flex-column justify-content-center align-items-center w-100 overflow-hidden" id="hero-section">
+
+		<div class="position-absolute top-0 start-0 w-100 h-100 z-n1">
+			<img src="{{ asset('images/car_in_the_florest.png') }}" alt="EcoRide – véhicule électrique en route" class="home-hero-image w-100 h-100 object-fit-cover"/>
+			<div class="position-absolute top-0 start-0 w-100 h-100 hero-bg-overlay"></div>
+		</div>
+
+		<div class="position-relative z-1 d-flex flex-column align-items-center text-center gap-3 gap-md-4 w-100 px-3 px-md-4">
+
+			<h1 class="home-hero-title fw-bold text-white lh-sm mb-0">
+				Conduire en groupe est<br>
+				<span class="text-gradient-custom">bien mieux.</span>
+			</h1>
+
+			<p class="home-hero-copy text-white-50 mb-0 px-1">
+				Rejoignez l'élite de la mobilité durable. Partagez vos trajets dans des
+				            véhicules électriques premium et réduisez votre empreinte carbone sans
+				            compromis sur le confort.
+			</p>
+
+			<div class="home-search-wrap w-100 mt-2 mt-md-4">
+
+				<div class="mb-3 d-flex justify-content-start">
+					<div class="home-trip-toggle gap-1 btn-group p-1 rounded-pill" role="group" aria-label="Type de trajet" data-trip-toggle-group>
+						<button type="button" class="home-trip-toggle-btn btn rounded-pill px-3 px-md-4 py-2 fw-medium text-white border-0 btn-search-custom" onclick="setTrip(this, false)" data-trip-toggle-option aria-pressed="true">Aller simple</button>
+						<button type="button" class="home-trip-toggle-btn home-trip-toggle-btn--inactive btn rounded-pill px-3 px-md-4 py-2 fw-medium text-white-50 border-0" onclick="setTrip(this, true)" data-trip-toggle-option aria-pressed="false">Aller-retour</button>
+					</div>
+				</div>
+
+				<div class="search-pillar-bg shadow-lg overflow-hidden position-relative" data-bs-theme="dark">
+					{{ form_start(searchForm) }}
+
+					<div class="search-fields-shell d-flex flex-column flex-sm-row flex-wrap flex-xl-nowrap flex-grow-1 bg-white bg-opacity-10 overflow-hidden">
+
+
+						<div class="search-field-custom flex-fill d-flex flex-column justify-content-center px-3 py-2 py-xl-0">
+							<label for="from" class="home-search-label form-label text-uppercase fw-bold mb-1">Départ</label>
+							<div class="search-field-control d-flex align-items-center gap-2">
+								<i class="bi bi-geo-alt search-field-icon"></i>
+								{{ form_widget(searchForm.departure, { id: 'from' }) }}
+							</div>
+						</div>
+
+						<div class="search-swap-slot d-none d-sm-flex align-items-center justify-content-center">
+							<button type="button" class="swap-btn-custom rounded-circle d-flex align-items-center justify-content-center" onclick="swapCities()" title="Inverser départ / destination" aria-label="Inverser départ et destination">
+								<i class="bi bi-arrow-left-right home-swap-icon"></i>
+							</button>
+						</div>
+
+						<div class="search-field-custom flex-fill d-flex flex-column justify-content-center px-3 py-2 py-xl-0">
+							<label for="to" class="home-search-label form-label text-uppercase fw-bold mb-1">Destination</label>
+							<div class="search-field-control d-flex align-items-center gap-2">
+								<i class="bi bi-flag-fill search-field-icon"></i>
+								{{ form_widget(searchForm.arrival, { id: 'to' }) }}
+							</div>
+						</div>
+
+						<div class="search-field-custom flex-fill d-flex flex-column justify-content-center px-3 py-2 py-xl-0">
+							<label for="departure-date" class="home-search-label form-label text-uppercase fw-bold mb-1">Date</label>
+							<div class="search-field-control d-flex align-items-center gap-2">
+								<i class="bi bi-calendar4 search-field-icon"></i>
+								{{ form_widget(searchForm.date, { id: 'departure-date' }) }}
+							</div>
+						</div>
+
+						<div class="search-field-custom flex-fill d-flex flex-column justify-content-center px-3 py-2 py-xl-0 d-none" id="return-field">
+							<label for="return-date" class="home-search-label form-label text-uppercase fw-bold mb-1">Retour</label>
+							<div class="search-field-control d-flex align-items-center gap-2">
+								<i class="bi bi-calendar2-event search-field-icon"></i>
+								{{ form_widget(searchForm.return_date, { id: 'return-date' }) }}
+							</div>
+						</div>
+
+						<div class="search-field-custom flex-fill d-flex flex-column justify-content-center px-3 py-2 py-xl-0 border-0">
+							<label for="passengers" class="home-search-label form-label text-uppercase fw-bold mb-1">Voyageurs</label>
+							<div class="search-field-control d-flex align-items-center gap-2">
+								<i class="bi bi-person search-field-icon"></i>
+								{{ form_widget(searchForm.passengers, { id: 'passengers' }) }}
+							</div>
+						</div>
+					</div>
+
+					<div class="ps-xl-2 pt-2 pt-xl-0 mt-1 mt-xl-0">
+						<button type="submit" class="home-search-submit btn btn-search-custom rounded-pill fw-bold w-100 d-flex align-items-center justify-content-center px-4 py-3 py-xl-0 h-100 border-0">
+							Rechercher
+							<i class="bi bi-search ms-2"></i>
+						</button>
+					</div>
+
+					{{ form_end(searchForm, { render_rest: false }) }}
+				</div>
+			</div>
+
+			<button type="button" class="discover-scroll-btn discover-scroll-btn--home text-center text-white-50 opacity-75 animate-bounce-custom z-1 d-flex flex-column align-items-center gap-1 bg-transparent border-0 p-0" data-discover-scroll data-discover-target="feature-fleet" aria-label="Découvrir la suite">
+				<span class="discover-scroll-label text-uppercase fw-bold">Découvrir</span>
+				<svg width="16" height="16" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>
+			</button>
+
+		</div>
+
+	</section>
+
+	<section class="home-section home-section--fleet py-4 py-md-5" id="feature-fleet">
+		<div class="home-section-container container-fluid py-3 py-md-5 px-3 px-md-4 px-lg-5">
+			<div class="row align-items-center gx-lg-5 gy-4 gy-lg-5">
+				<div class="col-12 col-lg-6">
+					<div class="fleet-media-card position-relative rounded-4 rounded-lg-5 overflow-hidden shadow-lg">
+						<img src="{{ asset('images/inside_demo_vehicle.png') }}" alt="Intérieur véhicule électrique premium EcoRide" class="w-100 h-100 object-fit-cover"/>
+						<div class="fleet-media-overlay position-absolute top-0 start-0 w-100 h-100"></div>
+
+						<div class="position-absolute bottom-0 start-0 w-100 p-3 p-md-4 z-1">
+							<div class="fleet-caption d-flex align-items-center justify-content-between rounded-4 p-3">
+								<div>
+									<h4 class="fleet-caption-title text-white fw-bold mb-1">Classe Executive</h4>
+									<p class="text-white-50 small mb-0">Zéro émission, confort maximal.</p>
+								</div>
+								<span class="ev-badge badge custom-badge-lime rounded-pill py-2 px-3 fw-bold text-uppercase">100 % EV</span>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<div class="col-12 col-lg-6 d-flex flex-column gap-3">
+					<div>
+						<span class="fleet-eyebrow badge custom-pill rounded-pill d-inline-flex align-items-center text-uppercase px-3 py-2 mb-3 fw-bold">
+							<svg class="me-2" width="13" height="13" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+							Flotte Électrique
+						</span>
+						<h2 class="home-section-title fw-bold text-white mb-3">Une expérience de voyage sans compromis.</h2>
+						<p class="home-section-copy text-white-50 lh-lg mb-0">
+							Notre flotte exclusivement composée de véhicules électriques haut de gamme
+							                        garantit un trajet silencieux, fluide et respectueux de l'environnement.
+							                        Partagez l'espace, pas les émissions.
+						</p>
+					</div>
+
+					<ul class="list-unstyled d-flex flex-column gap-3 mb-0 mt-2">
+						<li class="feature-list-card d-flex align-items-start gap-3 p-3 p-md-4 rounded-4">
+							<div class="feature-list-icon d-flex align-items-center justify-content-center rounded-3 flex-shrink-0">
+								<svg width="20" height="20" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+							</div>
+							<div>
+								<strong class="feature-list-title d-block text-white fw-bold mb-1">Confort Premium</strong>
+								<p class="text-white-50 small mb-0">Sièges ergonomiques et espace optimisé.</p>
+							</div>
+						</li>
+						<li class="feature-list-card d-flex align-items-start gap-3 p-3 p-md-4 rounded-4">
+							<div class="feature-list-icon d-flex align-items-center justify-content-center rounded-3 flex-shrink-0">
+								<svg width="20" height="20" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>
+							</div>
+							<div>
+								<strong class="feature-list-title d-block text-white fw-bold mb-1">Sécurité Vérifiée</strong>
+								<p class="text-white-50 small mb-0">Chauffeurs professionnels et certifiés.</p>
+							</div>
+						</li>
+					</ul>
+				</div>
+
+			</div>
+		</div>
+	</section>
+
+
+	<section class="home-section home-section--impact py-4 py-md-5" id="feature-impact">
+		<div class="home-section-container container-fluid py-3 py-md-5 px-3 px-md-4 px-lg-5">
+
+			<div class="impact-header text-center mx-auto mb-4 mb-md-5 px-2">
+				<h2 class="home-section-title fw-bold text-white mb-3">L'impact de notre communauté</h2>
+				<p class="home-section-copy text-white-50 lh-lg mb-0">
+					Chaque trajet partagé contribue directement à la préservation de nos
+					                écosystèmes. Voici ce que nous avons accompli ensemble cette année.
+				</p>
+			</div>
+
+			<div class="row g-3 g-md-4">
+
+				<div class="col-12 col-md-8">
+					<div class="bento-card-bg bento-glow rounded-4 rounded-md-5 p-4 p-lg-5 position-relative overflow-hidden d-flex flex-column h-100">
+						<div class="bento-icon bento-icon-box rounded-3 d-flex align-items-center justify-content-center mb-3 flex-shrink-0">
+							<svg width="24" height="24" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 16.5C17 19 14.76 21 12 21S7 19 7 16.5c0-2 2-4.5 5-8 3 3.5 5 6 5 8z"/><path d="M12 13V3"/><path d="M9 6l3-3 3 3"/></svg>
+						</div>
+						<div class="impact-stat fw-bold text-white lh-1 mb-1">2.4<span class="impact-stat-suffix">M</span>
+						</div>
+						<strong class="impact-stat-label text-white fw-bold mt-1">Tonnes de CO₂ évitées</strong>
+						<p class="text-white-50 small mt-2 mb-0 lh-lg">Équivalent à la plantation de 100 000 arbres dans des zones déforestées.</p>
+					</div>
+				</div>
+
+				<div class="col-12 col-sm-6 col-md-4">
+					<div class="bento-card-bg rounded-4 rounded-md-5 p-4 p-lg-5 d-flex flex-column h-100">
+						<div class="bento-icon bento-icon-box orange rounded-3 d-flex align-items-center justify-content-center mb-3 flex-shrink-0">
+							<svg width="24" height="24" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+						</div>
+						<div class="impact-stat fw-bold text-white lh-1 mb-1">50k+</div>
+						<strong class="impact-stat-label text-white fw-bold mt-1">Membres Actifs</strong>
+						<p class="text-white-50 small mt-2 mb-0 lh-lg">Une communauté engagée pour une mobilité responsable.</p>
+					</div>
+				</div>
+
+				<div class="col-12 col-sm-6 col-md-4">
+					<div class="bento-card-bg rounded-4 rounded-md-5 p-4 p-lg-5 d-flex flex-column h-100">
+						<div class="bento-icon bento-icon-box rounded-3 d-flex align-items-center justify-content-center mb-3 flex-shrink-0">
+							<svg width="24" height="24" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 17 9 11 13 15 21 7"/><polyline points="14 7 21 7 21 14"/></svg>
+						</div>
+						<div class="impact-stat fw-bold text-white lh-1 mb-1">12M</div>
+						<strong class="impact-stat-label text-white fw-bold mt-1">Kilomètres partagés</strong>
+						<p class="text-white-50 small mt-2 mb-0 lh-lg">Chaque kilomètre partagé est un geste pour la planète.</p>
+					</div>
+				</div>
+
+				<div class="col-12 col-md-8">
+					<div class="forest-card rounded-4 rounded-md-5 overflow-hidden position-relative d-flex flex-column justify-content-center p-4 p-lg-5">
+						<img src="{{ asset('images/street_green.png') }}" alt="Forêt EcoRide" class="position-absolute top-0 start-0 w-100 h-100 object-fit-cover z-0"/>
+						<div class="forest-card-overlay position-absolute top-0 start-0 w-100 h-100 z-0"></div>
+
+						<div class="forest-card-content position-relative z-1 d-flex flex-column justify-content-center h-100">
+							<h3 class="forest-card-title text-white fw-bold mb-0">Initiative Forêt EcoRide</h3>
+							<p class="forest-card-copy text-white-75 mb-2 lh-lg">Pour chaque 100 km parcourus, nous reversons 1 % à des projets de reforestation locaux certifiés.</p>
+							<div>
+								<button type="button" class="forest-card-button btn rounded-pill px-4 py-2 text-white fw-medium border">Découvrir le projet</button>
+							</div>
+						</div>
+					</div>
+				</div>
+
+			</div>
+		</div>
+	</section>
+
+{% endblock %}

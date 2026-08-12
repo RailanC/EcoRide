@@ -1,0 +1,93 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Avis - Tableau de bord{% endblock %}
+
+{% block body %}
+<div class="container py-5 mw-1080px">
+    <div class="d-flex flex-wrap justify-content-between align-items-end gap-3 mb-4">
+        <div>
+            <p class="small text-light mb-1">Espace de supervision</p>
+            <h1 class="fw-bold mb-1 page-title-custom">
+                Tous les avis
+            </h1>
+            <p class="text-light fs-94 mb-0">
+                Consultez l'ensemble des avis déposés par les participants.
+            </p>
+        </div>
+
+        <a href="{{ path('app_dashboard') }}" class="btn btn-outline-secondary text-success">Retour au tableau de bord</a>
+    </div>
+
+    <div class="card shadow-sm border-0 rounded-4">
+        <div class="card-header p-4 d-flex justify-content-between align-items-center rounded-top-4">
+            <h2 class="h5 mb-0 text-light fw-bold">Liste des avis</h2>
+            <span class="badge bg-light text-dark border rounded-pill fw-normal fs-6">{{ reviews|length }} résultat{{ reviews|length > 1 ? 's' }}</span>
+        </div>
+
+        <div class="card-body p-4">
+            {% if reviews is empty %}
+                <div class="text-center p-5">
+                    <h3 class="h5 fw-bold">Aucun avis</h3>
+                    <p class="text-muted mb-0">Il n'y a aucun avis pour le moment.</p>
+                </div>
+            {% else %}
+                <div class="d-flex flex-column gap-3">
+                {% for review in reviews %}
+                        <div class="rounded-3 p-3">
+                        <div class="d-flex justify-content-between align-items-start gap-3 flex-wrap">
+                            <div>
+                                <div class="fw-semibold">
+                                    {{ review.trip ? review.trip.departureLocation ~ ' -> ' ~ review.trip.arrivalLocation : 'Trajet supprimé' }}
+                                </div>
+                                <div class="small">
+                                    {% if review.trip and review.trip.departureDate and review.trip.departureTime %}
+                                        {{ review.trip.departureDate|date('d/m/Y') }} à {{ review.trip.departureTime|date('H:i') }}
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <div class="d-flex flex-column align-items-end gap-2">
+                                <span class="badge rounded-pill text-bg-secondary fw-medium">{{ reviewStatusLabels[review.status]|default(review.status) }}</span>
+                                <span class="badge bg-white text-dark border rounded-pill">{{ review.rating }}/5</span>
+                            </div>
+                        </div>
+
+                        <div class="row g-3 mt-2">
+                            <div class="col-12 col-md-4">
+                                <div class="small text-warning">Auteur</div>
+                                <div class="fw-semibold">{{ review.author ? review.author.username : 'Utilisateur supprimé' }}</div>
+                                <div class="small">{{ review.author ? review.author.email : 'Email indisponible' }}</div>
+                            </div>
+                            <div class="col-12 col-md-4">
+                                <div class="small text-success">Conducteur</div>
+                                <div class="fw-semibold">{{ review.user ? review.user.username : 'Utilisateur supprimé' }}</div>
+                                <div class="small">{{ review.user ? review.user.email : 'Email indisponible' }}</div>
+                            </div>
+                            <div class="col-12 col-md-4">
+                                <div class="small">Modéré par</div>
+                                <div class="fw-semibold">{{ review.moderatedBy ? review.moderatedBy.username : 'Non modéré' }}</div>
+                                <div class="small">
+                                    {{ review.moderatedAt ? review.moderatedAt|date('d/m/Y H:i') : 'Aucune date' }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-3">
+                            <div class="small">Commentaire</div>
+                            <p class="mb-0 text-pre-wrap">{{ review.comment }}</p>
+                        </div>
+
+                        {% if review.moderationNote %}
+                            <div class="mt-3">
+                                <div class="small text-muted">Note de modération</div>
+                                <p class="mb-0 text-pre-wrap">{{ review.moderationNote }}</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -18,6 +18,9 @@ framework:
             messenger.bus.default: []
 
         routing:
+            # Trip notification emails are queued on the async transport.
+            # A Messenger worker such as `php bin/console messenger:consume async -vv`
+            # must be running for real delivery in local/dev/prod environments.
             Symfony\Component\Mailer\Messenger\SendEmailMessage: async
             Symfony\Component\Notifier\Message\ChatMessage: async
             Symfony\Component\Notifier\Message\SmsMessage: async

@@ -54,3 +54,5 @@
 
 # Embedded web-server pid file
 /.web-server-pid
+compose.yaml
+compose.override.yaml

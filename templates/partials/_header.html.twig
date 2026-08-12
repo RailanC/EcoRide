@@ -1,0 +1,75 @@
+{% set currentRoute = app.request.attributes.get('_route') %}
+
+<nav class="navbar navbar-expand-lg bg-primary" data-bs-theme="dark">
+    <div class="container-fluid gap-2 px-5">
+        <a class="navbar-brand fw-bold" href="{{ path('app_home') }}">
+            EcoRide
+        </a>
+
+        <div class="collapse navbar-collapse justify-content-end" id="mainNavbar">
+            <ul class="navbar-nav mb-2 mb-lg-0 text-center">
+                <li class="nav-item">
+                    <a
+                        href="{{ path('app_eco_impact') }}"
+                        class="nav-link {{ currentRoute == 'app_eco_impact' ? 'active' : '' }}"
+                    >Eco-Impact</a>
+                </li>
+                <li class="nav-item">
+                    <a
+                        href="{{ path('app_news') }}"
+                        class="nav-link {{ currentRoute == 'app_news' ? 'active' : '' }}"
+                    >Nouvelles</a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ path('app_contact') }}" class="nav-link {{ currentRoute == 'app_contact' ? 'active' : '' }}">Contact</a>
+                </li>
+            </ul>
+        </div>
+        
+        <div class="d-flex align-items-center gap-3">
+            
+            
+            <div class="d-flex align-items-center gap-2">
+                {% if app.user %}
+                    {% if app.user.type != 'passenger' %}
+                        <a href="{{ path('app_trip_new') }}" class="btn btn-outline-light btn-sm rounded-pill px-3 primary">
+                        Proposer
+                        </a>
+                    {% endif %}
+                    <span class="text-light d-none d-md-inline-flex align-items-center small fw-medium">
+                        <i class="bi bi-lightning-charge-fill text-warning me-1"></i>
+                        {{ app.user.creditBalance }} credits
+                    </span>
+                    <div class="dropdown">
+                        <a href="#" class="text-light fs-4 text-decoration-none d-flex align-items-center" role="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Menu du compte">
+                            <i class="bi bi-person-circle"></i>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 mt-2">
+                            {% if is_granted('ROLE_EMPLOYEUR') %}
+                                <li><a class="dropdown-item py-2" href="{{ path('app_dashboard') }}">Tableau de bord</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                            {% endif %}
+                            <li><a class="dropdown-item py-2" href="{{ path('app_profile_trips') }}">Mes trajets</a></li>
+                            <li><a class="dropdown-item py-2" href="{{ path('app_profile') }}">Profil</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item text-danger py-2" href="{{ path('app_logout') }}">Deconnexion</a></li>
+                        </ul>
+                    </div>
+                {% else %}
+                    <ul class="navbar-nav mb-2 mb-lg-0 text-center">
+                        <li class="nav-item">
+                            <a href="{{ path('app_login') }}" class="nav-link {{ currentRoute == 'app_login' ? 'active' : '' }}">Connexion</a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{{ path('app_register') }}" class="nav-link {{ currentRoute == 'app_register' ? 'active' : '' }}">Inscription</a>
+                        </li>
+                    </ul>
+                {% endif %}
+            </div>
+
+            <button class="navbar-toggler border-0 p-1 ms-1" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar" aria-controls="mainNavbar" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+        </div>
+    </div>
+</nav>

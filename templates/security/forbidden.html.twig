@@ -1,0 +1,47 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Acces refuse | EcoRide{% endblock %}
+
+{% block body %}
+<section class="er-public-page er-public-page--centered">
+    <div class="er-public-page__inner er-public-page__inner--narrow">
+        <div class="er-public-hero">
+            <span class="er-pill er-pill--danger">Zone protegee</span>
+            <h1 class="er-public-page__title">Acces refuse</h1>
+            <p class="er-public-page__lead">
+                Cette page est reservee aux membres autorises. Votre compte ne dispose pas
+                des permissions necessaires pour ouvrir cet espace.
+            </p>
+        </div>
+
+        <div class="er-public-card er-public-card--danger">
+            <div class="er-status-icon">
+                <i class="bi bi-shield-lock"></i>
+            </div>
+
+            <div class="er-info-stack">
+                <div class="er-info-card">
+                    <h2 class="er-info-card__title">Acces limite par role</h2>
+                    <p class="er-info-card__body">
+                        Cette section est protegee par les regles de securite Symfony et n'est
+                        pas accessible a tous les comptes.
+                    </p>
+                </div>
+
+                <div class="er-info-card">
+                    <h2 class="er-info-card__title">Que faire maintenant ?</h2>
+                    <p class="er-info-card__body">
+                        Revenez a l'accueil, consultez votre profil, ou connectez-vous avec un
+                        compte qui dispose du role attendu.
+                    </p>
+                </div>
+            </div>
+
+            <div class="er-public-actions">
+                <a href="{{ path('app_home') }}" class="er-btn er-btn--primary">Retour a l'accueil</a>
+                <a href="{{ path('app_profile') }}" class="er-btn er-btn--ghost">Aller au profil</a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

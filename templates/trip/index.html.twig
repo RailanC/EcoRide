@@ -1,0 +1,249 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}EcoRide - Recherche de trajets
+{% endblock %}
+
+{% block body %}
+	<div class="trip-search-page container-fluid px-4 px-lg-5 py-5" style="max-width: 1600px;">
+
+		{% for message in app.flashes('success') %}
+			<div class="alert alert-success d-flex align-items-center gap-2 mb-4" role="alert">
+				<i class="bi bi-check-circle-fill fs-5"></i>
+				<div>{{ message }}</div>
+			</div>
+		{% endfor %}
+
+		<div class="trip-search-hero mb-4">
+			<h1 class="trip-search-title">EcoRide - Recherche de trajets</h1>
+			<p class="trip-search-copy">Trouvez votre trajet durable parmi nos véhicules électriques et hybrides.</p>
+		</div>
+
+		{{ form_start(form, { attr: { class: 'row g-4' }, action: path('app_trip'), method: 'get', }) }}
+
+		<aside class="col-12 col-xl-3">
+			<div class="trip-search-sidebar">
+				<div class="trip-search-panel">
+
+					<div class="trip-search-panel__header mb-3">
+						<h2 class="trip-search-panel__title d-flex align-items-center gap-2">
+							<i class="bi bi-sliders trip-search-panel__icon"></i>
+							Filtres
+						</h2>
+					</div>
+
+
+					<div class="trip-filter-group">
+						<span class="trip-filter-group__label">Énergie</span>
+						{% for energyTypeField in form.energyType %}
+							{% set isChecked = energyTypeField.vars.checked %}
+							{% set labelClass = 'radio-pill' ~ (isChecked ? '' : ' radio-pill--inactive') %}
+							<label class="{{ labelClass }}">
+								{{ form_widget(energyTypeField) }}
+								{{ energyTypeField.vars.label }}
+							</label>
+						{% endfor %}
+					</div>
+					<div class="trip-filter-group">
+						<label for="max_price" class="trip-filter-label">Prix max (EUR)</label>
+						<div class="trip-filter-range">
+							{{ form_widget(form.max_price, { id: 'max_price' }) }}
+							<div class="trip-filter-range__labels">
+								<span>10€</span>
+								<output for="max_price" class="trip-filter-value">{{ app.request.query.get('max_price') ?: 100 }}€</output>
+								<span>100€</span>
+							</div>
+						</div>
+					</div>
+					<div class="trip-filter-group">
+						<label for="min_rating" class="trip-filter-label">Note minimale de Covoitureur</label>
+						<div>
+							{{ form_row(form.checkRating, { id: 'check_rating' }) }}
+						</div>
+						<div class="trip-filter-range" id="min_rating_container">
+							{{ form_widget(form.min_rating, { id: 'min_rating' }) }}
+							<div class="trip-filter-range__labels">
+								<span>1 ★</span>
+								<output for="min_rating" class="trip-filter-value">{{ app.request.query.get('min_rating') ?: 1 }}
+									★</output>
+								<span>5 ★</span>
+							</div>
+						</div>
+					</div>
+					<div class="trip-filter-group">
+						<label for="departure_time" class="trip-filter-label">Heure de départ</label>
+						<div class="trip-search-query-field">
+							{{ form_widget(form.departure_time, { id: 'departure_time' }) }}
+						</div>
+					</div>
+					<div class="trip-filter-group">
+						<label for="seats_available" class="trip-filter-label">Places disponibles</label>
+						<div class="trip-search-query-field">
+							{{ form_widget(form.seats_available, { id: 'seats_available' }) }}
+						</div>
+					</div>
+				</div>
+			</aside>
+			<main class="col-12 col-xl-9">
+				<div class="trip-search-card mb-4">
+					{{ form_widget(form.trip_type, { id: 'trip_type' }) }}
+					<div class="trip-search-query-bar">
+						<div class="trip-search-query-group flex-grow-1">
+							<span class="trip-search-query-label">Départ</span>
+							<label class="trip-search-query-field">
+								<span class="trip-search-query-icon">
+									<i class="bi bi-geo-alt-fill"></i>
+								</span>
+								{{ form_widget(form.departure, { id: 'from' }) }}
+							</label>
+						</div>
+
+						<div class="trip-search-bar-divider"></div>
+						<div class="trip-search-query-group flex-grow-1">
+							<span class="trip-search-query-label">Destination</span>
+							<label class="trip-search-query-field">
+								<span class="trip-search-query-icon">
+									<i class="bi bi-send"></i>
+								</span>
+								{{ form_widget(form.arrival, { id: 'to' }) }}
+							</label>
+						</div>
+
+						<div class="trip-search-bar-divider"></div>
+						<div class="trip-search-date-group">
+							<span class="trip-search-date-label">Aller</span>
+							<label class="trip-search-query-field trip-search-query-field--date">
+								<span class="trip-search-query-icon date-picker-trigger" role="button" tabindex="0">
+									<i class="bi bi-calendar-event"></i>
+								</span>
+								{{ form_widget(form.date, { id: 'departure-date' }) }}
+							</label>
+						</div>
+
+						<div id="return-date-section" class="d-flex align-items-center{{ app.request.query.get('trip_type') == 'return' ? '' : ' d-none' }}">
+							<div class="trip-search-bar-divider"></div>
+							<div class="trip-search-date-group">
+								<span class="trip-search-date-label">Retour</span>
+								<label id="return-date-field" class="trip-search-query-field trip-search-query-field--date">
+									<span class="trip-search-query-icon date-picker-trigger" role="button" tabindex="0">
+										<i class="bi bi-calendar-event"></i>
+									</span>
+									{{ form_widget(form.return_date, { id: 'return-date' }) }}
+								</label>
+							</div>
+						</div>
+
+
+						<button type="submit" class="btn btn-search-main d-flex align-items-center gap-2">
+							<i class="bi bi-search"></i>
+							Rechercher
+						</button>
+					</div>
+				</div>
+				{% if createdTripId %}
+					<div class="trip-search-alert mb-4">
+						<i class="bi bi-info-circle fs-5"></i>
+						<div>Votre nouveau trajet est mis en avant ci-dessous.</div>
+					</div>
+				{% endif %}
+				{% if trips is empty %}
+					<div class="trip-empty-state">
+						<div class="trip-empty-state__icon">
+							<i class="bi bi-search fs-3"></i>
+						</div>
+						<h4>Aucun trajet trouvé</h4>
+						<p>Aucun covoiturage disponible pour cette recherche.</p>
+					</div>
+				{% else %}
+					<div class="trip-search-results">
+						{% for trip in trips %}
+							<div class="trip-card-h {{ loop.index > 5 ? 'trip-card--hidden' : '' }}" data-trip-id="{{ trip.id }}">
+								{% set isEco     = trip.vehicle and trip.vehicle.energyType in ['electric', 'electric'] %}
+								{% set isHybrid = trip.vehicle and trip.vehicle.energyType in ['hybrid', 'hybride'] %}
+
+								<a href="{{ path('app_trip_show', {id: trip.id}) }}" id="{{ createdTripId is defined and createdTripId == trip.id ? 'created-trip-card' : '' }}" class="trip-card{{ createdTripId is defined and createdTripId == trip.id ? ' trip-card--highlighted' : '' }}">
+									<div class="trip-card__avatar-wrap">
+										<div class="trip-card__avatar">
+											{{ trip.driver.username|slice(0, 2)|upper }}
+										</div>
+										{% if trip.driver.averageRating is defined and trip.driver.averageRating %}
+											<span class="trip-card__rating">{{ trip.driver.averageRating|number_format(1) }}</span>
+										{% endif %}
+									</div>
+									<div class="trip-card__driver">
+										<div class="trip-card__driver-name">{{ trip.driver.username|length > 12
+                                                      ? trip.driver.username|slice(0, 12) ~ '...'
+                                                      : trip.driver.username }}</div>
+										<div class="trip-card__vehicle">
+											{{ trip.vehicle ? trip.vehicle.model : 'Véhicule' }}
+											{% if trip.vehicle and trip.vehicle.color is defined and trip.vehicle.color %}
+												&bull;
+												{{ trip.vehicle.color }}
+											{% endif %}
+										</div>
+									</div>
+									<div class="trip-card__timeline">
+										<div class="trip-card__timeline-col">
+											<div class="trip-card__date">{{ trip.departureDate|date('d M Y') }}</div>
+											<div class="trip-card__time">{{ trip.departureTime|date('H:i') }}</div>
+											<div class="trip-card__location">{{ trip.departureLocation|upper }}</div>
+										</div>
+										<div class="trip-card__route-line">
+											<span class="trip-card__route-dot"></span>
+											<div class="trip-card__route-track">
+												<span class="trip-card__duration-label">
+													{{ (trip.durationInMinutes / 60)|round(0, 'floor') }}H
+													{{ '%02d'|format(trip.durationInMinutes % 60) }}M
+												</span>
+												<div class="trip-card__route-arrow"></div>
+											</div>
+											<span class="trip-card__route-arrow-head">
+												<i class="bi bi-arrow-right-short"></i>
+											</span>
+										</div>
+										<div class="trip-card__timeline-col trip-card__timeline-col--right">
+											<div class="trip-card__date">{{ trip.arrivalDate|date('d M Y') }}</div>
+											<div class="trip-card__time">{{ trip.arrivalTime|date('H:i') }}</div>
+											<div class="trip-card__location">{{ trip.arrivalLocation|upper }}</div>
+										</div>
+									</div>
+
+									<div class="trip-card__aside">
+										<div class="trip-card__badge-wrap">
+											{% if isEco %}
+												<span class="trip-card__badge trip-card__badge--eco">
+													<i class="bi bi-lightning-fill"></i>
+													ECO
+												</span>
+											{% elseif isHybrid %}
+												<span class="trip-card__badge trip-card__badge--premium">
+													<i class="bi bi-star-fill"></i>
+													HYBRIDE
+												</span>
+											{% endif %}
+										</div>
+										<div class="trip-card__price">{{ trip.pricePerPerson | number_format(2, ',', ' ') }}€</div>
+										<span class="btn trip-card__cta">Réserver</span>
+									</div>
+
+								</a>
+							</div>
+						{% endfor %}
+					</div>
+
+					<div class="trip-load-more mt-4 text-center">
+						<button type="button" class="btn trip-load-more__btn" id="loadMoreBtn">
+							AFFICHER PLUS DE TRAJETS
+							<i class="bi bi-chevron-double-down ms-1"></i>
+						</button>
+					</div>
+
+				{% endif %}
+			</main>
+			{{ form_end(form, { render_rest: false }) }}
+		</div>
+
+		{% block javascript %}
+			{{ parent() }}
+			<script type="module" src="{{ asset('js/tripScripts.js') }}"></script>
+		{% endblock %}
+	{% endblock %}

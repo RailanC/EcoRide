@@ -1,0 +1,488 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mon Profil — EcoRide
+{% endblock %}
+
+{% block body %}
+	<div
+		class="container py-5" data-bs-theme="dark">
+
+		{# ── PAGE HEADER ─────────────────────────────────────────────── #}
+		<div class="mb-5">
+			<p class="text-uppercase fw-bold mb-1" style="font-size: 0.7rem; color: #9aa49a; letter-spacing: 0.08em;">Espace personnel</p>
+			<h1 class="fw-bold text-white mb-2" style="font-size: clamp(1.8rem, 4vw, 2.5rem); letter-spacing: -0.02em;">
+				Mon profil
+			</h1>
+			<p class="text-white-50 mb-0" style="font-size: 0.94rem;">
+				Gérez vos informations et vos véhicules
+			</p>
+		</div>
+
+		{# ── FLASH MESSAGES ───────────────────────────────────────────── #}
+		{% set successFlashes = app.flashes('success') %}
+		{% set errorFlashes = app.flashes('error') %}
+		{% for msg in successFlashes %}
+			<div class="alert alert-success d-flex align-items-center gap-3 rounded-4 border border-success border-opacity-25 mb-4" style="background: rgba(25, 135, 84, 0.1); color: #7cdb82;">
+				<svg width="18" height="18" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+					<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
+				</svg>
+				<div class="small fw-medium">{{ msg }}</div>
+			</div>
+		{% endfor %}
+		{% for msg in errorFlashes %}
+			<div class="alert alert-danger d-flex align-items-center gap-3 rounded-4 border border-danger border-opacity-25 mb-4" style="background: rgba(220, 53, 69, 0.1); color: #ea868f;">
+				<svg width="18" height="18" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+					<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+				</svg>
+				<div class="small fw-medium">{{ msg }}</div>
+			</div>
+		{% endfor %}
+
+		{{ form_start(profileForm, {
+        action: path('app_profile_update'),
+        method: 'POST'
+    }) }}
+		<div
+			class="row g-4">
+			{# ══════════════════════════════════════════════════════
+						               LEFT COLUMN — Identity + Role
+						               ══════════════════════════════════════════════════════ #}
+			<div
+				class="col-12 col-lg-4">
+
+				{# Avatar card #}
+				<div class="card bg-transparent border-0 rounded-4 shadow-sm text-center mb-4" style="background: #1c2025 !important; border: 1px solid #32353b !important;">
+					<div class="card-body p-4 p-md-5">
+						<div class="mx-auto mb-3 d-flex align-items-center justify-content-center fw-bold shadow-sm" style="width: 80px; height: 80px; border-radius: 20px; background: linear-gradient(135deg, #263446, #1a1d27); border: 1px solid #32353b; font-size: 1.6rem; color: #9aa49a;">
+							{{ app.user.firstName|first|upper }}{{ app.user.lastName|first|upper }}
+						</div>
+						<p class="fw-bold text-white mb-0" style="font-size: 1.1rem;">
+							{{ app.user.firstName }}
+							{{ app.user.lastName }}
+						</p>
+						<p class="text-white-50 mb-0 mt-1" style="font-size: 0.85rem;">
+							{{ app.user.email }}
+						</p>
+
+						{% if app.user.type in ['driver', 'both'] %}
+							<div class="mt-4 p-3 rounded-4" style="background: #181c21; border: 1px solid #32353b;">
+								<p class="mb-1 fw-bold text-white" style="font-size: 0.9rem;">
+									Ma note conducteur
+								</p>
+								{% if app.user.averageValidatedRating is not null %}
+									<p class="mb-0 text-white-50" style="font-size: 0.85rem;">
+										<span class="fw-bold me-1" style="color: #7cdb82;">{{ app.user.averageValidatedRating }}/5</span>
+										sur
+										{{ app.user.validatedReviewCount }}
+										avis valide{{ app.user.validatedReviewCount > 1 ? 's' }}
+									</p>
+								{% else %}
+									<p class="mb-0 text-white-50" style="font-size: 0.82rem;">
+										Aucune note validee pour le moment.
+									</p>
+								{% endif %}
+							</div>
+						{% endif %}
+
+						{# Role badges #}
+						<div class="d-flex gap-2 justify-content-center mt-3 flex-wrap" id="roleBadges">
+							<span class="badge custom-badge-lime rounded-pill px-3 py-2 fw-medium" id="badgePassenger" style="display:none;">Passager</span>
+							<span class="badge custom-badge-lime rounded-pill px-3 py-2 fw-medium" id="badgeDriver" style="display:none;">
+								Conducteur
+							</span>
+						</div>
+					</div>
+				</div>
+
+				{# Personal info card #}
+				<div class="card bg-transparent border-0 rounded-4 shadow-sm mb-4" style="background: #1c2025 !important; border: 1px solid #32353b !important;">
+					<div class="card-body p-4 p-md-5">
+						<h2 class="fw-bold text-white mb-4" style="font-size: 1.1rem;">Informations personnelles</h2>
+
+						<div class="row g-3 mb-4">
+							<div class="col-6">
+								{{ form_row(profileForm.firstName, {
+                                label_attr: { class: 'form-label text-uppercase fw-bold mb-1 ps-1', style: 'font-size: 0.7rem; color: #9aa49a; letter-spacing: 0.08em;' },
+                                attr: { class: 'form-control custom-input px-3 py-2 rounded-3 shadow-none' }
+                            }) }}
+							</div>
+							<div class="col-6">
+								{{ form_row(profileForm.lastName, {
+                                label_attr: { class: 'form-label text-uppercase fw-bold mb-1 ps-1', style: 'font-size: 0.7rem; color: #9aa49a; letter-spacing: 0.08em;' },
+                                attr: { class: 'form-control custom-input px-3 py-2 rounded-3 shadow-none' }
+                            }) }}
+							</div>
+						</div>
+
+						<div class="mb-4">
+							{{ form_label(profileForm.email, null, { label_attr: { class: 'form-label text-uppercase fw-bold mb-1 ps-1', style: 'font-size: 0.7rem; color: #9aa49a; letter-spacing: 0.08em;' } }) }}
+							<div class="position-relative">
+								<span class="position-absolute d-flex align-items-center" style="left: 1rem; top: 50%; transform: translateY(-50%); color: #7cdb82; pointer-events: none;">
+									<svg width="14" height="14" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+										<path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/>
+									</svg>
+								</span>
+								{{ form_widget(profileForm.email, { attr: { class: 'form-control custom-input px-3 py-2 rounded-3 shadow-none', style: 'padding-left: 2.75rem !important;' } }) }}
+							</div>
+							{{ form_errors(profileForm.email)}}
+						</div>
+
+						<div class="mb-4">
+							{{ form_label(profileForm.phone, null, { label_attr: { class: 'form-label text-uppercase fw-bold mb-1 ps-1', style: 'font-size: 0.7rem; color: #9aa49a; letter-spacing: 0.08em;' } }) }}
+							<div class="position-relative">
+								<span class="position-absolute d-flex align-items-center" style="left: 1rem; top: 50%; transform: translateY(-50%); color: #7cdb82; pointer-events: none;">
+									<svg width="14" height="14" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+										<path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.4 2 2 0 0 1 3.58 1.22h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.77a16 16 0 0 0 6.29 6.29l1.84-1.84a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/>
+									</svg>
+								</span>
+								{{ form_widget(profileForm.phone, { attr: { class: 'form-control custom-input px-3 py-2 rounded-3 shadow-none', style: 'padding-left: 2.75rem !important;' } }) }}
+							</div>
+							{{ form_errors(profileForm.phone)}}
+						</div>
+
+						<div class="mb-4">
+							{{ form_label(profileForm.address, null, { label_attr: { class: 'form-label text-uppercase fw-bold mb-1 ps-1', style: 'font-size: 0.7rem; color: #9aa49a; letter-spacing: 0.08em;' } }) }}
+							<div class="position-relative">
+								<span class="position-absolute d-flex align-items-center" style="left: 1rem; top: 50%; transform: translateY(-50%); color: #7cdb82; pointer-events: none;">
+									<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-house" viewbox="0 0 16 16">
+										<path d="M8.707 1.5a1 1 0 0 0-1.414 0L.646 8.146a.5.5 0 0 0 .708.708L2 8.207V13.5A1.5 1.5 0 0 0 3.5 15h9a1.5 1.5 0 0 0 1.5-1.5V8.207l.646.647a.5.5 0 0 0 .708-.708L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293zM13 7.207V13.5a.5.5 0 0 1-.5.5h-9a.5.5 0 0 1-.5-.5V7.207l5-5z"/>
+									</svg>
+								</span>
+								{{ form_widget(profileForm.address, { attr: { class: 'form-control custom-input px-3 py-2 rounded-3 shadow-none', style: 'padding-left: 2.75rem !important;' } }) }}
+							</div>
+							{{ form_errors(profileForm.address)}}
+						</div>
+
+						<div class="mb-0">
+							{{ form_row(profileForm.bio, {
+                            label_attr: { class: 'form-label text-uppercase fw-bold mb-1 ps-1', style: 'font-size: 0.7rem; color: #9aa49a; letter-spacing: 0.08em;' },
+                            attr: { class: 'form-control custom-input px-3 py-2 rounded-3 shadow-none', rows: '4', style: 'resize: vertical;' }
+                        }) }}
+						</div>
+					</div>
+				</div>
+
+				{# Change password card #}
+				<div class="card bg-transparent border-0 rounded-4 shadow-sm mb-4" style="background: #1c2025 !important; border: 1px solid #32353b !important;">
+					<div class="card-body p-4 p-md-5">
+						<h2 class="fw-bold text-white mb-4" style="font-size: 1.1rem;">Changer le mot de passe</h2>
+
+						<div class="mb-4">
+							{{ form_label(profileForm.currentPassword, null, { label_attr: { class: 'form-label text-uppercase fw-bold mb-1 ps-1', style: 'font-size: 0.7rem; color: #9aa49a; letter-spacing: 0.08em;' } }) }}
+							<div class="position-relative" data-controller="password-visibility">
+								{{ form_widget(profileForm.currentPassword, { attr: { class: 'form-control custom-input px-3 py-2 rounded-3 shadow-none', style: 'padding-right: 2.75rem !important;', 'data-password-visibility-target': 'input' } }) }}
+								<button type="button" data-action="password-visibility#toggle" class="btn position-absolute border-0 shadow-none bg-transparent d-flex align-items-center p-0 btn-toggle-password" style="right: 1rem; top: 50%; transform: translateY(-50%); color: #9aa49a; cursor: pointer;">
+									<svg data-password-visibility-target="iconShow" width="15" height="15" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+										<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+									</svg>
+									<svg data-password-visibility-target="iconHide" class="d-none" width="15" height="15" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+										<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+										<line x1="1" y1="1" x2="23" y2="23"></line>
+									</svg>
+								</button>
+							</div>
+							{{ form_errors(profileForm.currentPassword) }}
+						</div>
+
+						<div class="mb-4">
+							{{ form_label(profileForm.newPassword.first, null, { label_attr: { class: 'form-label text-uppercase fw-bold mb-1 ps-1', style: 'font-size: 0.7rem; color: #9aa49a; letter-spacing: 0.08em;' } }) }}
+							<div class="position-relative" data-controller="password-visibility">
+								{{ form_widget(profileForm.newPassword.first, { attr: { class: 'form-control custom-input px-3 py-2 rounded-3 shadow-none', style: 'padding-right: 2.75rem !important;', 'data-password-visibility-target': 'input' } }) }}
+								<button type="button" data-action="password-visibility#toggle" class="btn position-absolute border-0 shadow-none bg-transparent d-flex align-items-center p-0 btn-toggle-password" style="right: 1rem; top: 50%; transform: translateY(-50%); color: #9aa49a; cursor: pointer;">
+									<svg data-password-visibility-target="iconShow" width="15" height="15" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+										<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+									</svg>
+									<svg data-password-visibility-target="iconHide" class="d-none" width="15" height="15" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+										<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+										<line x1="1" y1="1" x2="23" y2="23"></line>
+									</svg>
+								</button>
+							</div>
+							{{ form_errors(profileForm.newPassword.first) }}
+						</div>
+
+						<div class="mb-0">
+							{{ form_label(profileForm.newPassword.second, null, { label_attr: { class: 'form-label text-uppercase fw-bold mb-1 ps-1', style: 'font-size: 0.7rem; color: #9aa49a; letter-spacing: 0.08em;' } }) }}
+							<div class="position-relative" data-controller="password-visibility">
+								{{ form_widget(profileForm.newPassword.second, { attr: { class: 'form-control custom-input px-3 py-2 rounded-3 shadow-none', style: 'padding-right: 2.75rem !important;', 'data-password-visibility-target': 'input' } }) }}
+								<button type="button" data-action="password-visibility#toggle" class="btn position-absolute border-0 shadow-none bg-transparent d-flex align-items-center p-0 btn-toggle-password" style="right: 1rem; top: 50%; transform: translateY(-50%); color: #9aa49a; cursor: pointer;">
+									<svg data-password-visibility-target="iconShow" width="15" height="15" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+										<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+									</svg>
+									<svg data-password-visibility-target="iconHide" class="d-none" width="15" height="15" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+										<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+										<line x1="1" y1="1" x2="23" y2="23"></line>
+									</svg>
+								</button>
+							</div>
+							{{ form_errors(profileForm.newPassword.second) }}
+						</div>
+					</div>
+				</div>
+
+				<div class="card bg-transparent rounded-4 shadow-sm mt-4" style="background: #1c2025 !important; border: 1px solid rgba(220, 53, 69, 0.22) !important;">
+					<div class="card-body p-4 p-md-5">
+						<h2 class="fw-bold mb-3" style="font-size: 1.1rem; color: #ea868f;">Zone sensible</h2>
+						<p class="text-white-50 mb-4" style="font-size: 0.9rem;">
+							Supprimer votre compte effacera votre profil et vos véhicules. Cette action est irréversible.
+						</p>
+						<button type="submit" form="delete-profile-form" class="btn btn-outline-danger rounded-pill fw-medium px-4">
+							Supprimer mon compte
+						</button>
+					</div>
+				</div>
+
+			</div>
+			{# /col left #}
+
+			{# ══════════════════════════════════════════════════════
+						               RIGHT COLUMN — Role + Vehicles
+						               ══════════════════════════════════════════════════════ #}
+			<div
+				class="col-12 col-lg-8">
+
+				{# ── ROLE SELECTOR ──────────────────────────────── #}
+				<div class="card bg-transparent border-0 rounded-4 shadow-sm mb-4" style="background: #1c2025 !important; border: 1px solid #32353b !important;">
+					<div class="card-body p-4 p-md-5">
+						<h2 class="fw-bold text-white mb-4" style="font-size: 1.1rem;">
+							Mon rôle sur EcoRide
+						</h2>
+
+						<div
+							class="row g-3" id="roleCards">
+
+							{# Passenger #}
+							<div class="col-12 col-sm-4">
+								<label class="role-card rounded-4 p-4 d-block" for="rolePassenger" style="cursor: pointer;">
+									<input type="radio" id="rolePassenger" name="role" value="passenger" class="d-none role-radio" {{ app.user.type == 'passenger' ? 'checked' : '' }}/>
+									<div class="mb-2 mx-auto d-flex align-items-center justify-content-center" style="width: 44px; height: 44px; border-radius: 12px; background: rgba(124, 219, 130, 0.1); border: 1px solid rgba(124, 219, 130, 0.15);">
+										<svg width="20" height="20" viewbox="0 0 24 24" fill="none" stroke="#7cdb82" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+											<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+										</svg>
+									</div>
+									<p class="fw-bold text-white mb-0" style="font-size: 0.95rem;">Passager</p>
+									<p class="text-white-50 mt-1 mb-0" style="font-size: 0.8rem; line-height: 1.3;">
+										Je cherche des trajets
+									</p>
+								</label>
+							</div>
+
+							{# Driver #}
+							<div class="col-12 col-sm-4">
+								<label class="role-card rounded-4 p-4 d-block" for="roleDriver" style="cursor: pointer;">
+									<input type="radio" id="roleDriver" name="role" value="driver" class="d-none role-radio" {{ app.user.type == 'driver' ? 'checked' : '' }}/>
+									<div class="mb-2 mx-auto d-flex align-items-center justify-content-center" style="width: 44px; height: 44px; border-radius: 12px; background: rgba(124, 219, 130, 0.1); border: 1px solid rgba(124, 219, 130, 0.15);">
+										<svg width="20" height="20" viewbox="0 0 24 24" fill="none" stroke="#7cdb82" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+											<rect x="1" y="3" width="15" height="13" rx="2"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/>
+										</svg>
+									</div>
+									<p class="fw-bold text-white mb-0" style="font-size: 0.95rem;">Conducteur</p>
+									<p class="text-white-50 mt-1 mb-0" style="font-size: 0.8rem; line-height: 1.3;">
+										Je propose des trajets
+									</p>
+								</label>
+							</div>
+
+							{# Both #}
+							<div class="col-12 col-sm-4">
+								<label class="role-card rounded-4 p-4 d-block" for="roleBoth" style="cursor: pointer;">
+									<input type="radio" id="roleBoth" name="role" value="both" class="d-none role-radio" {{ app.user.type == 'both' ? 'checked' : '' }}/>
+									<div class="mb-2 mx-auto d-flex align-items-center justify-content-center" style="width: 44px; height: 44px; border-radius: 12px; background: rgba(124, 219, 130, 0.1); border: 1px solid rgba(124, 219, 130, 0.18);">
+										<svg width="20" height="20" viewbox="0 0 24 24" fill="none" stroke="#7cdb82" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+											<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+										</svg>
+									</div>
+									<p class="fw-bold text-white mb-0" style="font-size: 0.95rem;">Les deux</p>
+									<p class="text-white-50 mt-1 mb-0" style="font-size: 0.8rem; line-height: 1.3;">
+										Je conduis et je voyage
+									</p>
+								</label>
+							</div>
+
+						</div>
+					</div>
+				</div>
+
+				{# ── DRIVER SECTION (shown when driver or both) ─── #}
+				<div
+					id="driverSection" style="display:none;">
+
+					{# ── VEHICLES ────────────────────────────────── #}
+					<div class="card bg-transparent border-0 rounded-4 shadow-sm mb-4" style="background: #1c2025 !important; border: 1px solid #32353b !important;">
+						<div class="card-body p-4 p-md-5">
+							<h2 class="fw-bold text-white mb-4" style="font-size: 1.1rem;">
+								Mes véhicules
+							</h2>
+
+							{# Vehicle collection with custom rendering #}
+							<div id="vehicleList" class="vehicle-collection">
+								{% for vehicleForm in profileForm.vehicles %}
+									<div class="vehicle-block rounded-4 mb-4 p-4 shadow-sm" style="background: #181c21; border: 1px solid #32353b;" data-index="{{ loop.index0 }}" data-existing="{{ vehicleForm.vars.data.id ? '1' : '0' }}">
+										<div class="row g-3">
+											<div class="col-12 col-sm-6">
+												{{ form_row(vehicleForm.registrationNumber, {
+                                                label_attr: { class: 'form-label text-uppercase fw-bold mb-1 ps-1', style: 'font-size: 0.7rem; color: #9aa49a; letter-spacing: 0.08em;' },
+                                                attr: { class: 'form-control custom-input px-3 py-2 rounded-3 shadow-none' }
+                                            }) }}
+											</div>
+											<div class="col-12 col-sm-6">
+												{{ form_row(vehicleForm.firstRegistrationDate, {
+                                                label_attr: { class: 'form-label text-uppercase fw-bold mb-1 ps-1', style: 'font-size: 0.7rem; color: #9aa49a; letter-spacing: 0.08em;' },
+                                                attr: { class: 'form-control custom-input px-3 py-2 rounded-3 shadow-none' }
+                                            }) }}
+											</div>
+											<div class="col-12 col-sm-4">
+												{{ form_row(vehicleForm.brand, {
+                                                label_attr: { class: 'form-label text-uppercase fw-bold mb-1 ps-1', style: 'font-size: 0.7rem; color: #9aa49a; letter-spacing: 0.08em;' },
+                                                attr: { class: 'form-control custom-input px-3 py-2 rounded-3 shadow-none' }
+                                            }) }}
+											</div>
+											<div class="col-12 col-sm-4">
+												{{ form_row(vehicleForm.model, {
+                                                label_attr: { class: 'form-label text-uppercase fw-bold mb-1 ps-1', style: 'font-size: 0.7rem; color: #9aa49a; letter-spacing: 0.08em;' },
+                                                attr: { class: 'form-control custom-input px-3 py-2 rounded-3 shadow-none' }
+                                            }) }}
+											</div>
+											<div class="col-12 col-sm-4">
+												{{ form_row(vehicleForm.color, {
+                                                label_attr: { class: 'form-label text-uppercase fw-bold mb-1 ps-1', style: 'font-size: 0.7rem; color: #9aa49a; letter-spacing: 0.08em;' },
+                                                attr: { class: 'form-select custom-input px-3 py-2 rounded-3 shadow-none' }
+                                            }) }}
+											</div>
+											<div class="col-12 col-sm-4">
+												{{ form_row(vehicleForm.energyType, {
+                                                label_attr: { class: 'form-label text-uppercase fw-bold mb-1 ps-1', style: 'font-size: 0.7rem; color: #9aa49a; letter-spacing: 0.08em;' },
+                                                attr: { class: 'form-select custom-input px-3 py-2 rounded-3 shadow-none' }
+                                            }) }}
+											</div>
+											<div class="col-12 col-sm-6">
+												{{ form_row(vehicleForm.places, {
+                                                label_attr: { class: 'form-label text-uppercase fw-bold mb-1 ps-1', style: 'font-size: 0.7rem; color: #9aa49a; letter-spacing: 0.08em;' },
+                                                attr: { class: 'form-control custom-input px-3 py-2 rounded-3 shadow-none' }
+                                            }) }}
+											</div>
+										</div>
+
+										{# Preferences Section #}
+										<div class="mt-4 pt-4" style="border-top: 1px solid #32353b;">
+											<div class="d-flex align-items-center justify-content-between mb-3">
+												<p class="text-uppercase fw-bold mb-0 ps-1" style="font-size: 0.7rem; color: #9aa49a; letter-spacing: 0.08em;">Préférences à bord</p>
+												<span class="text-white-50" style="font-size: 0.7rem;">Auto-sélectionné selon votre rôle</span>
+											</div>
+											{% set prefs = vehicleForm.vars.data.preferences %}
+											<div class="row g-2 mb-3">
+												<div class="col-12 col-sm-6">
+													<div class="pref-toggle" data-vehicle-index="{{ loop.index0 }}" data-pref-name="smoking">
+														<button type="button" class="pref-btn {{ prefs.smoking == 0 ? 'active' : '' }}" data-pref-value="0">
+															<svg width="13" height="13" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+																<line x1="1" y1="1" x2="23" y2="23"/><path d="M20.84 14.12a4 4 0 0 0-4.99-4.12"/>
+															</svg>
+															Pas de tabac
+														</button>
+														<button type="button" class="pref-btn {{ prefs.smoking == 1 ? 'active' : '' }}" data-pref-value="1">
+															<svg width="13" height="13" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+																<path d="M18 12h2a2 2 0 0 1 2 2v0a2 2 0 0 1-2 2h-2"/><path d="M2 16h16"/><path d="M22 8c0-2.2-1.8-4-4-4-1.4 0-2.6.7-3.4 1.8"/>
+															</svg>
+															Fumeurs OK
+														</button>
+													</div>
+												</div>
+												<div class="col-12 col-sm-6">
+													<div class="pref-toggle" data-vehicle-index="{{ loop.index0 }}" data-pref-name="animals">
+														<button type="button" class="pref-btn {{ prefs.animals == 0 ? 'active' : '' }}" data-pref-value="0">
+															<svg width="13" height="13" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+																<line x1="1" y1="1" x2="23" y2="23"/>
+															</svg>
+															Pas d'animaux
+														</button>
+														<button type="button" class="pref-btn {{ prefs.animals == 1 ? 'active' : '' }}" data-pref-value="1">
+															<svg width="13" height="13" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+																<path d="M10 5.172C10 3.374 8.24 2 6 2c-2.24 0-4 1.374-4 3.172 0 .356.077.7.215 1.018M14 5.172C14 3.374 15.76 2 18 2c2.24 0 4 1.374 4 3.172 0 .356-.077.7-.215 1.018M6 10c-2 0-4 1.5-4 4s2 4 4 4h12c2 0 4-1.5 4-4s-2-4-4-4H6z"/>
+															</svg>
+															Animaux OK
+														</button>
+													</div>
+												</div>
+											</div>
+										</div>
+
+										{# Hidden preferences JSON field #}
+										<input type="hidden" id="{{ vehicleForm.preferences.vars.id }}" name="{{ vehicleForm.preferences.vars.full_name }}" value="{{ prefs|json_encode|e('html_attr') }}" data-preferences-hidden>
+
+										{% do vehicleForm.preferences.setRendered() %}
+										{# Delete button #}
+										{% if vehicleForm.vars.data.id %}
+											<button type="button" class="btn btn-sm btn-outline-danger rounded-pill fw-medium mt-3" data-confirm-message="Voulez-vous vraiment supprimer ce véhicule de votre profil ?" data-confirm-title="Supprimer ce véhicule" data-confirm-button="Oui, supprimer" data-confirm-action="submit-post" data-confirm-url="{{ path('app_profile_vehicle_delete', {id: vehicleForm.vars.data.id}) }}" data-confirm-token="{{ csrf_token('delete_vehicle_' ~ vehicleForm.vars.data.id) }}">
+											{% else %}
+												<button type="button" class="btn btn-sm btn-outline-danger rounded-pill fw-medium mt-3 remove-vehicle-btn" data-confirm-message="Voulez-vous vraiment supprimer ce véhicule de votre profil ?" data-confirm-title="Supprimer ce véhicule" data-confirm-button="Oui, supprimer" data-confirm-action="remove-closest" data-confirm-target=".vehicle-block">
+												{% endif %}
+												<svg width="14" height="14" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="me-1">
+													<polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+												</svg>
+												Supprimer ce véhicule
+											</button>
+										</div>
+									{% endfor %}
+								</div>
+
+								{# Add vehicle button #}
+								<button type="button" id="addVehicleBtn" class="btn btn-primary-custom d-inline-flex align-items-center justify-content-center gap-2 mt-4 fw-bold rounded-pill" style="font-size: 0.85rem; padding: 0.55rem 1.2rem;">
+									<svg width="13" height="13" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+										<line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+									</svg>
+									Ajouter un véhicule
+								</button>
+							</div>
+							{# /vehicles card #}
+						</div>
+
+					</div>
+					{# /driverSection #}
+
+					{# ── PASSENGER INFO BANNER (shown when passenger only) ─ #}
+					<div id="passengerSection" style="display:none;">
+						<div class="card bg-transparent rounded-4 shadow-sm mb-4 d-flex flex-row align-items-center gap-3 p-4" style="background: rgba(124, 219, 130, 0.05) !important; border: 1px solid rgba(124, 219, 130, 0.18) !important;">
+							<div style="flex-shrink:0;">
+								<svg width="28" height="28" viewbox="0 0 24 24" fill="none" stroke="#7cdb82" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+									<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+								</svg>
+							</div>
+							<div>
+								<p class="fw-bold text-white mb-1" style="font-size: 0.95rem;">Mode Passager</p>
+								<p class="text-white-50 mb-0" style="font-size: 0.85rem;">
+									En tant que passager, aucun véhicule n'est requis. Vous pouvez directement chercher des trajets disponibles.
+								</p>
+							</div>
+						</div>
+					</div>
+
+					{# ── SAVE BUTTON ─────────────────────────────────── #}
+					<div class="text-end">
+						<button type="submit" class="btn btn-primary-custom px-5 py-3 rounded-pill fw-bold">
+							<svg width="15" height="15" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="me-2">
+								<path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/>
+							</svg>
+							Sauvegarder
+						</button>
+					</div>
+
+				</div>
+				{# /col right #}
+			</div>
+			{# /row #}
+			{{ form_end(profileForm) }}
+			<form id="delete-profile-form" method="post" action="{{ path('app_profile_delete') }}" data-confirm-message="Voulez-vous vraiment supprimer votre compte ? Cette action est irreversible." data-confirm-title="Supprimer mon compte" data-confirm-button="Oui, supprimer mon compte">
+				<input type="hidden" name="_token" value="{{ csrf_token('delete_profile') }}">
+			</form>
+		</div>
+
+		{# ── JAVASCRIPT ─────────────────────────────────────────────────── #}
+		{% block javascript %}
+			{{ parent() }}
+			<script>
+				window.AVAILABLE_BRANDS = {{ brands|map(brand => brand.label)|json_encode|raw }};
+			</script>
+			<script type="module" src="{{ asset('js/profile-page.js') }}"></script>
+		{% endblock %}
+
+	{% endblock %}

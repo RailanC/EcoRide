@@ -1,0 +1,30 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Réduire les émissions des trajets quotidiens - EcoRide{% endblock %}
+
+{% block body %}
+<div class="news-article-page container py-5">
+    <div class="news-article-hero mb-5">
+        <span class="news-article-eyebrow">Écologie</span>
+        <h1 class="news-article-title">Comment réduire les émissions liées aux trajets quotidiens</h1>
+        <p class="news-article-intro">Les déplacements quotidiens représentent une part majeure de l'empreinte carbone individuelle. Apprendre à les réduire est essentiel pour limiter la pollution et protéger notre climat.</p>
+    </div>
+
+    <article class="news-article-content">
+        <p>Les trajets domicile-travail et les petits déplacements urbains sont souvent effectués en véhicule individuel, parfois avec une seule personne à bord. Ce mode de transport est coûteux pour la planète et contribue fortement à la congestion urbaine.</p>
+
+        <h2>Des actions simples avec un grand effet</h2>
+        <p>Le covoiturage, lorsqu'il est bien organisé, réduit le nombre de véhicules sur la route. Ajouter un passager à un trajet existant diminue instantanément le volume de gaz polluants par personne.</p>
+
+        <p>Les solutions électriques et hybrides viennent amplifier cet effet en éliminant ou en réduisant les émissions directes au moment du trajet. En combinant partage de véhicule et motorisation propre, l'impact écologique diminue considérablement.</p>
+
+        <h2>Les bénéfices pour les villes et les voyageurs</h2>
+        <p>Moins de voitures signifie une meilleure qualité de l'air, moins de bruit, et plus de sécurité. Pour les utilisateurs, cela peut aussi se traduire par des économies sur les coûts de carburant et l'entretien.</p>
+
+        <h2>Pourquoi EcoRide ?</h2>
+        <p>EcoRide aide à structurer ces trajets quotidiens en ciblant les conducteurs qui proposent des véhicules propres et les passagers cherchant des options responsables. L'objectif est simple : permettre à chacun de faire du trajet du quotidien un acte durable.</p>
+
+        <a href="{{ path('app_news') }}" class="btn btn-primary-custom news-article-back">Retour aux nouvelles</a>
+    </article>
+</div>
+{% endblock %}

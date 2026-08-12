@@ -1,0 +1,34 @@
+<div style="font-family: Arial, sans-serif; color: #1f2937; line-height: 1.6;">
+    <h2 style="margin-bottom: 16px;">Votre participation est confirmee</h2>
+
+    <p>Bonjour {{ participant.username }},</p>
+
+    <p>Votre participation au covoiturage suivant est bien enregistree.</p>
+
+    <p>
+        <strong>Conducteur :</strong><br>
+        {{ driver.firstName }} {{ driver.lastName }}<br>
+        Pseudo : {{ driver.username }}<br>
+        Email : {{ driver.email }}<br>
+        Telephone : {{ driver.phone }}
+    </p>
+
+    <p>
+        <strong>Trajet :</strong><br>
+        {{ trip.departureLocation }} -> {{ trip.arrivalLocation }}<br>
+        Depart le {{ trip.departureDate|date('d/m/Y') }} a {{ trip.departureTime|date('H:i') }}<br>
+        Arrivee le {{ trip.arrivalDate|date('d/m/Y') }} a {{ trip.arrivalTime|date('H:i') }}<br>
+        Prix : {{ trip.pricePerPerson }} credits
+    </p>
+
+    <p>
+        <a href="{{ tripUrl }}" style="display:inline-block; padding:12px 18px; background:#1f7a5c; color:#ffffff; text-decoration:none; border-radius:8px;">
+            Consulter le trajet
+        </a>
+    </p>
+
+    <p>
+        Si vous ne souhaitez plus participer a ce trajet, ou si cette participation n a pas ete effectuee par vous,
+        <a href="{{ cancellationUrl }}">cliquez ici pour annuler</a>.
+    </p>
+</div>
