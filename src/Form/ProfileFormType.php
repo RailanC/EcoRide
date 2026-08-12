@@ -59,7 +59,7 @@ class ProfileFormType extends AbstractType
                 ],
             ])
             ->add('email', EmailType::class, [
-                'label' => 'Email',
+                'label' => 'E-mail',
                 'label_attr' => ['class' => 'contact-label'],
                 'attr' => [
                     'class' => 'form-control contact-input',
@@ -68,8 +68,8 @@ class ProfileFormType extends AbstractType
                 ],
                 'required' => true,
                 'constraints' => [
-                    new NotBlank(message: 'L’email est obligatoire.'),
-                    new Email(message: 'Veuillez saisir un email valide.'),
+                    new NotBlank(message: 'L\'e-mail est obligatoire.'),
+                    new Email(message: 'Veuillez saisir un e-mail valide.'),
                 ],
             ])
             ->add('phone', TelType::class, [

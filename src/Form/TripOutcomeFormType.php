@@ -17,13 +17,13 @@ class TripOutcomeFormType extends AbstractType
     {
         $builder
             ->add('outcome', ChoiceType::class, [
-                'label' => 'Comment s est passe le trajet ?',
+                'label' => 'Comment s\'est passé le trajet ?',
                 'choices' => [
-                    '5 etoiles - Excellent' => '5',
-                    '4 etoiles - Bien passe' => '4',
-                    '3 etoiles - Mitige' => '3',
-                    '2 etoiles - Probleme important' => '2',
-                    '1 etoile - Tres mauvais trajet' => '1',
+                    '5 étoiles - Excellent' => '5',
+                    '4 étoiles - Bien passé' => '4',
+                    '3 étoiles - Mitigé' => '3',
+                    '2 étoiles - Problème important' => '2',
+                    '1 étoile - Très mauvais trajet' => '1',
                 ],
                 'expanded' => true,
                 'constraints' => [
@@ -36,7 +36,7 @@ class TripOutcomeFormType extends AbstractType
                 'empty_data' => '',
                 'attr' => [
                     'rows' => 5,
-                    'placeholder' => 'Ajoutez des details si un probleme est survenu.',
+                    'placeholder' => 'Ajoutez des détails si un problème est survenu.',
                 ],
             ]);
     }
@@ -56,7 +56,7 @@ class TripOutcomeFormType extends AbstractType
         $score = (int) ($data['outcome'] ?? 0);
 
         if ($score > 0 && $score <= 3 && trim((string) ($data['comment'] ?? '')) === '') {
-            $context->buildViolation('Veuillez decrire le probleme rencontre.')
+            $context->buildViolation('Veuillez décrire le problème rencontré.')
                 ->atPath('comment')
                 ->addViolation();
         }

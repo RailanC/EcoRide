@@ -50,7 +50,7 @@ final class ProfileController extends AbstractController
         $user = $this->getUser();
 
         if (!$user instanceof User) {
-            throw $this->createAccessDeniedException('Vous devez etre connecte pour acceder a cette page.');
+            throw $this->createAccessDeniedException('Vous devez être connecté pour accéder à cette page.');
         }
 
         $isDriver = in_array($user->getType(), ['driver', 'both'], true);
@@ -274,11 +274,11 @@ final class ProfileController extends AbstractController
         $user = $this->getUser();
 
         if (!$user instanceof User) {
-            throw $this->createAccessDeniedException('Vous devez etre connecte pour acceder a cette page.');
+            throw $this->createAccessDeniedException('Vous devez être connecté pour accéder à cette page.');
         }
 
         if ($vehicle->getOwner()?->getId() !== $user->getId()) {
-            throw $this->createAccessDeniedException('Vous ne pouvez pas supprimer ce vehicule.');
+                throw $this->createAccessDeniedException('Vous ne pouvez pas supprimer ce véhicule.');
         }
 
         if (!$this->isCsrfTokenValid('delete_vehicle_' . $vehicle->getId(), (string) $request->request->get('_token'))) {
@@ -286,7 +286,7 @@ final class ProfileController extends AbstractController
         }
 
         if (!$vehicle->getTrips()->isEmpty()) {
-            $this->addFlash('error', 'Ce vehicule est lie a un ou plusieurs covoiturages et ne peut pas etre supprime.');
+            $this->addFlash('error', 'Ce véhicule est lié à un ou plusieurs covoiturages et ne peut pas être supprimé.');
 
             return $this->redirectToRoute('app_profile');
         }
@@ -295,7 +295,7 @@ final class ProfileController extends AbstractController
         $entityManager->remove($vehicle);
         $entityManager->flush();
 
-        $this->addFlash('success', 'Le vehicule a ete supprime.');
+        $this->addFlash('success', 'Le véhicule a été supprimé.');
 
         return $this->redirectToRoute('app_profile');
     }

@@ -29,14 +29,14 @@ final class ContactFormType extends AbstractType
                 ],
             ])
             ->add('email', EmailType::class, [
-                'label' => 'Email',
+                'label' => 'E-mail',
                 'required' => true,
                 'attr' => [
                     'placeholder' => 'jean@entreprise.com',
                 ],
                 'constraints' => [
-                    new NotBlank(message: 'Veuillez renseigner votre adresse email.'),
-                    new Email(message: 'Veuillez renseigner une adresse email valide.'),
+                    new NotBlank(message: 'Veuillez renseigner votre adresse e-mail.'),
+                    new Email(message: 'Veuillez renseigner une adresse e-mail valide.'),
                 ],
             ])
             ->add('message', TextareaType::class, [

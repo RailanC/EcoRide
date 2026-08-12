@@ -15,7 +15,7 @@
             </p>
         </div>
 
-        <a href="{{ path('app_dashboard') }}" class="btn btn-outline-secondary text-decoration-none">Retour au dashboard</a>
+        <a href="{{ path('app_dashboard') }}" class="btn btn-outline-secondary text-decoration-none">Retour au tableau de bord</a>
     </div>
 
     {% for msg in app.flashes('success') %}
@@ -137,13 +137,13 @@
                     <div class="d-flex flex-column gap-3 mb-4">
                         <div class="bg-light border rounded-3 p-3">
                             <div class="small text-muted mb-1">Driver</div>
-                            <div class="fw-semibold">{{ issue.driver ? issue.driver.username : 'Utilisateur supprime' }}</div>
+                            <div class="fw-semibold">{{ issue.driver ? issue.driver.username : 'Utilisateur supprimé' }}</div>
                             <div class="small text-muted">{{ issue.driver ? issue.driver.email : 'Email indisponible' }}</div>
                         </div>
 
                         <div class="bg-light border rounded-3 p-3">
                             <div class="small text-muted mb-1">Participant</div>
-                            <div class="fw-semibold">{{ issue.participant ? issue.participant.username : 'Utilisateur supprime' }}</div>
+                            <div class="fw-semibold">{{ issue.participant ? issue.participant.username : 'Utilisateur supprimé' }}</div>
                             <div class="small text-muted">{{ issue.participant ? issue.participant.email : 'Email indisponible' }}</div>
                         </div>
                     </div>

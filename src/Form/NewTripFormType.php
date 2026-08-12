@@ -34,25 +34,25 @@ class NewTripFormType extends AbstractType
         $builder
             ->add('departure_city', TextType::class, $this->createTextOptions(
                 'departureLocation',
-                'Ville de depart',
+                'Ville de départ',
                 'D\'où partez-vous ?'
             ))
             ->add('arrival_city', TextType::class, $this->createTextOptions(
                 'arrivalLocation',
-                'Ville d\'arrivee',
+                'Ville d\'arrivée',
                 'Ex. Lyon'
             ))
             ->add('departure_date', DateType::class, $this->createDateOptions(
                 'departureDate',
-                'Date de depart',
+                'Date de départ',
                 'departure_date',
-                'Veuillez saisir une date de depart valide.'
+                'Veuillez saisir une date de départ valide.'
             ))
             ->add('departure_time', TimeType::class, $this->createTimeOptions(
                 'departureTime',
-                'Heure de depart',
+                'Heure de départ',
                 'departure_time',
-                'Veuillez saisir une heure de depart valide.'
+                'Veuillez saisir une heure de départ valide.'
             ))
             ->add('price_per_passenger', MoneyType::class, $this->createPriceOptions())
             ->add('seats', HiddenType::class, [
@@ -161,7 +161,7 @@ class NewTripFormType extends AbstractType
     {
         return [
             'property_path' => 'pricePerPerson',
-            'label' => 'Prix (credits)',
+            'label' => 'Prix (crédits)',
             'label_attr' => ['class' => 'contact-label'],
             'currency' => false,
             'divisor' => 1,
@@ -176,11 +176,11 @@ class NewTripFormType extends AbstractType
             'required' => true,
             'constraints' => [
                 new NotBlank(message: 'Le prix est obligatoire.'),
-                new PositiveOrZero(message: 'Le prix doit etre superieur ou egal a 0.'),
+                new PositiveOrZero(message: 'Le prix doit être supérieur ou égal à 0.'),
                 new Range(
                     min: 0,
                     max: 100,
-                    notInRangeMessage: 'Le prix doit etre compris entre {{ min }} et {{ max }}.',
+                    notInRangeMessage: 'Le prix doit être compris entre {{ min }} et {{ max }}.',
                 ),
             ],
         ];
@@ -248,7 +248,7 @@ class NewTripFormType extends AbstractType
         $availableSeats = $trip->getAvailableSeats();
 
         if ($capacity <= 1) {
-            $form->get('car')->addError(new FormError('La voiture selectionnee ne permet pas de proposer des places passagers.'));
+            $form->get('car')->addError(new FormError('La voiture sélectionnée ne permet pas de proposer des places passagers.'));
             return;
         }
 

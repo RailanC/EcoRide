@@ -55,19 +55,19 @@ final class TripParticipationService
             $driver = $lockedTrip->getDriver();
 
             if (!$driver instanceof User || $driver->getId() === null) {
-                throw new TripParticipationException('Ce trajet n a pas de conducteur valide.');
+                throw new TripParticipationException('Ce trajet n\'a pas de conducteur valide.');
             }
 
             if ($driver->getId() === $lockedPassenger->getId()) {
-                throw new TripParticipationException('Vous ne pouvez pas participer a votre propre trajet.');
+                throw new TripParticipationException('Vous ne pouvez pas participer à votre propre trajet.');
             }
 
             if (!$this->isPlannedTripStatus($lockedTrip->getStatus())) {
-                throw new TripParticipationException('Ce trajet n accepte plus de nouvelles participations.');
+                throw new TripParticipationException('Ce trajet n\'accepte plus de nouvelles participations.');
             }
 
             if (($lockedTrip->getAvailableSeats() ?? 0) <= 0) {
-                throw new TripParticipationException('Il n y a plus de places disponibles.');
+                throw new TripParticipationException('Il n\'y a plus de places disponibles.');
             }
 
             $existingBooking = $this->bookingRepository->findOneBy([
@@ -77,14 +77,14 @@ final class TripParticipationService
             ]);
 
             if ($existingBooking instanceof Booking) {
-                throw new TripParticipationException('Vous participez deja a ce trajet.');
+                throw new TripParticipationException('Vous participez déjà à ce trajet.');
             }
 
             $tripPriceCents = $this->creditsToCents((string) $lockedTrip->getPricePerPerson());
             $passengerBalanceCents = $this->creditsToCents((string) $lockedPassenger->getCreditBalance());
 
             if ($passengerBalanceCents < $tripPriceCents) {
-                throw new TripParticipationException('Vous n avez pas assez de credits.');
+                throw new TripParticipationException('Vous n\'avez pas assez de crédits.');
             }
 
             $booking = new Booking();
@@ -142,7 +142,7 @@ final class TripParticipationService
             $this->assertDriverOwnsTrip($lockedTrip, $lockedCurrentUser);
 
             if ($lockedTrip->getStatus() !== Trip::STATUS_PLANNED) {
-                throw new TripParticipationException('Ce trajet ne peut pas etre demarre.');
+                throw new TripParticipationException('Ce trajet ne peut pas être démarré.');
             }
 
             $lockedTrip->setStatus(Trip::STATUS_IN_PROGRESS);
@@ -155,7 +155,7 @@ final class TripParticipationService
                 throw $throwable;
             }
 
-            throw new TripParticipationException('Impossible de demarrer ce trajet pour le moment.', 0, $throwable);
+            throw new TripParticipationException('Impossible de démarrer ce trajet pour le moment.', 0, $throwable);
         }
     }
 
@@ -182,7 +182,7 @@ final class TripParticipationService
             $this->assertDriverOwnsTrip($lockedTrip, $lockedCurrentUser);
 
             if ($lockedTrip->getStatus() !== Trip::STATUS_IN_PROGRESS) {
-                throw new TripParticipationException('Seul un trajet en cours peut etre marque comme arrive.');
+                throw new TripParticipationException('Seul un trajet en cours peut être marqué comme arrivé.');
             }
 
             $confirmedBookings = $this->bookingRepository->findConfirmedParticipantsForTrip($lockedTrip);
@@ -243,11 +243,11 @@ final class TripParticipationService
             }
 
             if (!in_array($lockedTrip->getStatus(), [Trip::STATUS_ARRIVED, Trip::STATUS_DISPUTED], true)) {
-                throw new TripParticipationException('Ce trajet ne peut pas encore etre valide.');
+                throw new TripParticipationException('Ce trajet ne peut pas encore être validé.');
             }
 
             if ($booking->getRespondedAt() !== null) {
-                throw new TripParticipationException('Vous avez deja valide ce trajet.');
+                throw new TripParticipationException('Vous avez déjà validé ce trajet.');
             }
 
             $driver = $lockedTrip->getDriver();
@@ -272,7 +272,7 @@ final class TripParticipationService
                 }
             } elseif ($outcome === 'bad') {
                 if (trim($comment) === '') {
-                    throw new TripParticipationException('Veuillez decrire le probleme rencontre.');
+                    throw new TripParticipationException('Veuillez décrire le problème rencontré.');
                 }
 
                 $booking->setOutcomeStatus(Booking::OUTCOME_REPORTED_PROBLEM);
@@ -291,7 +291,7 @@ final class TripParticipationService
 
                 $lockedTrip->setStatus(Trip::STATUS_DISPUTED);
             } else {
-                throw new TripParticipationException('Le resultat du trajet est invalide.');
+                throw new TripParticipationException('Le résultat du trajet est invalide.');
             }
 
             $this->entityManager->flush();
@@ -322,7 +322,7 @@ final class TripParticipationService
         }
 
         if ($booking->getOutcomeStatus() !== Booking::OUTCOME_CONFIRMED_GOOD) {
-            throw new TripParticipationException('Vous devez confirmer que le trajet s est bien passe avant de laisser un avis.');
+            throw new TripParticipationException('Vous devez confirmer que le trajet s\'est bien passé avant de laisser un avis.');
         }
 
         if (!$this->isReviewableTripStatus($trip->getStatus())) {
@@ -330,7 +330,7 @@ final class TripParticipationService
         }
 
         if ($this->reviewRepository->findOneByTripAuthorAndDriver($trip->getId(), $author, $driver) instanceof Review) {
-            throw new TripParticipationException('Vous avez deja laisse un avis pour ce trajet.');
+            throw new TripParticipationException('Vous avez déjà laissé un avis pour ce trajet.');
         }
 
         $review = new Review();
@@ -348,7 +348,7 @@ final class TripParticipationService
     public function moderateReview(Review $review, User $moderator, string $status, ?string $note = null): void
     {
         if (!in_array($status, [Review::STATUS_APPROVED, Review::STATUS_REJECTED], true)) {
-            throw new TripParticipationException('Le statut de moderation de l avis est invalide.');
+            throw new TripParticipationException('Le statut de modération de l\'avis est invalide.');
         }
 
         $review->setStatus($status);
@@ -376,14 +376,14 @@ final class TripParticipationService
             }
 
             if ($lockedIssue->getStatus() !== TripIssue::STATUS_OPEN) {
-                throw new TripParticipationException('Ce signalement a deja ete traite.');
+                throw new TripParticipationException('Ce signalement a déjà été traité.');
             }
 
             $booking = $lockedIssue->getBooking();
             $trip = $lockedIssue->getTrip();
 
             if (!$booking instanceof Booking || !$trip instanceof Trip || $trip->getId() === null) {
-                throw new TripParticipationException('Le signalement n est plus rattache a un trajet valide.');
+                throw new TripParticipationException('Le signalement n\'est plus rattaché à un trajet valide.');
             }
 
             $lockedTrip = $this->entityManager->find(Trip::class, $trip->getId(), LockMode::PESSIMISTIC_WRITE);
@@ -393,7 +393,7 @@ final class TripParticipationService
             }
 
             if (!in_array($resolution, [TripIssue::STATUS_RESOLVED_FOR_DRIVER, TripIssue::STATUS_RESOLVED_AGAINST_DRIVER], true)) {
-                throw new TripParticipationException('La resolution choisie est invalide.');
+                throw new TripParticipationException('La résolution choisie est invalide.');
             }
 
             $lockedIssue->setStatus($resolution);
@@ -419,7 +419,7 @@ final class TripParticipationService
                 throw $throwable;
             }
 
-            throw new TripParticipationException('Impossible de resoudre ce signalement pour le moment.', 0, $throwable);
+            throw new TripParticipationException('Impossible de résoudre ce signalement pour le moment.', 0, $throwable);
         }
     }
 
@@ -430,7 +430,7 @@ final class TripParticipationService
         $bookingsToNotify = [];
 
         if ($tripId === null || $currentUserId === null) {
-            throw new TripParticipationException('Impossible d annuler ce trajet.');
+            throw new TripParticipationException('Impossible d\'annuler ce trajet.');
         }
 
         $this->entityManager->beginTransaction();
@@ -452,7 +452,7 @@ final class TripParticipationService
             }
 
             if (!$this->isPlannedTripStatus($lockedTrip->getStatus())) {
-                throw new TripParticipationException('Seul un trajet planifie peut etre annule.');
+                throw new TripParticipationException('Seul un trajet planifié peut être annulé.');
             }
 
             $confirmedBookings = $this->bookingRepository->findConfirmedParticipantsForTrip($lockedTrip);
@@ -490,7 +490,7 @@ final class TripParticipationService
                 throw $throwable;
             }
 
-            throw new TripParticipationException('Impossible d annuler ce trajet pour le moment.', 0, $throwable);
+            throw new TripParticipationException('Impossible d\'annuler ce trajet pour le moment.', 0, $throwable);
         }
 
         if ($bookingsToNotify !== []) {
@@ -506,7 +506,7 @@ final class TripParticipationService
         $bookingToNotify = null;
 
         if ($bookingId === null) {
-            throw new TripParticipationException('Impossible d annuler cette participation.');
+            throw new TripParticipationException('Impossible d\'annuler cette participation.');
         }
 
         $this->entityManager->beginTransaction();
@@ -515,7 +515,7 @@ final class TripParticipationService
             $lockedBooking = $this->entityManager->find(Booking::class, $bookingId, LockMode::PESSIMISTIC_WRITE);
 
             if (!$lockedBooking instanceof Booking) {
-                throw new TripParticipationException('La participation demandee est introuvable.');
+                throw new TripParticipationException('La participation demandée est introuvable.');
             }
 
             if ($lockedBooking->isConfirmation() !== true) {
@@ -535,11 +535,11 @@ final class TripParticipationService
             $lockedPassenger = $this->entityManager->find(User::class, $passenger->getId(), LockMode::PESSIMISTIC_WRITE);
 
             if (!$lockedTrip instanceof Trip || !$lockedPassenger instanceof User) {
-                throw new TripParticipationException('Impossible de charger les donnees de cette participation.');
+                throw new TripParticipationException('Impossible de charger les données de cette participation.');
             }
 
             if (!$this->isPlannedTripStatus($lockedTrip->getStatus())) {
-                throw new TripParticipationException('Ce trajet ne peut plus etre annule.');
+                throw new TripParticipationException('Ce trajet ne peut plus être annulé.');
             }
 
             $tripPriceCents = $this->creditsToCents((string) $lockedTrip->getPricePerPerson());

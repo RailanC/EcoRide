@@ -14,6 +14,7 @@ use App\Repository\BookingRepository;
 use App\Repository\TripRepository;
 use App\Service\TripParticipationService;
 use App\Service\TripRouteEstimator;
+use app\Service\BookingCancellationLinkSigner;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormError;
